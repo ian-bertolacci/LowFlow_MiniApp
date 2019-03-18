@@ -1,0 +1,24 @@
+cmake_minimum_required(VERSION 3.5)
+include(${CMAKE_DIR}/utilities.txt)
+
+FUNCTION(CREATE_VARIANT_TARGET VARIANT BASE_SOURCE_FILES VARIANT_SOURCE_FILES INSTALL_BIN_DIR VARIANT_LINK_LIBRARIES)
+  ## BELOW SHOULD BE ALL THE SAME FOR ALL VARIANTS ##
+  # Create variant target and project name
+  set(VARIANT_TARGET_NAME LowFlow_${VARIANT})
+  project(${VARIANT_TARGET_NAME})
+
+  PREPEND(VARIANT_SOURCE_FILES ${PROJECT_SOURCE_DIR} ${VARIANT_SOURCE_FILES})
+
+  # Create rooted prefix to sources
+  # Create new executable target, listing all source files
+  add_executable(${VARIANT_TARGET_NAME} ${VARIANT_SOURCE_FILES} ${BASE_SOURCE_FILES})
+
+  # Set variant target specific include directory
+  target_include_directories(${VARIANT_TARGET_NAME} PRIVATE .)
+
+  # Set variant target specific library includes
+  target_link_libraries(${VARIANT_TARGET_NAME} ${VARIANT_LINK_LIBRARIES})
+
+  # Setup install target for variant executable
+  install(TARGETS ${VARIANT_TARGET_NAME} DESTINATION ${INSTALL_BIN_DIR})
+ENDFUNCTION(CREATE_VARIANT_TARGET)
