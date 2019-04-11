@@ -4,6 +4,7 @@
 #include <time.h>
 #include <string.h>
 #include <assert.h>
+#include <stdint.h>
 
 #include <omp.h>
 
@@ -12,6 +13,14 @@
 #include <macros.hpp>
 #include <science.hpp>
 #include <util.hpp>
+
+// Exit Codes
+enum ExitCode : uint8_t {
+  SUCCESS = 0,
+  VERIFICATION_FAIL = 255,
+  COMMAND_LINE_ERROR = 254,
+  ASSERTION_FAILURE = 134 // TODO Change to non-literal
+};
 
 // Program Options struct
 typedef struct struct_ProgramOptions {
@@ -45,11 +54,11 @@ ProgramOptions parseArguments( char** argv, int argc ){
     .verify = false
   };
 
+  char* options = (char*) "x:y:z:s:S:e:Vh";
+
   int c;
   opterr = 0;
-
-  char* options = (char*) "x:y:z:s:T:e:S:V";
-  while( (c = getopt (argc, argv, options)) != -1){
+  while( (c = getopt(argc, argv, options)) != -1){
     switch (c){
       case 's':
       {
@@ -88,29 +97,56 @@ ProgramOptions parseArguments( char** argv, int argc ){
         opts.verify = true;
         break;
 
+      case 'h':
+        printf(
+          "Command Line Options:\n"
+          "  -V : perform verification after experiment to check that experimental output is correct.\n"
+          "       Program returns 255 if verification fails.\n"
+          "  -x <N : int> : Set size of domain in x direction.\n"
+          "  -y <N : int> : Set size of domain in y direction.\n"
+          "  -z <N : int> : Set size of domain in z direction.\n"
+          "  -s <N : int> : Set size of domain in x, y, z directions to the same value.\n"
+          "  -s 10 is equivalent to -x 10 -y 10 -z 10.\n"
+          "  -e <epsilon : float> : Set acceptable error bound used for verification. An absolute difference between\n"
+          "                         experimental and verification output grids less than epsilon is considered 'passing'\n"
+          "  -S <N : uint> : Set the seed used to generate grid-seeds.\n"
+          "  -h : Print this message.\n"
+          "\nExit Codes:\n"
+          "  SUCCESS: %u\n"
+          "  VERIFICATION_FAIL: %u\n"
+          "  COMMAND_LINE_ERROR: %u\n"
+          "  ASSERTION_FAILURE: %u\n",
+          SUCCESS,
+          VERIFICATION_FAIL,
+          COMMAND_LINE_ERROR,
+          ASSERTION_FAILURE
+        );
+        exit(SUCCESS);
+
       case '?':
       {
         char* position = strchr( options, optopt );
         // if option not in options string
         if( position == NULL ){
           // if printable
-          if( isprint(optopt) ) fprintf(stderr, "Unknown option `-%c'.\n", optopt);
+          if( isprint(optopt) ) fprintf(stderr, "Unknown option -%c'.\n", optopt);
           // if not printable
-          else fprintf(stderr, "Unknown option character `0x%x'.\n", optopt);
-          abort();
+          else fprintf(stderr, "Unknown option character 0x%x'.\n", optopt);
+          exit(COMMAND_LINE_ERROR);
         }
         // if option in string...
         // if next character is the options modifier (':')
         else if( position[1] == ':' ){
           fprintf(stderr, "Option -%c requires an argument.\n", optopt);
-          abort();
+          exit(COMMAND_LINE_ERROR);
         }
         // Then theres been some kind of parsing error,
       }
+
       default:
       {
         fprintf(stderr, "Error while parsing command line arguments, case (%x: '%c')\n", c, c);
-        abort ();
+        exit(COMMAND_LINE_ERROR);
       }
 
     }
@@ -523,5 +559,5 @@ int main( int argc, char** argv ){
   Variant_Grid_dealloc( results.vz );
   Variant_Domain_dealloc( results.variant_domain );
 
-  return (!passed)?-1:0;
+  return (!passed)?VERIFICATION_FAIL:SUCCESS;
 }
