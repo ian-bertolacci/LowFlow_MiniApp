@@ -5,7 +5,7 @@ include(${CMAKE_DIR}/build_variant.txt)
 # Variant name
 set(VARIANT_NAME simple_whole_cpu_parallel_omp)
 # List source files
-set(VARIANT_SOURCE_FILES variant_types.cpp)
+set(VARIANT_SOURCE_FILES variant_types.cpp variant_science.cpp)
 # List libraries
 set(VARIANT_LINK_LIBRARIES)
 

@@ -2,6 +2,8 @@
 #include <global_macros.hpp>
 #include <stdlib.h>
 #include <assert.h>
+#include <math.h>
+#include <stdio.h>
 
 Basic_Domain* Basic_Domain_alloc( int nx, int ny, int nz ){
   Basic_Domain* result = (Basic_Domain*) malloc( sizeof(Basic_Domain) );
@@ -42,14 +44,38 @@ void Basic_Grid_dealloc( Basic_Grid* grid ){
 void Basic_Grid_populate( Basic_Domain* domain, Basic_Grid* grid ){
   assert( domain != nullptr && "Error during Basic_Grid_populate: Basic_Domain pointer is nullptr" );
   assert( grid != nullptr && "Error during Basic_Grid_populate: Basic_Grid pointer is nullptr" );
-  double val = 1.0;
+  double value = 1.0;
   int x, y, z;
   double* grid_data = Basic_Grid_data(grid);
   Basic_Domain_loop_whole(domain, x,y,z,
     {
       int idx = Basic_Domain_idx(domain, x,y,z);
-      grid_data[idx] = val;
-      val += 1.0;
+      grid_data[idx] = (double) value;
+      value += 1;
+    }
+  );
+}
+
+void Basic_Grid_populate_seeded( Basic_Domain* domain, Basic_Grid* grid, unsigned int seed ){
+  assert( domain != nullptr && "Error during Basic_Grid_populate_seeded: Basic_Domain pointer is nullptr" );
+  assert( grid != nullptr && "Error during Basic_Grid_populate_seeded: Basic_Grid pointer is nullptr" );
+  srand(seed);
+  int x, y, z;
+  double* grid_data = Basic_Grid_data(grid);
+  // printf("hi\n");
+  Basic_Domain_loop_whole(domain, x,y,z,
+    {
+      int idx = Basic_Domain_idx(domain, x,y,z);
+      // get signed value from unsigned source
+      int rand_value = (int) rand();
+      double sign = (double)((rand_value>=0)?1:-1);
+      int abs_val = (int) abs(rand_value);
+      int mod_factor = 100000;
+      double mod = (double)(abs_val % mod_factor/2);
+
+      double value = sign*(mod/(mod_factor));
+      Basic_Grid_access(grid, x,y,z) = value;
+      // printf( "(%d, %d, %d) %f\n", x,y,z, Basic_Grid_access(grid, x,y,z) );
     }
   );
 }
