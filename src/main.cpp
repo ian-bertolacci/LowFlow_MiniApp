@@ -335,8 +335,8 @@ bool verify( Basic_Domain* domain, ExperimentalResults results, double epsilon, 
            double u_front =
              (
                 Basic_Grid_access(z_mult_dat, x,y,z)
-              * HarmonicMean( Basic_Grid_access(permxp, x,   y, z),
-                              Basic_Grid_access(permxp, x+1, y, z) )
+              * HarmonicMean( Basic_Grid_access(permyp, x,   y, z),
+                              Basic_Grid_access(permyp, x+1, y, z) )
               * diff_front * x_dir_g_c
               * UpstreamMean(
                   updir_front,
@@ -346,8 +346,8 @@ bool verify( Basic_Domain* domain, ExperimentalResults results, double epsilon, 
                 )
             ) + (
                Basic_Grid_access(z_mult_dat, x,y,z)
-              * HarmonicMean( Basic_Grid_access(permxp, x,   y, z),
-                              Basic_Grid_access(permxp, x+1, y, z) )
+              * HarmonicMean( Basic_Grid_access(permyp, x,   y, z),
+                              Basic_Grid_access(permyp, x+1, y, z) )
               * (-x_dir_g)
               * UpstreamMean(
                   updir_front,
