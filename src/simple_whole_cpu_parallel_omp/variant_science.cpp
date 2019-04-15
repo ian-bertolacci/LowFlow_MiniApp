@@ -150,7 +150,7 @@ void science(
                permxp[ip],
                permxp[ip + 1]
         )
-        However! PMean(a,b,c,c) in parflow is simply HarmonicMean(c, d)
+        However! PMean(a,b,c,d) in parflow is simply HarmonicMean(c, d)
         so the first two terms have been removed
         */
 
