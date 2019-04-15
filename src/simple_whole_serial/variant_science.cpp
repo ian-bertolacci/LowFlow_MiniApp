@@ -224,7 +224,7 @@ void science(
 
         Basic_Grid_access(vx, x,y,z) = u_right;
         Basic_Grid_access(vy, x,y,z) = u_front;
-        Basic_Grid_access(vx, x,y,z) = u_upper;
+        Basic_Grid_access(vz, x,y,z) = u_upper;
 
         Basic_Grid_access(fp, x  , y  , z  ) += u_right * u_front * u_upper;
         Basic_Grid_access(fp, x+1, y  , z  ) += u_right;
