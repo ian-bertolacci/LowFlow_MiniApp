@@ -17,108 +17,108 @@ void science(Variant_Domain *domain, Variant_Grid *fp, Variant_Grid *vx,
         ? (static_cast<void>(0))
         : __assert_fail(
               "domain != nullptr && \"Error during science: domain is null\"",
-              "variant_science.in.cpp", 34, __PRETTY_FUNCTION__);
+              "variant_science.in.cpp", 35, __PRETTY_FUNCTION__);
     fp != nullptr && "Error during science: output grid fp is null"
         ? (static_cast<void>(0))
         : __assert_fail("fp != nullptr && \"Error during science: output grid "
                         "fp is null\"",
-                        "variant_science.in.cpp", 35, __PRETTY_FUNCTION__);
+                        "variant_science.in.cpp", 36, __PRETTY_FUNCTION__);
     vx != nullptr && "Error during science: output grid vx is null"
         ? (static_cast<void>(0))
         : __assert_fail("vx != nullptr && \"Error during science: output grid "
                         "vx is null\"",
-                        "variant_science.in.cpp", 36, __PRETTY_FUNCTION__);
+                        "variant_science.in.cpp", 37, __PRETTY_FUNCTION__);
     vy != nullptr && "Error during science: output grid vy is null"
         ? (static_cast<void>(0))
         : __assert_fail("vy != nullptr && \"Error during science: output grid "
                         "vy is null\"",
-                        "variant_science.in.cpp", 37, __PRETTY_FUNCTION__);
+                        "variant_science.in.cpp", 38, __PRETTY_FUNCTION__);
     vz != nullptr && "Error during science: output grid vz is null"
         ? (static_cast<void>(0))
         : __assert_fail("vz != nullptr && \"Error during science: output grid "
                         "vz is null\"",
-                        "variant_science.in.cpp", 38, __PRETTY_FUNCTION__);
+                        "variant_science.in.cpp", 39, __PRETTY_FUNCTION__);
     dp != nullptr && "Error during science: input grid dp is null"
         ? (static_cast<void>(0))
         : __assert_fail("dp != nullptr && \"Error during science: input grid "
                         "dp is null\"",
-                        "variant_science.in.cpp", 39, __PRETTY_FUNCTION__);
+                        "variant_science.in.cpp", 40, __PRETTY_FUNCTION__);
     et != nullptr && "Error during science: input grid et is null"
         ? (static_cast<void>(0))
         : __assert_fail("et != nullptr && \"Error during science: input grid "
                         "et is null\"",
-                        "variant_science.in.cpp", 40, __PRETTY_FUNCTION__);
+                        "variant_science.in.cpp", 41, __PRETTY_FUNCTION__);
     odp != nullptr && "Error during science: input grid odp is null"
         ? (static_cast<void>(0))
         : __assert_fail("odp != nullptr && \"Error during science: input grid "
                         "odp is null\"",
-                        "variant_science.in.cpp", 41, __PRETTY_FUNCTION__);
+                        "variant_science.in.cpp", 42, __PRETTY_FUNCTION__);
     opp != nullptr && "Error during science: input grid opp is null"
         ? (static_cast<void>(0))
         : __assert_fail("opp != nullptr && \"Error during science: input grid "
                         "opp is null\"",
-                        "variant_science.in.cpp", 42, __PRETTY_FUNCTION__);
+                        "variant_science.in.cpp", 43, __PRETTY_FUNCTION__);
     osp != nullptr && "Error during science: input grid osp is null"
         ? (static_cast<void>(0))
         : __assert_fail("osp != nullptr && \"Error during science: input grid "
                         "osp is null\"",
-                        "variant_science.in.cpp", 43, __PRETTY_FUNCTION__);
+                        "variant_science.in.cpp", 44, __PRETTY_FUNCTION__);
     permxp != nullptr && "Error during science: input grid permxp is null"
         ? (static_cast<void>(0))
         : __assert_fail("permxp != nullptr && \"Error during science: input "
                         "grid permxp is null\"",
-                        "variant_science.in.cpp", 44, __PRETTY_FUNCTION__);
+                        "variant_science.in.cpp", 45, __PRETTY_FUNCTION__);
     permyp != nullptr && "Error during science: input grid permyp is null"
         ? (static_cast<void>(0))
         : __assert_fail("permyp != nullptr && \"Error during science: input "
                         "grid permyp is null\"",
-                        "variant_science.in.cpp", 45, __PRETTY_FUNCTION__);
+                        "variant_science.in.cpp", 46, __PRETTY_FUNCTION__);
     permzp != nullptr && "Error during science: input grid permzp is null"
         ? (static_cast<void>(0))
         : __assert_fail("permzp != nullptr && \"Error during science: input "
                         "grid permzp is null\"",
-                        "variant_science.in.cpp", 46, __PRETTY_FUNCTION__);
+                        "variant_science.in.cpp", 47, __PRETTY_FUNCTION__);
     pop != nullptr && "Error during science: input grid pop is null"
         ? (static_cast<void>(0))
         : __assert_fail("pop != nullptr && \"Error during science: input grid "
                         "pop is null\"",
-                        "variant_science.in.cpp", 47, __PRETTY_FUNCTION__);
+                        "variant_science.in.cpp", 48, __PRETTY_FUNCTION__);
     pp != nullptr && "Error during science: input grid pp is null"
         ? (static_cast<void>(0))
         : __assert_fail("pp != nullptr && \"Error during science: input grid "
                         "pp is null\"",
-                        "variant_science.in.cpp", 48, __PRETTY_FUNCTION__);
+                        "variant_science.in.cpp", 49, __PRETTY_FUNCTION__);
     rpp != nullptr && "Error during science: input grid rpp is null"
         ? (static_cast<void>(0))
         : __assert_fail("rpp != nullptr && \"Error during science: input grid "
                         "rpp is null\"",
-                        "variant_science.in.cpp", 49, __PRETTY_FUNCTION__);
+                        "variant_science.in.cpp", 50, __PRETTY_FUNCTION__);
     sp != nullptr && "Error during science: input grid sp is null"
         ? (static_cast<void>(0))
         : __assert_fail("sp != nullptr && \"Error during science: input grid "
                         "sp is null\"",
-                        "variant_science.in.cpp", 50, __PRETTY_FUNCTION__);
+                        "variant_science.in.cpp", 51, __PRETTY_FUNCTION__);
     ss != nullptr && "Error during science: input grid ss is null"
         ? (static_cast<void>(0))
         : __assert_fail("ss != nullptr && \"Error during science: input grid "
                         "ss is null\"",
-                        "variant_science.in.cpp", 51, __PRETTY_FUNCTION__);
+                        "variant_science.in.cpp", 52, __PRETTY_FUNCTION__);
     z_mult_dat != nullptr &&
             "Error during science: input grid z_mult_dat is null"
         ? (static_cast<void>(0))
         : __assert_fail("z_mult_dat != nullptr && \"Error during science: "
                         "input grid z_mult_dat is null\"",
-                        "variant_science.in.cpp", 52, __PRETTY_FUNCTION__);
+                        "variant_science.in.cpp", 53, __PRETTY_FUNCTION__);
     x_ssl_dat != nullptr && "Error during science: input grid x_ssl_dat is null"
         ? (static_cast<void>(0))
         : __assert_fail("x_ssl_dat != nullptr && \"Error during science: input "
                         "grid x_ssl_dat is null\"",
-                        "variant_science.in.cpp", 53, __PRETTY_FUNCTION__);
+                        "variant_science.in.cpp", 54, __PRETTY_FUNCTION__);
     y_ssl_dat != nullptr && "Error during science: input grid y_ssl_dat is null"
         ? (static_cast<void>(0))
         : __assert_fail("y_ssl_dat != nullptr && \"Error during science: input "
                         "grid y_ssl_dat is null\"",
-                        "variant_science.in.cpp", 54, __PRETTY_FUNCTION__);
+                        "variant_science.in.cpp", 55, __PRETTY_FUNCTION__);
   }
   // Do baseline scientific kernel
   int x;
@@ -545,24 +545,24 @@ void science(Variant_Domain *domain, Variant_Grid *fp, Variant_Grid *vx,
     double u_front =
         z_mult_dat->data[x + z_mult_dat->domain->nx * y +
                          z_mult_dat->domain->nx * z_mult_dat->domain->ny * z] *
-            ((((bool)(permxp
-                          ->data[x + permxp->domain->nx * y +
-                                 permxp->domain->nx * permxp->domain->ny * z] +
-                      permxp
-                          ->data[x + 1 + permxp->domain->nx * y +
-                                 permxp->domain->nx * permxp->domain->ny * z]))
+            ((((bool)(permyp
+                          ->data[x + permyp->domain->nx * y +
+                                 permyp->domain->nx * permyp->domain->ny * z] +
+                      permyp
+                          ->data[x + 1 + permyp->domain->nx * y +
+                                 permyp->domain->nx * permyp->domain->ny * z]))
                   ? 2.0 *
-                        permxp->data[x + permxp->domain->nx * y +
-                                     permxp->domain->nx * permxp->domain->ny *
+                        permyp->data[x + permyp->domain->nx * y +
+                                     permyp->domain->nx * permyp->domain->ny *
                                          z] *
-                        permxp->data[x + 1 + permxp->domain->nx * y +
-                                     permxp->domain->nx * permxp->domain->ny *
+                        permyp->data[x + 1 + permyp->domain->nx * y +
+                                     permyp->domain->nx * permyp->domain->ny *
                                          z] /
-                        (permxp->data[x + permxp->domain->nx * y +
-                                      permxp->domain->nx * permxp->domain->ny *
+                        (permyp->data[x + permyp->domain->nx * y +
+                                      permyp->domain->nx * permyp->domain->ny *
                                           z] +
-                         permxp->data[x + 1 + permxp->domain->nx * y +
-                                      permxp->domain->nx * permxp->domain->ny *
+                         permyp->data[x + 1 + permyp->domain->nx * y +
+                                      permyp->domain->nx * permyp->domain->ny *
                                           z])
                   : ((double)0))) *
             diff_front * x_dir_g_c *
@@ -577,24 +577,24 @@ void science(Variant_Domain *domain, Variant_Grid *fp, Variant_Grid *vx,
                                  dp->domain->nx * dp->domain->ny * z])) +
         z_mult_dat->data[x + z_mult_dat->domain->nx * y +
                          z_mult_dat->domain->nx * z_mult_dat->domain->ny * z] *
-            ((((bool)(permxp
-                          ->data[x + permxp->domain->nx * y +
-                                 permxp->domain->nx * permxp->domain->ny * z] +
-                      permxp
-                          ->data[x + 1 + permxp->domain->nx * y +
-                                 permxp->domain->nx * permxp->domain->ny * z]))
+            ((((bool)(permyp
+                          ->data[x + permyp->domain->nx * y +
+                                 permyp->domain->nx * permyp->domain->ny * z] +
+                      permyp
+                          ->data[x + 1 + permyp->domain->nx * y +
+                                 permyp->domain->nx * permyp->domain->ny * z]))
                   ? 2.0 *
-                        permxp->data[x + permxp->domain->nx * y +
-                                     permxp->domain->nx * permxp->domain->ny *
+                        permyp->data[x + permyp->domain->nx * y +
+                                     permyp->domain->nx * permyp->domain->ny *
                                          z] *
-                        permxp->data[x + 1 + permxp->domain->nx * y +
-                                     permxp->domain->nx * permxp->domain->ny *
+                        permyp->data[x + 1 + permyp->domain->nx * y +
+                                     permyp->domain->nx * permyp->domain->ny *
                                          z] /
-                        (permxp->data[x + permxp->domain->nx * y +
-                                      permxp->domain->nx * permxp->domain->ny *
+                        (permyp->data[x + permyp->domain->nx * y +
+                                      permyp->domain->nx * permyp->domain->ny *
                                           z] +
-                         permxp->data[x + 1 + permxp->domain->nx * y +
-                                      permxp->domain->nx * permxp->domain->ny *
+                         permyp->data[x + 1 + permyp->domain->nx * y +
+                                      permyp->domain->nx * permyp->domain->ny *
                                           z])
                   : ((double)0))) *
             -x_dir_g *
@@ -813,24 +813,24 @@ void science(Variant_Domain *domain, Variant_Grid *fp, Variant_Grid *vx,
     double u_front =
         z_mult_dat->data[x + z_mult_dat->domain->nx * y +
                          z_mult_dat->domain->nx * z_mult_dat->domain->ny * z] *
-            ((((bool)(permxp
-                          ->data[x + permxp->domain->nx * y +
-                                 permxp->domain->nx * permxp->domain->ny * z] +
-                      permxp
-                          ->data[x + 1 + permxp->domain->nx * y +
-                                 permxp->domain->nx * permxp->domain->ny * z]))
+            ((((bool)(permyp
+                          ->data[x + permyp->domain->nx * y +
+                                 permyp->domain->nx * permyp->domain->ny * z] +
+                      permyp
+                          ->data[x + 1 + permyp->domain->nx * y +
+                                 permyp->domain->nx * permyp->domain->ny * z]))
                   ? 2.0 *
-                        permxp->data[x + permxp->domain->nx * y +
-                                     permxp->domain->nx * permxp->domain->ny *
+                        permyp->data[x + permyp->domain->nx * y +
+                                     permyp->domain->nx * permyp->domain->ny *
                                          z] *
-                        permxp->data[x + 1 + permxp->domain->nx * y +
-                                     permxp->domain->nx * permxp->domain->ny *
+                        permyp->data[x + 1 + permyp->domain->nx * y +
+                                     permyp->domain->nx * permyp->domain->ny *
                                          z] /
-                        (permxp->data[x + permxp->domain->nx * y +
-                                      permxp->domain->nx * permxp->domain->ny *
+                        (permyp->data[x + permyp->domain->nx * y +
+                                      permyp->domain->nx * permyp->domain->ny *
                                           z] +
-                         permxp->data[x + 1 + permxp->domain->nx * y +
-                                      permxp->domain->nx * permxp->domain->ny *
+                         permyp->data[x + 1 + permyp->domain->nx * y +
+                                      permyp->domain->nx * permyp->domain->ny *
                                           z])
                   : ((double)0))) *
             diff_front * x_dir_g_c *
@@ -845,24 +845,24 @@ void science(Variant_Domain *domain, Variant_Grid *fp, Variant_Grid *vx,
                                  dp->domain->nx * dp->domain->ny * z])) +
         z_mult_dat->data[x + z_mult_dat->domain->nx * y +
                          z_mult_dat->domain->nx * z_mult_dat->domain->ny * z] *
-            ((((bool)(permxp
-                          ->data[x + permxp->domain->nx * y +
-                                 permxp->domain->nx * permxp->domain->ny * z] +
-                      permxp
-                          ->data[x + 1 + permxp->domain->nx * y +
-                                 permxp->domain->nx * permxp->domain->ny * z]))
+            ((((bool)(permyp
+                          ->data[x + permyp->domain->nx * y +
+                                 permyp->domain->nx * permyp->domain->ny * z] +
+                      permyp
+                          ->data[x + 1 + permyp->domain->nx * y +
+                                 permyp->domain->nx * permyp->domain->ny * z]))
                   ? 2.0 *
-                        permxp->data[x + permxp->domain->nx * y +
-                                     permxp->domain->nx * permxp->domain->ny *
+                        permyp->data[x + permyp->domain->nx * y +
+                                     permyp->domain->nx * permyp->domain->ny *
                                          z] *
-                        permxp->data[x + 1 + permxp->domain->nx * y +
-                                     permxp->domain->nx * permxp->domain->ny *
+                        permyp->data[x + 1 + permyp->domain->nx * y +
+                                     permyp->domain->nx * permyp->domain->ny *
                                          z] /
-                        (permxp->data[x + permxp->domain->nx * y +
-                                      permxp->domain->nx * permxp->domain->ny *
+                        (permyp->data[x + permyp->domain->nx * y +
+                                      permyp->domain->nx * permyp->domain->ny *
                                           z] +
-                         permxp->data[x + 1 + permxp->domain->nx * y +
-                                      permxp->domain->nx * permxp->domain->ny *
+                         permyp->data[x + 1 + permyp->domain->nx * y +
+                                      permyp->domain->nx * permyp->domain->ny *
                                           z])
                   : ((double)0))) *
             -x_dir_g *
@@ -1098,25 +1098,25 @@ void science(Variant_Domain *domain, Variant_Grid *fp, Variant_Grid *vx,
             z_mult_dat->data[x + z_mult_dat->domain->nx * y +
                              z_mult_dat->domain->nx * z_mult_dat->domain->ny *
                                  z] *
-                ((((bool)(permxp->data[x + permxp->domain->nx * y +
-                                       permxp->domain->nx * permxp->domain->ny *
+                ((((bool)(permyp->data[x + permyp->domain->nx * y +
+                                       permyp->domain->nx * permyp->domain->ny *
                                            z] +
-                          permxp->data[x + 1 + permxp->domain->nx * y +
-                                       permxp->domain->nx * permxp->domain->ny *
+                          permyp->data[x + 1 + permyp->domain->nx * y +
+                                       permyp->domain->nx * permyp->domain->ny *
                                            z]))
                       ? 2.0 *
-                            permxp->data[x + permxp->domain->nx * y +
-                                         permxp->domain->nx *
-                                             permxp->domain->ny * z] *
-                            permxp->data[x + 1 + permxp->domain->nx * y +
-                                         permxp->domain->nx *
-                                             permxp->domain->ny * z] /
-                            (permxp->data[x + permxp->domain->nx * y +
-                                          permxp->domain->nx *
-                                              permxp->domain->ny * z] +
-                             permxp->data[x + 1 + permxp->domain->nx * y +
-                                          permxp->domain->nx *
-                                              permxp->domain->ny * z])
+                            permyp->data[x + permyp->domain->nx * y +
+                                         permyp->domain->nx *
+                                             permyp->domain->ny * z] *
+                            permyp->data[x + 1 + permyp->domain->nx * y +
+                                         permyp->domain->nx *
+                                             permyp->domain->ny * z] /
+                            (permyp->data[x + permyp->domain->nx * y +
+                                          permyp->domain->nx *
+                                              permyp->domain->ny * z] +
+                             permyp->data[x + 1 + permyp->domain->nx * y +
+                                          permyp->domain->nx *
+                                              permyp->domain->ny * z])
                       : ((double)0))) *
                 diff_front * x_dir_g_c *
                 ((updir_front - 0.0 >= ((double)0)
@@ -1131,25 +1131,25 @@ void science(Variant_Domain *domain, Variant_Grid *fp, Variant_Grid *vx,
             z_mult_dat->data[x + z_mult_dat->domain->nx * y +
                              z_mult_dat->domain->nx * z_mult_dat->domain->ny *
                                  z] *
-                ((((bool)(permxp->data[x + permxp->domain->nx * y +
-                                       permxp->domain->nx * permxp->domain->ny *
+                ((((bool)(permyp->data[x + permyp->domain->nx * y +
+                                       permyp->domain->nx * permyp->domain->ny *
                                            z] +
-                          permxp->data[x + 1 + permxp->domain->nx * y +
-                                       permxp->domain->nx * permxp->domain->ny *
+                          permyp->data[x + 1 + permyp->domain->nx * y +
+                                       permyp->domain->nx * permyp->domain->ny *
                                            z]))
                       ? 2.0 *
-                            permxp->data[x + permxp->domain->nx * y +
-                                         permxp->domain->nx *
-                                             permxp->domain->ny * z] *
-                            permxp->data[x + 1 + permxp->domain->nx * y +
-                                         permxp->domain->nx *
-                                             permxp->domain->ny * z] /
-                            (permxp->data[x + permxp->domain->nx * y +
-                                          permxp->domain->nx *
-                                              permxp->domain->ny * z] +
-                             permxp->data[x + 1 + permxp->domain->nx * y +
-                                          permxp->domain->nx *
-                                              permxp->domain->ny * z])
+                            permyp->data[x + permyp->domain->nx * y +
+                                         permyp->domain->nx *
+                                             permyp->domain->ny * z] *
+                            permyp->data[x + 1 + permyp->domain->nx * y +
+                                         permyp->domain->nx *
+                                             permyp->domain->ny * z] /
+                            (permyp->data[x + permyp->domain->nx * y +
+                                          permyp->domain->nx *
+                                              permyp->domain->ny * z] +
+                             permyp->data[x + 1 + permyp->domain->nx * y +
+                                          permyp->domain->nx *
+                                              permyp->domain->ny * z])
                       : ((double)0))) *
                 -x_dir_g *
                 ((updir_front - 0.0 >= ((double)0)
@@ -1394,25 +1394,25 @@ void science(Variant_Domain *domain, Variant_Grid *fp, Variant_Grid *vx,
               z_mult_dat->data[x + z_mult_dat->domain->nx * y +
                                z_mult_dat->domain->nx * z_mult_dat->domain->ny *
                                    z] *
-                  ((((bool)(permxp->data[x + permxp->domain->nx * y +
-                                         permxp->domain->nx *
-                                             permxp->domain->ny * z] +
-                            permxp->data[x + 1 + permxp->domain->nx * y +
-                                         permxp->domain->nx *
-                                             permxp->domain->ny * z]))
+                  ((((bool)(permyp->data[x + permyp->domain->nx * y +
+                                         permyp->domain->nx *
+                                             permyp->domain->ny * z] +
+                            permyp->data[x + 1 + permyp->domain->nx * y +
+                                         permyp->domain->nx *
+                                             permyp->domain->ny * z]))
                         ? 2.0 *
-                              permxp->data[x + permxp->domain->nx * y +
-                                           permxp->domain->nx *
-                                               permxp->domain->ny * z] *
-                              permxp->data[x + 1 + permxp->domain->nx * y +
-                                           permxp->domain->nx *
-                                               permxp->domain->ny * z] /
-                              (permxp->data[x + permxp->domain->nx * y +
-                                            permxp->domain->nx *
-                                                permxp->domain->ny * z] +
-                               permxp->data[x + 1 + permxp->domain->nx * y +
-                                            permxp->domain->nx *
-                                                permxp->domain->ny * z])
+                              permyp->data[x + permyp->domain->nx * y +
+                                           permyp->domain->nx *
+                                               permyp->domain->ny * z] *
+                              permyp->data[x + 1 + permyp->domain->nx * y +
+                                           permyp->domain->nx *
+                                               permyp->domain->ny * z] /
+                              (permyp->data[x + permyp->domain->nx * y +
+                                            permyp->domain->nx *
+                                                permyp->domain->ny * z] +
+                               permyp->data[x + 1 + permyp->domain->nx * y +
+                                            permyp->domain->nx *
+                                                permyp->domain->ny * z])
                         : ((double)0))) *
                   diff_front * x_dir_g_c *
                   ((updir_front - 0.0 >= ((double)0)
@@ -1427,25 +1427,25 @@ void science(Variant_Domain *domain, Variant_Grid *fp, Variant_Grid *vx,
               z_mult_dat->data[x + z_mult_dat->domain->nx * y +
                                z_mult_dat->domain->nx * z_mult_dat->domain->ny *
                                    z] *
-                  ((((bool)(permxp->data[x + permxp->domain->nx * y +
-                                         permxp->domain->nx *
-                                             permxp->domain->ny * z] +
-                            permxp->data[x + 1 + permxp->domain->nx * y +
-                                         permxp->domain->nx *
-                                             permxp->domain->ny * z]))
+                  ((((bool)(permyp->data[x + permyp->domain->nx * y +
+                                         permyp->domain->nx *
+                                             permyp->domain->ny * z] +
+                            permyp->data[x + 1 + permyp->domain->nx * y +
+                                         permyp->domain->nx *
+                                             permyp->domain->ny * z]))
                         ? 2.0 *
-                              permxp->data[x + permxp->domain->nx * y +
-                                           permxp->domain->nx *
-                                               permxp->domain->ny * z] *
-                              permxp->data[x + 1 + permxp->domain->nx * y +
-                                           permxp->domain->nx *
-                                               permxp->domain->ny * z] /
-                              (permxp->data[x + permxp->domain->nx * y +
-                                            permxp->domain->nx *
-                                                permxp->domain->ny * z] +
-                               permxp->data[x + 1 + permxp->domain->nx * y +
-                                            permxp->domain->nx *
-                                                permxp->domain->ny * z])
+                              permyp->data[x + permyp->domain->nx * y +
+                                           permyp->domain->nx *
+                                               permyp->domain->ny * z] *
+                              permyp->data[x + 1 + permyp->domain->nx * y +
+                                           permyp->domain->nx *
+                                               permyp->domain->ny * z] /
+                              (permyp->data[x + permyp->domain->nx * y +
+                                            permyp->domain->nx *
+                                                permyp->domain->ny * z] +
+                               permyp->data[x + 1 + permyp->domain->nx * y +
+                                            permyp->domain->nx *
+                                                permyp->domain->ny * z])
                         : ((double)0))) *
                   -x_dir_g *
                   ((updir_front - 0.0 >= ((double)0)
