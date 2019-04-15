@@ -5,6 +5,7 @@
 
 #include <assert.h>
 
+// NOTE: THIS IS REQUIRED FOR ROSE AND LCTOOL
 void* nullptr = NULL;
 
 void science(

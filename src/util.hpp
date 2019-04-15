@@ -1,11 +1,11 @@
 #ifndef UTIL_HPP
 #define UTIL_HPP
 
-#include <cstdio>
-#include <cstdlib>
+#include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
-#include <cctype>
-#include <cstdbool>
+#include <ctype.h>
+#include <stdbool.h>
 
 // Utility Macros
 // Create Valid C string from tokens (Note: tokens with un-escaped quotes will break this!)
