@@ -4,8 +4,8 @@
 // Mathematical macros
 #define ArithmeticMean(a, b)  (0.5 * ((a) + (b)))
 #define GeometricMean(a, b)   (sqrt((a) * (b)))
-#define HarmonicMean(a, b)    (((a) + (b)) ? (2.0 * (a) * (b)) / ((a) + (b)) : 0)
-#define HarmonicMeanDZ(a, b, c, d) ((((c) * (b)) + ((a) * (d))) ?  ((((c) + (d)) * (a) * (b)) / (((b) * (c)) + ((a) * (d)))) : 0)
+#define HarmonicMean(a, b)    ((((a) + (b))!=0.0) ? (2.0 * (a) * (b)) / ((a) + (b)) : 0)
+#define HarmonicMeanDZ(a, b, c, d) ( ((((c) * (b)) + ((a) * (d)))!=0.0) ?  ((((c) + (d)) * (a) * (b)) / (((b) * (c)) + ((a) * (d)))) : 0)
 #define UpstreamMean(a, b, c, d) ((((a) - (b)) >= 0) ? (c) : (d))
 
 // Basic Domain
