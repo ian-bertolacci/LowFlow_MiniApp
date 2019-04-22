@@ -484,6 +484,7 @@ ExperimentalResults experiment( Basic_Domain* domain, unsigned int seed ){
   // Zero allocate output grids
   for( int i = 0; i < output_grid_count; i += 1 ){
     output_grids[i] = Variant_Grid_alloc( variant_domain );
+    Variant_Grid_populate_zero( variant_domain, output_grids[i] );
   }
 
   // Give grids names
