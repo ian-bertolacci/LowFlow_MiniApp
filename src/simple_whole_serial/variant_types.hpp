@@ -11,7 +11,8 @@ void Variant_Domain_dealloc( Variant_Domain* domain );
 
 Variant_Grid* Variant_Grid_alloc( Variant_Domain* domain );
 void Variant_Grid_dealloc( Variant_Grid* grid );
-void Variant_Grid_populate( Variant_Domain* domain, Variant_Grid* grid );
+void Variant_Grid_populate_int_increment( Variant_Domain* domain, Variant_Grid* grid );
+void Variant_Grid_populate_zero( Variant_Domain* domain, Variant_Grid* grid );
 void Variant_Grid_populate_seeded( Variant_Domain* domain, Variant_Grid* grid, unsigned int seed );
 
 #endif

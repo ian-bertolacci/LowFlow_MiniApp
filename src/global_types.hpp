@@ -16,7 +16,8 @@ void Basic_Domain_dealloc( Basic_Domain* domain );
 
 Basic_Grid* Basic_Grid_alloc( Basic_Domain* domain );
 void Basic_Grid_dealloc( Basic_Grid* grid );
-void Basic_Grid_populate( Basic_Domain* domain, Basic_Grid* grid );
+void Basic_Grid_populate_int_increment( Basic_Domain* domain, Basic_Grid* grid );
+void Basic_Grid_populate_zero( Basic_Domain* domain, Basic_Grid* grid );
 void Basic_Grid_populate_seeded( Basic_Domain* domain, Basic_Grid* grid, unsigned int seed );
 
 #endif

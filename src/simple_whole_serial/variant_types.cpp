@@ -22,8 +22,12 @@ void Variant_Grid_dealloc( Variant_Grid* grid ){
 }
 
 
-void Variant_Grid_populate( Variant_Domain* domain, Variant_Grid* grid ){
-  return Basic_Grid_populate( (Basic_Domain*) domain, (Basic_Grid*) grid );
+void Variant_Grid_populate_int_increment( Variant_Domain* domain, Variant_Grid* grid ){
+  return Basic_Grid_populate_int_increment( (Basic_Domain*) domain, (Basic_Grid*) grid );
+}
+
+void Variant_Grid_populate_zero( Variant_Domain* domain, Variant_Grid* grid ){
+  return Basic_Grid_populate_zero( (Basic_Domain*) domain, (Basic_Grid*) grid );
 }
 
 void Variant_Grid_populate_seeded( Variant_Domain* domain, Variant_Grid* grid, unsigned int seed ){

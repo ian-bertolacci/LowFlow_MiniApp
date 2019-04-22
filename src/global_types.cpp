@@ -41,7 +41,7 @@ void Basic_Grid_dealloc( Basic_Grid* grid ){
   free( grid );
 }
 
-void Basic_Grid_populate( Basic_Domain* domain, Basic_Grid* grid ){
+void Basic_Grid_populate_int_increment( Basic_Domain* domain, Basic_Grid* grid ){
   assert( domain != nullptr && "Error during Basic_Grid_populate: Basic_Domain pointer is nullptr" );
   assert( grid != nullptr && "Error during Basic_Grid_populate: Basic_Grid pointer is nullptr" );
   double value = 1.0;
@@ -52,6 +52,19 @@ void Basic_Grid_populate( Basic_Domain* domain, Basic_Grid* grid ){
       int idx = Basic_Domain_idx(domain, x,y,z);
       grid_data[idx] = (double) value;
       value += 1;
+    }
+  );
+}
+
+void Basic_Grid_populate_zero( Basic_Domain* domain, Basic_Grid* grid ){
+  assert( domain != nullptr && "Error during Basic_Grid_populate: Basic_Domain pointer is nullptr" );
+  assert( grid != nullptr && "Error during Basic_Grid_populate: Basic_Grid pointer is nullptr" );
+  int x, y, z;
+  double* grid_data = Basic_Grid_data(grid);
+  Basic_Domain_loop_whole(domain, x,y,z,
+    {
+      int idx = Basic_Domain_idx(domain, x,y,z);
+      grid_data[idx] = 0.0;
     }
   );
 }
