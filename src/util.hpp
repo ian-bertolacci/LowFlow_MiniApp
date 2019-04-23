@@ -8,8 +8,9 @@
 #include <stdbool.h>
 
 // Utility Macros
-// Create Valid C string from tokens (Note: tokens with un-escaped quotes will break this!)
-#define STRINGIZE(x) STRINGIZE2(x)
-#define STRINGIZE2(x) #x
+// Create Valid C string from tokens
+// Note: tokens with un-escaped quotes *will NOT* break this!
+#define STRINGIZE(x) STRINGIZE_NO_PREPROCESS(x)
+#define STRINGIZE_NO_PREPROCESS(x) #x
 
 #endif

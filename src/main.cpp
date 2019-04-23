@@ -178,6 +178,7 @@ bool verify( Basic_Domain* domain, ExperimentalResults results, double epsilon, 
   // Zero allocate output grids
   for( int i = 0; i < output_grid_count; i += 1 ){
     output_grids[i] = Basic_Grid_alloc( domain );
+    Basic_Grid_populate_zero( domain, output_grids[i] );
   }
 
   // Give grids names
@@ -426,7 +427,7 @@ bool verify( Basic_Domain* domain, ExperimentalResults results, double epsilon, 
         double baseline_value = Basic_Grid_access(output_grids[i], x,y,z);
         double delta = abs( compare_value - baseline_value );
         if( delta >= epsilon ){
-          if( this_passed ) printf("Failed!\n");
+          if( this_passed ) printf("Failed!\n(x, y, z): | Comparison - Baseline | = absolute delta >= epsilon\n");
           printf("(%d, %d, %d): |%15.7f - %15.7f| = %-10.7f >= %-10.5f \n",
             x, y, z,
             compare_value,
