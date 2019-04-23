@@ -3,7 +3,7 @@ include(${CMAKE_DIR}/utilities.txt)
 include(${CMAKE_DIR}/build_variant.txt)
 
 # Variant name
-set(VARIANT_NAME INVALID_simple_whole_gpu_parallel_opencl)
+set(VARIANT_NAME whole_gpu_parallel_opencl_three_phase)
 # List source files
 set(VARIANT_SOURCE_FILES variant_types.cpp variant_science.cpp)
 # List libraries

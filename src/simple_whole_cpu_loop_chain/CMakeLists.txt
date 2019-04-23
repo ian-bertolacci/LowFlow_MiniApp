@@ -3,7 +3,7 @@ include(${CMAKE_DIR}/utilities.txt)
 include(${CMAKE_DIR}/build_variant.txt)
 
 # Variant name
-set(VARIANT_NAME simple_whole_cpu_loop_chain)
+set(VARIANT_NAME INVALID_whole_cpu_loop_chain)
 # List source files
 set(VARIANT_SOURCE_FILES variant_types.cpp variant_science.cpp)
 # List libraries

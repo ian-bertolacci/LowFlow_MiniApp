@@ -3,7 +3,13 @@ include(${CMAKE_DIR}/utilities.txt)
 include(${CMAKE_DIR}/build_variant.txt)
 
 # List of variants (names are also directories)
-set(VARIANTS simple_whole_serial simple_whole_cpu_parallel_omp simple_whole_cpu_loop_chain whole_gpu_parallel_opencl_manual)
+set(VARIANTS
+  simple_whole_serial
+  simple_whole_cpu_parallel_omp
+  whole_gpu_parallel_opencl_manual_recompute
+  whole_gpu_parallel_opencl_manual_store_temporary
+  whole_gpu_parallel_opencl_manual_three_phase
+)
 # List all source files
 set(BASE_SOURCE_FILES global_types.cpp main.cpp)
 
