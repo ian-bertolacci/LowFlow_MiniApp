@@ -4,6 +4,7 @@
 #include <util.hpp>
 
 #include <assert.h>
+#include <stdio.h>
 
 // NOTE: THIS IS REQUIRED FOR ROSE AND LCTOOL
 void* nullptr = NULL;

@@ -6,6 +6,7 @@
 #include <assert.h>
 #include <CL/opencl.h>
 #include <math.h>
+#include <stdio.h>
 
 void science(
   Variant_Domain* domain,

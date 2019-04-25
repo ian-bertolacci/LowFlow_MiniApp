@@ -5,7 +5,7 @@ include(${CMAKE_DIR}/build_variant.txt)
 # Variant name
 set(VARIANT_NAME INVALID_whole_cpu_loop_chain)
 # List source files
-set(VARIANT_SOURCE_FILES variant_types.cpp variant_science.cpp)
+set(VARIANT_SOURCE_FILES variant_types.cpp variant_science.cpp variant_configure.cpp)
 # List libraries
 set(VARIANT_LINK_LIBRARIES)
 

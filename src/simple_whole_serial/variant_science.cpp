@@ -4,6 +4,7 @@
 #include <util.hpp>
 
 #include <assert.h>
+#include <stdio.h>
 
 void science(
   Variant_Domain* domain,

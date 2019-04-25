@@ -3,6 +3,7 @@
 #include <macros.hpp>
 #include <science.hpp>
 #include <util.hpp>
+#include <stdio.h>
 
 void science(Variant_Domain *domain, Variant_Grid *fp, Variant_Grid *vx,
              Variant_Grid *vy, Variant_Grid *vz, Variant_Grid *dp,
