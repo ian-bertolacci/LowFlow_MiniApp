@@ -680,14 +680,14 @@ void science(
   );
 
 
-  for( int i = 0; i < num_preambles; ++i ){
-    printf("==============================\nPreamble %i\n------------------------------\n%s\n", i+1, preamble_sources[i]);
-  }
-
-  for( int i = 0; i < num_compute_kernels; i += 1 )
-  {
-    printf("==============================\n%s\n------------------------------\n%s\n", kernel_names[i], compute_kernel_sources[i]);
-  }
+  // for( int i = 0; i < num_preambles; ++i ){
+  //   printf("==============================\nPreamble %i\n------------------------------\n%s\n", i+1, preamble_sources[i]);
+  // }
+  //
+  // for( int i = 0; i < num_compute_kernels; i += 1 )
+  // {
+  //   printf("==============================\n%s\n------------------------------\n%s\n", kernel_names[i], compute_kernel_sources[i]);
+  // }
 
   /* Create the compute program from the source buffer */
   program = clCreateProgramWithSource(context, num_compute_kernels+num_preambles, (const char**)sources, nullptr, &err);
@@ -741,9 +741,11 @@ void science(
 
   if( !program || err != CL_SUCCESS || build_status != CL_BUILD_SUCCESS){
     printf("Error: Failed to create compute program! (Error code %d)\n", err);
+    exit(-1);
   }
 
   for( int i = 0; i < num_compute_kernels; ++i ){
+    printf("clCreateKernel %s\n", kernel_names[i]);
     compute_kernels[i] = clCreateKernel(program, kernel_names[i], &err);
     if( !compute_kernels[i] || err != CL_SUCCESS ){
       printf("Error: Failed to create compute kernel \"%s\"! (Error code %d)\n", kernel_names[i], err);
@@ -752,8 +754,8 @@ void science(
   }
 
   // Copy read buffers
-  // TODO: Make non-blocking.
   for( int i = 0; i < num_device_read_buffers; i += 1 ){
+    printf("clEnqueueWriteBuffer %d\n", i);
     err = clEnqueueWriteBuffer( commands, *device_read_buffers[i], CL_FALSE, 0, sizeof_read_buffers[i], host_read_buffers[i], 0, nullptr, nullptr );
     if( err != CL_SUCCESS ){
       printf("Error: Failed enqueue write-buffer command (Error code %d)\n", err);
@@ -761,18 +763,10 @@ void science(
     }
   }
 
-  // // Copy Domains
-  // for( int i = 0; i < num_domains; i += 1 ){
-  //   err = clEnqueueWriteBuffer( commands, *device_domains[i], CL_FALSE, 0, sizeof(Variant_Domain), host_domains[i], 0, nullptr, nullptr );
-  //   if( err != CL_SUCCESS ){
-  //     printf("Error: Failed enqueue write-buffer command (Error code %d)\n", err);
-  //     exit(1);
-  //   }
-  // }
-
   // Setup args for each kernel
   for( int k = 0; k < num_compute_kernels; k += 1 ){
     for( int i = 0; i < kernel_num_args[k]; i += 1 ){
+      printf("clSetKernelArg %s, %d\n", kernel_names[k], i);
       err = clSetKernelArg( compute_kernels[k], i, sizeof(cl_mem), kernel_args[k][i] );
       if( err != CL_SUCCESS ){
         printf("Error: Failed set kernel %d args %d (Error code %d)\n", k, i, err);
@@ -781,42 +775,33 @@ void science(
     }
   }
 
-  // Wait for memory copies
+  // Wait for memory copies (reminder: writes currently non-blocking)
   clFinish( commands );
-
-
-  // Create local work group sizes from maximum work groups size
-  for( int k = 0; k < num_compute_kernels; k += 1 ){
-
-    // Get the maximum work group size for executing the kernel on the device
-    err = clGetKernelWorkGroupInfo( compute_kernels[k], device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(work_group_size[k]), &work_group_size[k], nullptr );
-    if( err != CL_SUCCESS ){
-        printf("Error: Failed to retrieve kernel %d work group info! %d\n", k, err);
-        exit(1);
-    }
-
-    //
-    for( int d = 0; d < 3; ++d ){
-      local[k][d] = (int) floor( cbrt(work_group_size[k]) );
-    }
-  }
 
   // Invoke kernels
   for( int k = 0; k < num_compute_kernels; k += 1 ){
-    err = clEnqueueNDRangeKernel( commands, compute_kernels[k], 3, nullptr, total_work[k], local[k], 0, nullptr, nullptr );
-  }
-
-  clFinish( commands );
-
-  // Read from out grids
-  for( int i = 0; i < num_device_write_buffers; i += 1 ){
-    err = clEnqueueReadBuffer( commands, *device_write_buffers[i], CL_TRUE, 0, sizeof_write_buffers[i], host_write_buffers[i], 0, nullptr, nullptr );
+    printf("clEnqueueNDRangeKernel %s\n", kernel_names[k]);
+    err = clEnqueueNDRangeKernel( commands, compute_kernels[k], 3, nullptr, total_work[k], nullptr, 0, nullptr, nullptr );
     if( err != CL_SUCCESS ){
-      printf("Error: Failed enqueue write-buffer command (Error code %d)\n", err);
+      printf("Error: Failed to execute kernel %s! (Error code %d)\n", kernel_names[k], err);
       exit(1);
     }
   }
 
+  // Wait for all kernels to complete
+  clFinish( commands );
+
+  // Read from out grids
+  for( int i = 0; i < num_device_write_buffers; i += 1 ){
+    printf("clEnqueueReadBuffer %d\n", i);
+    err = clEnqueueReadBuffer( commands, *device_write_buffers[i], CL_FALSE, 0, sizeof_write_buffers[i], host_write_buffers[i], 0, nullptr, nullptr );
+    if( err != CL_SUCCESS ){
+      printf("Error: Failed enqueue read-buffer command (Error code %d)\n", err);
+      exit(1);
+    }
+  }
+
+  // Wait for all memory copies (reminder: reads currently non-blocking)
   clFinish( commands );
 
   // Free structures
