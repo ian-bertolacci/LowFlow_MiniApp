@@ -10,6 +10,11 @@
 #define Variant_Domain_idx(domain,x,y,z) Basic_Domain_idx(domain,x,y,z)
 #define Variant_Domain_count(domain) (Variant_Domain_nx(domain)*Variant_Domain_ny(domain)*Variant_Domain_nz(domain))
 
+#define Variant_Domain_fast_nx(domain) (domain##_nx)
+#define Variant_Domain_fast_ny(domain) (domain##_ny)
+#define Variant_Domain_fast_nz(domain) (domain##_nz)
+#define Variant_Domain_fast_idx(domain,x,y,z) ((x)+(Variant_Domain_fast_nx(domain)*(y))+(Variant_Domain_fast_nx(domain)*Variant_Domain_fast_ny(domain)*(z)))
+
 // Basic Grid
 #define Variant_Grid_data(grid) Basic_Grid_data(grid)
 #define Variant_Grid_domain(grid) Basic_Grid_domain(grid)
@@ -20,7 +25,7 @@
 #define Variant_Grid_idx(grid, x,y,z) Basic_Grid_idx(grid, x,y,z)
 #define Variant_Grid_access_index(grid, idx) Basic_Grid_access_index(grid, idx)
 #define Variant_Grid_access(grid, x,y,z) Basic_Grid_access(grid, x,y,z)
-#define Variant_Grid_fast_access(grid, x,y,z) (grid[Basic_Domain_idx(grid##_domain,x,y,z)])
+#define Variant_Grid_fast_access(grid, x,y,z) (grid[Variant_Domain_fast_idx(grid##_domain,x,y,z)])
 
 #define Variant_Domain_equal(domain_a, domain_b) Basic_Domain_equal(domain_a, domain_b)
 
