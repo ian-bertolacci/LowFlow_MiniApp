@@ -2,16 +2,13 @@ cmake_minimum_required(VERSION 3.5)
 include(${CMAKE_DIR}/utilities.txt)
 include(${CMAKE_DIR}/build_variant.txt)
 
-
-
 # List of variants (names are also directories)
 set(VARIANTS
   simple_whole_serial
   simple_whole_cpu_parallel_omp
-  whole_gpu_parallel_opencl_manual_recompute
   whole_gpu_parallel_opencl_manual_store_temporary
-  whole_gpu_parallel_opencl_manual_three_phase
 )
+
 # List all source files
 set(BASE_SOURCE_FILES global_types.cpp main.cpp)
 
@@ -21,7 +18,7 @@ PREPEND(BASE_SOURCE_FILES ${BASE_SOURCE_DIR} ${BASE_SOURCE_FILES})
 # Add local include
 include_directories(${BASE_SOURCE_DIR})
 
-#Enable debug mode globally
+# Enable debug mode globally
 set(CMAKE_BUILD_TYPE Debug)
 
 # Set C++11 standard
