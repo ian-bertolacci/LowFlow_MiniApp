@@ -5,6 +5,7 @@
 #include <string.h>
 #include <assert.h>
 #include <stdint.h>
+#include <math.h>
 
 #include <omp.h>
 
@@ -425,7 +426,7 @@ bool verify( Basic_Domain* domain, ExperimentalResults results, double epsilon, 
       {
         double compare_value = Variant_Grid_access(experimental_grids[i], x,y,z);
         double baseline_value = Basic_Grid_access(output_grids[i], x,y,z);
-        double delta = abs( compare_value - baseline_value );
+        double delta = fabs( compare_value - baseline_value );
         if( delta >= epsilon ){
           if( this_passed ) printf("Failed!\n(x, y, z): | Comparison - Baseline | = absolute delta >= epsilon\n");
           printf("(%d, %d, %d): |%15.7f - %15.7f| = %-10.7f >= %-10.5f \n",
