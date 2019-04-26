@@ -329,7 +329,7 @@ bool verify( Basic_Domain* domain, ExperimentalResults results, double epsilon, 
   return passed;
 }
 
-ExperimentalResults experiment( Basic_Domain* domain, unsigned int seed ){
+ExperimentalResults experiment( Basic_Domain* domain, unsigned int seed, VariantOptions options ){
   // Perform allocation in bulk, name later
   const int input_grid_count = 16;
   const int output_grid_count = 4;
@@ -384,7 +384,7 @@ ExperimentalResults experiment( Basic_Domain* domain, unsigned int seed ){
 
   // Time and Perform science
   double start = omp_get_wtime();
-  science( domain, fp, vx, vy, vz, dp, et, odp, opp, osp, permxp, permyp, permzp, pop, pp, rpp, sp, ss, z_mult_dat, x_ssl_dat, y_ssl_dat );
+  science( domain, fp, vx, vy, vz, dp, et, odp, opp, osp, permxp, permyp, permzp, pop, pp, rpp, sp, ss, z_mult_dat, x_ssl_dat, y_ssl_dat, options );
   double end = omp_get_wtime();
 
   // Deallocate input grids
@@ -414,7 +414,7 @@ int main( int argc, char** argv ){
 
   Basic_Domain* base_domain = Basic_Domain_alloc( opts.nx, opts.ny, opts.nz );
 
-  ExperimentalResults results = experiment( base_domain, opts.seed );
+  ExperimentalResults results = experiment( base_domain, opts.seed, opts.variant_options );
 
   printf( "Elapsed: %fs\n", results.elapsed );
 

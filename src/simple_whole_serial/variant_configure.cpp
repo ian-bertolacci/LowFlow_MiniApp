@@ -17,7 +17,8 @@ void printVariantInformationMessage( FILE* stream ){
 void printVariantOptionsMessage( FILE* stream ){
   fprintf( stream,
     "Variant Specific Command Line Options:\n"
-    "  --help (or -h)\n"
+    "  --help\n"
+    "   -h\n"
     "    Print this message.\n"
   );
 }

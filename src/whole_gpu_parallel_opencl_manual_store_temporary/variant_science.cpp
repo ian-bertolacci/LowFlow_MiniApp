@@ -29,7 +29,8 @@ void science(
   Variant_Grid* ss,
   Variant_Grid* z_mult_dat,
   Variant_Grid* x_ssl_dat,
-  Variant_Grid* y_ssl_dat
+  Variant_Grid* y_ssl_dat,
+  VariantOptions options
 ){
   if( ENABLE_DEBUG ){
     assert( domain != nullptr     && "Error during science: domain is null" );
@@ -103,18 +104,21 @@ void science(
   err = clGetDeviceIDs(nullptr, use_gpu ? CL_DEVICE_TYPE_GPU : CL_DEVICE_TYPE_CPU, 1, &device_id, nullptr);
   if( err != CL_SUCCESS ){
     printf("Error: Failed to create a device group! (Error code %d)\n", err);
+    exit(OPENCL_DEVICE_CREATION_FAILURE);
   }
 
   /* Create a compute context */
   context = clCreateContext(0, 1, &device_id, nullptr, nullptr, &err);
   if( !context ){
     printf("Error: Failed to create a compute context! (Error code %d)\n", err);
+    exit(OPENCL_DEVICE_CREATION_FAILURE);
   }
 
   /* Create a command commands */
   commands = clCreateCommandQueueWithProperties(context, device_id, nullptr, &err);
   if( !commands ){
     printf("Error: Failed to create a command commands! (Error code %d)\n", err);
+    exit(OPENCL_DEVICE_CREATION_FAILURE);
   }
 
   Variant_Grid* u_right = Variant_Grid_alloc( domain );
@@ -681,21 +685,23 @@ void science(
   );
 
 
-  // for( int i = 0; i < num_preambles; ++i ){
-  //   printf("==============================\nPreamble %i\n------------------------------\n%s\n", i+1, preamble_sources[i]);
-  // }
-  //
-  // for( int i = 0; i < num_compute_kernels; i += 1 )
-  // {
-  //   printf("==============================\n%s\n------------------------------\n%s\n", kernel_names[i], compute_kernel_sources[i]);
-  // }
+  if( options.verbose ){
+    for( int i = 0; i < num_preambles; ++i ){
+      printf("==============================\nPreamble %i\n------------------------------\n%s\n", i+1, preamble_sources[i]);
+    }
+
+    for( int i = 0; i < num_compute_kernels; i += 1 ){
+      printf("==============================\n%s\n------------------------------\n%s\n", kernel_names[i], compute_kernel_sources[i]);
+    }
+  }
 
   /* Create the compute program from the source buffer */
   program = clCreateProgramWithSource(context, num_compute_kernels+num_preambles, (const char**)sources, nullptr, &err);
 
-  char* options = (char*)"-cl-std=CL2.0";
+  char* compile_options = (char*)"-cl-std=CL2.0";
 
-  err = clBuildProgram( program, 1, &device_id, options, nullptr, nullptr);
+  err = clBuildProgram( program, 1, &device_id, compile_options, nullptr, nullptr);
+
 
   cl_build_status build_status;
   clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_STATUS, sizeof(cl_build_status), &build_status, NULL);
@@ -710,7 +716,7 @@ void science(
       break;
     }
     case CL_BUILD_SUCCESS: {
-      printf("Build Status: CL_BUILD_SUCCESS\n");
+      if( options.verbose ) printf("Build Status: CL_BUILD_SUCCESS\n");
       break;
     }
     case CL_BUILD_IN_PROGRESS: {
@@ -719,59 +725,60 @@ void science(
     }
   }
 
+  if( options.verbose || !program || err != CL_SUCCESS || build_status != CL_BUILD_SUCCESS ){
+    const int infos = 2;
+    unsigned int keys[infos] = { CL_PROGRAM_BUILD_OPTIONS, CL_PROGRAM_BUILD_LOG };
+    char* names[infos] = { (char*)"CL_PROGRAM_BUILD_OPTIONS", (char*)"CL_PROGRAM_BUILD_LOG" };
 
-  const int infos = 2;
-  unsigned int keys[infos] = { CL_PROGRAM_BUILD_OPTIONS, CL_PROGRAM_BUILD_LOG };
-  char* names[infos] = { (char*)"CL_PROGRAM_BUILD_OPTIONS", (char*)"CL_PROGRAM_BUILD_LOG" };
+    for(int i = 0; i < infos; ++i ){
+      // Determine the size of the logCL_PROGRAM_BUILD_STATUS
+      size_t log_size;
+      clGetProgramBuildInfo(program, device_id, keys[i], 0, NULL, &log_size);
 
-  for(int i = 0; i < infos; ++i ){
-    // Determine the size of the logCL_PROGRAM_BUILD_STATUS
-    size_t log_size;
-    clGetProgramBuildInfo(program, device_id, keys[i], 0, NULL, &log_size);
+      // Allocate memory for the log
+      char *log = (char *) malloc(log_size);
 
-    // Allocate memory for the log
-    char *log = (char *) malloc(log_size);
+      // Get the log
+      clGetProgramBuildInfo(program, device_id, keys[i], log_size, log, NULL);
 
-    // Get the log
-    clGetProgramBuildInfo(program, device_id, keys[i], log_size, log, NULL);
+      // Print the log
+      printf("==============================\n%s\n------------------------------\n%s\n", names[i], log);
+      free(log);
+    }
 
-    // Print the log
-    printf("==============================\n%s\n------------------------------\n%s\n", names[i], log);
-    free(log);
-  }
-
-  if( !program || err != CL_SUCCESS || build_status != CL_BUILD_SUCCESS){
-    printf("Error: Failed to create compute program! (Error code %d)\n", err);
-    exit(-1);
+    if( !program || err != CL_SUCCESS || build_status != CL_BUILD_SUCCESS ){
+      printf("Error: Failed to create compute program! (Error code %d)\n", err);
+      exit(OPENCL_COMPILATION_FAILURE);
+    }
   }
 
   for( int i = 0; i < num_compute_kernels; ++i ){
-    printf("clCreateKernel %s\n", kernel_names[i]);
+    if( options.verbose ) printf("clCreateKernel %s\n", kernel_names[i]);
     compute_kernels[i] = clCreateKernel(program, kernel_names[i], &err);
     if( !compute_kernels[i] || err != CL_SUCCESS ){
       printf("Error: Failed to create compute kernel \"%s\"! (Error code %d)\n", kernel_names[i], err);
-      exit(1);
+      exit(OPENCL_KERNEL_CREATION_FAILURE);
     }
   }
 
   // Copy read buffers
   for( int i = 0; i < num_device_read_buffers; i += 1 ){
-    printf("clEnqueueWriteBuffer %d\n", i);
+    if( options.verbose ) printf("clEnqueueWriteBuffer %d\n", i);
     err = clEnqueueWriteBuffer( commands, *device_read_buffers[i], CL_FALSE, 0, sizeof_read_buffers[i], host_read_buffers[i], 0, nullptr, nullptr );
     if( err != CL_SUCCESS ){
       printf("Error: Failed enqueue write-buffer command (Error code %d)\n", err);
-      exit(1);
+      exit(OPENCL_BUFFER_WRITE_FAILURE);
     }
   }
 
   // Setup args for each kernel
   for( int k = 0; k < num_compute_kernels; k += 1 ){
     for( int i = 0; i < kernel_num_args[k]; i += 1 ){
-      printf("clSetKernelArg %s, %d\n", kernel_names[k], i);
+      if( options.verbose ) printf("clSetKernelArg %s, %d\n", kernel_names[k], i);
       err = clSetKernelArg( compute_kernels[k], i, sizeof(cl_mem), kernel_args[k][i] );
       if( err != CL_SUCCESS ){
         printf("Error: Failed set kernel %d args %d (Error code %d)\n", k, i, err);
-        exit(1);
+        exit(OPENCL_KERNEL_SETUP_FAILURE);
       }
     }
   }
@@ -781,11 +788,11 @@ void science(
 
   // Invoke kernels
   for( int k = 0; k < num_compute_kernels; k += 1 ){
-    printf("clEnqueueNDRangeKernel %s\n", kernel_names[k]);
+    if( options.verbose ) printf("clEnqueueNDRangeKernel %s\n", kernel_names[k]);
     err = clEnqueueNDRangeKernel( commands, compute_kernels[k], 3, nullptr, total_work[k], nullptr, 0, nullptr, nullptr );
     if( err != CL_SUCCESS ){
       printf("Error: Failed to execute kernel %s! (Error code %d)\n", kernel_names[k], err);
-      exit(1);
+      exit(OPENCL_KERNEL_EXECUTION_FAILURE);
     }
   }
 
@@ -794,11 +801,11 @@ void science(
 
   // Read from out grids
   for( int i = 0; i < num_device_write_buffers; i += 1 ){
-    printf("clEnqueueReadBuffer %d\n", i);
+    if( options.verbose ) printf("clEnqueueReadBuffer %d\n", i);
     err = clEnqueueReadBuffer( commands, *device_write_buffers[i], CL_FALSE, 0, sizeof_write_buffers[i], host_write_buffers[i], 0, nullptr, nullptr );
     if( err != CL_SUCCESS ){
       printf("Error: Failed enqueue read-buffer command (Error code %d)\n", err);
-      exit(1);
+      exit(OPENCL_BUFFER_READ_FAILURE);
     }
   }
 

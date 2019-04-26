@@ -80,25 +80,33 @@ void printGeneralInformationMessage( FILE* steam ){
 void printGeneralOptionsMessage( FILE* stream ){
   fprintf( stream,
     "General Program Command Line Options:\n"
-    "  --verbose (or -V)\n"
+    "  --verify\n"
+    "   -V\n"
     "    Perform verification after experiment to check that experimental output is correct.\n"
     "    Program returns VERIFICATION_FAIL if verification fails.\n"
-    "  --x_size <N : int> (or -x  <arg>)\n"
+    "  --x_size <N : uint>\n"
+    "   -x      <N : uint>\n"
     "    Set size of domain in x direction.\n"
-    "  --y_size <N : int> (or -y  <arg>)\n"
+    "  --y_size <N : uint>\n"
+    "   -y      <N : uint>\n"
     "    Set size of domain in y direction.\n"
-    "  --z_size <N : int> (or -z  <arg>)\n"
+    "  --z_size <N : int>\n"
+    "   -z      <N : uint>\n"
     "    Set size of domain in z direction.\n"
-    "  --size <N : int> (or -s <arg>)\n"
+    "  --size <N : uint>\n"
+    "   -s    <N : uint>\n"
     "    Set size of domain in x, y, z directions to the same value.\n"
-    "    --size 10 is equivalent to -x 10 -y 10 -z 10.\n"
-    "  --epsilon <epsilon : float> (or -e <arg>)\n"
+    "    --size 10 is equivalent to --x_size 10 --y_size 10 --z_size 10.\n"
+    "  --epsilon <epsilon : float>\n"
+    "   -e       <epsilon : float>\n"
     "    Set acceptable error bound used for verification.\n"
     "    An absolute difference between experimental and verification output \n"
     "    grids less than epsilon is considered 'passing'\n"
-    "  --seed <N : uint> (or -S <arg>)\n"
+    "  --seed <N : uint>\n"
+    "   -S    <N : uint>\n"
     "    Set the seed used to generate grid-seeds.\n"
-    "  --help (or -h)\n"
+    "  --help\n"
+    "   -h\n"
     "    Print this message.\n"
   );
 }
@@ -106,10 +114,10 @@ void printGeneralOptionsMessage( FILE* stream ){
 void printGeneralExitCodeMessage( FILE* stream ){
   fprintf( stream,
     "General Program Exit Codes:\n"
-    "  SUCCESS: %u\n"
-    "  VERIFICATION_FAIL: %u\n"
+    "  SUCCESS:            %u\n"
+    "  VERIFICATION_FAIL:  %u\n"
     "  COMMAND_LINE_ERROR: %u\n"
-    "  ASSERTION_FAILURE: %u\n",
+    "  ASSERTION_FAILURE:  %u\n",
     SUCCESS,
     VERIFICATION_FAIL,
     COMMAND_LINE_ERROR,

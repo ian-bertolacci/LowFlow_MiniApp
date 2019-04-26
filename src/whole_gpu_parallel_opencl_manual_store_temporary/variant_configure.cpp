@@ -17,13 +17,34 @@ void printVariantInformationMessage( FILE* stream ){
 void printVariantOptionsMessage( FILE* stream ){
   fprintf( stream,
     "Variant Specific Command Line Options:\n"
-    "  --help (or -h)\n"
+    "  --help\n"
+    "   -h\n"
     "    Print this message.\n"
+    "  --verbose\n"
+    "   -v\n"
+    "    Enable verbose printing during experiment run.\n"
   );
 }
 
 void printVariantExitCodeMessage( FILE* stream ){
   /* Nothing */
+  fprintf( stream,
+    "Variant Exit Codes:\n"
+    "  OPENCL_DEVICE_CREATION_FAILURE:  %u\n"
+    "  OPENCL_COMPILATION_FAILURE:      %u\n"
+    "  OPENCL_KERNEL_CREATION_FAILURE:  %u\n"
+    "  OPENCL_BUFFER_WRITE_FAILURE:     %u\n"
+    "  OPENCL_BUFFER_READ_FAILURE:      %u\n"
+    "  OPENCL_KERNEL_SETUP_FAILURE:     %u\n"
+    "  OPENCL_KERNEL_EXECUTION_FAILURE: %u\n",
+    OPENCL_DEVICE_CREATION_FAILURE,
+    OPENCL_COMPILATION_FAILURE,
+    OPENCL_KERNEL_CREATION_FAILURE,
+    OPENCL_BUFFER_WRITE_FAILURE,
+    OPENCL_BUFFER_READ_FAILURE,
+    OPENCL_KERNEL_SETUP_FAILURE,
+    OPENCL_KERNEL_EXECUTION_FAILURE
+  );
 }
 
 VariantOptions parseVariantOptions( int argc, char** argv ){
@@ -44,6 +65,10 @@ VariantOptions parseVariantOptions( int argc, char** argv ){
         case 'h':
           printHelpMessage( stdout );
           exit(SUCCESS);
+
+        case 'v':
+          opts.verbose =  true;
+          break;
 
         default:
           fprintf(stderr, "Error while parsing command line arguments for variant\n");

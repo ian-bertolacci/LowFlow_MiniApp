@@ -1,6 +1,7 @@
 #ifndef SCIENCE_HPP
 #define SCIENCE_HPP
 #include <types.hpp>
+#include <configure.hpp>
 
 void science(
   Variant_Domain* domain,    // Iteration Domain
@@ -25,7 +26,9 @@ void science(
   Variant_Grid* ss,          // Input grid ss
   Variant_Grid* z_mult_dat,  // Input grid z_mult_dat
   Variant_Grid* x_ssl_dat,   // Input grid x_ssl_dat
-  Variant_Grid* y_ssl_dat    // Input grid y_ssl_dat
+  Variant_Grid* y_ssl_dat,   // Input grid y_ssl_dat
+
+  VariantOptions options     // Variant specific runtime configuration options
 );
 
 #endif

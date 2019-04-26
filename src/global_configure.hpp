@@ -5,18 +5,18 @@
 #include <getopt.h>
 #include <stdio.h>
 
-
 #define ENABLE_DEBUG true
 
 #define LONG_OPTIONS_TERMINAL {0,0,0,0}
 #define IS_LONG_OPTIONS_TERMINAL(x) ( ((void*)(x).name == nullptr) && ((int)(x).has_arg == 0) && ((void*)(x).flag == nullptr) && ((int)(x).val == 0) )
 
 // Exit Codes
-enum ExitCode : uint8_t {
-  SUCCESS = 0,
-  VERIFICATION_FAIL = 255,
+typedef uint8_t ExitType;
+enum GeneralExitCode : ExitType {
+  SUCCESS            = 0,
+  VERIFICATION_FAIL  = 255,
   COMMAND_LINE_ERROR = 254,
-  ASSERTION_FAILURE = 134 // TODO Change to non-literal
+  ASSERTION_FAILURE  = 134 // TODO Change to non-literal (defined by system)
 };
 
 static const char* bar_flag = (char*) "--" ;
@@ -66,15 +66,15 @@ static const ProgramOptions ProgramOptions_Defaults {
 };
 
 static const struct option general_long_options[] = {
-  {"size", required_argument, nullptr, 's'},
-  {"seed", required_argument, nullptr, 'S'},
-  {"x_size", required_argument, nullptr, 'x'},
-  {"y_size", required_argument, nullptr, 'y'},
-  {"z_size", required_argument, nullptr, 'z'},
+  {"size",      required_argument, nullptr, 's'},
+  {"seed",      required_argument, nullptr, 'S'},
+  {"x_size",    required_argument, nullptr, 'x'},
+  {"y_size",    required_argument, nullptr, 'y'},
+  {"z_size",    required_argument, nullptr, 'z'},
   {"timesteps", required_argument, nullptr, 'T'},
-  {"epsilon", required_argument, nullptr, 'e'},
-  {"verify", no_argument, nullptr, 'V'}, // TODO Should this use the flagging process of getopt_long?
-  {"help", no_argument, nullptr, 'h'},
+  {"epsilon",   required_argument, nullptr, 'e'},
+  {"verify",    no_argument,       nullptr, 'V'}, // TODO Should this use the flagging process of getopt_long?
+  {"help",      no_argument,       nullptr, 'h'},
   LONG_OPTIONS_TERMINAL
 };
 
