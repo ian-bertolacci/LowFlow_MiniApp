@@ -408,7 +408,7 @@ ExperimentalResults experiment( Basic_Domain* domain, unsigned int seed ){
 
 int main( int argc, char** argv ){
 
-  ProgramOptions opts = parseArguments( argv, argc );
+  ProgramOptions opts = parseProgramOptions( argc, argv );
 
   printf( "(nx, ny, nz): (%d, %d, %d)\n", opts.nx, opts.ny, opts.nz );
 

@@ -10,27 +10,57 @@
 #include <ctype.h>
 #include <stdbool.h>
 
-static const ProgramOptions ProgramOptions_Defaults {
-  .T = 100,
-  .nx = 100,
-  .ny = 100,
-  .nz = 100,
-  .epsilon = 0.00001,
-  .seed = 123456789,
-  .verify = false
-};
+ArgsParameters createProgramArgs( int argc, char** argv ){
+
+  // find the bar ("--") flag
+  int program_argc = 0;
+  for( /*program_argc = 0*/;
+       program_argc < argc && strcmp(argv[program_argc], bar_flag) != 0;
+       program_argc += 1
+     ){ /* do nothing */ }
+     // Note: This does not include the bar flag (Trust me -Ian)
+
+   ArgsParameters args {
+     .argc = program_argc,
+     .argv = argv
+   };
+
+  return args;
+}
+
+ArgsParameters createVariantArgs( int argc, char** argv ){
+
+  // find the bar ("--") flag
+  int program_argc = 0;
+  for( /*program_argc = 0*/;
+       program_argc < argc && strcmp(argv[program_argc], bar_flag) != 0;
+       program_argc += 1
+     ){ /* do nothing */ }
+
+  // conditional values if there is a bar flag
+  bool more_args = argc > program_argc;
+  ArgsParameters args = {
+    .argc = (more_args)? argc - (program_argc): 0,
+    .argv = (more_args)? &argv[program_argc] : nullptr
+  };
+
+  return args;
+}
 
 // Program arguments parser
-ProgramOptions parseArguments( char** argv, int argc ){
+ProgramOptions parseProgramOptions( int argc, char** argv ){
   ProgramOptions opts = ProgramOptions_Defaults;
 
-  char* options = (char*) "x:y:z:s:S:e:Vh-";
+  ArgsParameters args = createProgramArgs( argc, argv );
+
+  char* options = (char*) "x:y:z:s:S:e:Vh";
 
   char c;
+  optind = 1;
   opterr = 0;
   bool continue_loop = true;
 
-  while( continue_loop && (c = getopt(argc, argv, options)) != -1){
+  while( continue_loop && (c = getopt(args.argc, args.argv, options)) != -1){
     switch (c){
       case 's':
       {
@@ -67,10 +97,6 @@ ProgramOptions parseArguments( char** argv, int argc ){
 
       case 'V':
         opts.verify = true;
-        break;
-
-      case '-':
-        continue_loop = false;
         break;
 
       case 'h':
@@ -127,6 +153,10 @@ ProgramOptions parseArguments( char** argv, int argc ){
 
     }
   }
+
+  // Set the variant's options.
+  // Note: Pass full arguments to parseVariantOptions
+  opts.variant_options = parseVariantOptions( argc, argv );
 
   return opts;
 }
