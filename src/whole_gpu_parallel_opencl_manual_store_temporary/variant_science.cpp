@@ -417,7 +417,6 @@ void science(
   kernel_num_args[kernel_idx] = 7*2; /* 7 array-domain pairs */
   kernel_args[kernel_idx] = (cl_mem**) calloc( kernel_num_args[kernel_idx], sizeof(cl_mem*) );
   // Set each argument's input device memory object
-  printf("%d\n", arg_idx );
   kernel_args[kernel_idx][arg_idx++] = &device_fp;
   kernel_args[kernel_idx][arg_idx++] = &device_fp_domain;
   kernel_args[kernel_idx][arg_idx++] = &device_dp;
@@ -432,7 +431,6 @@ void science(
   kernel_args[kernel_idx][arg_idx++] = &device_sp_domain;
   kernel_args[kernel_idx][arg_idx++] = &device_z_mult_dat;
   kernel_args[kernel_idx][arg_idx++] = &device_z_mult_dat_domain;
-  printf("%d\n", arg_idx );
   // Set kernel's global and local work-group sizes
   total_work[kernel_idx][0] = Variant_Domain_nx(domain)-2;
   total_work[kernel_idx][1] = Variant_Domain_ny(domain)-2;
@@ -477,7 +475,6 @@ void science(
   // Setup arguments
   kernel_num_args[kernel_idx] = 9*2; /* 9 array-domain pairs */
   kernel_args[kernel_idx] = (cl_mem**) calloc( kernel_num_args[kernel_idx], sizeof(cl_mem*) );
-  printf("%d\n", arg_idx );
   // Set each argument's input device memory object
   kernel_args[kernel_idx][arg_idx++] = &device_fp;
   kernel_args[kernel_idx][arg_idx++] = &device_fp_domain;
@@ -497,7 +494,6 @@ void science(
   kernel_args[kernel_idx][arg_idx++] = &device_ss_domain;
   kernel_args[kernel_idx][arg_idx++] = &device_z_mult_dat;
   kernel_args[kernel_idx][arg_idx++] = &device_z_mult_dat_domain;
-  printf("%d\n", arg_idx );
   // Set kernel's global and local work-group sizes
   total_work[kernel_idx][0] = Variant_Domain_nx(domain)-2;
   total_work[kernel_idx][1] = Variant_Domain_ny(domain)-2;
@@ -549,7 +545,6 @@ void science(
   kernel_num_args[kernel_idx] = 4*2 /* 4 array-domain object pairs */;
   kernel_args[kernel_idx] = (cl_mem**) calloc( kernel_num_args[kernel_idx], sizeof(cl_mem*) );
   // Set each argument's input device memory object
-  printf("%d\n", arg_idx );
   kernel_args[kernel_idx][arg_idx++] = &device_fp;
   kernel_args[kernel_idx][arg_idx++] = &device_fp_domain;
   kernel_args[kernel_idx][arg_idx++] = &device_et;
@@ -558,7 +553,6 @@ void science(
   kernel_args[kernel_idx][arg_idx++] = &device_sp_domain;
   kernel_args[kernel_idx][arg_idx++] = &device_z_mult_dat;
   kernel_args[kernel_idx][arg_idx++] = &device_z_mult_dat_domain;
-  printf("%d\n", arg_idx );
   // Set kernel's global and local work-group sizes
   total_work[kernel_idx][0] = Variant_Domain_nx(domain)-2;
   total_work[kernel_idx][1] = Variant_Domain_ny(domain)-2;
@@ -595,7 +589,6 @@ void science(
   kernel_num_args[kernel_idx] = 16*2; /* 16 array-domain pairs */
   kernel_args[kernel_idx] = (cl_mem**) calloc( kernel_num_args[kernel_idx], sizeof(cl_mem*) );
   // Set each argument's input device memory object
-  printf("%d\n", arg_idx );
   kernel_args[kernel_idx][arg_idx++] = &device_u_right;
   kernel_args[kernel_idx][arg_idx++] = &device_u_right_domain;
   kernel_args[kernel_idx][arg_idx++] = &device_u_front;
@@ -628,7 +621,6 @@ void science(
   kernel_args[kernel_idx][arg_idx++] = &device_x_ssl_dat_domain;
   kernel_args[kernel_idx][arg_idx++] = &device_y_ssl_dat;
   kernel_args[kernel_idx][arg_idx++] = &device_y_ssl_dat_domain;
-  printf("%d\n", arg_idx );
   // Set kernel's global and local work-group sizes
   total_work[kernel_idx][0] = Variant_Domain_nx(domain)-2;
   total_work[kernel_idx][1] = Variant_Domain_ny(domain)-2;
@@ -793,7 +785,6 @@ void science(
   kernel_num_args[kernel_idx] = 4*2; /* 4 array-domain pairs */
   kernel_args[kernel_idx] = (cl_mem**) calloc( kernel_num_args[kernel_idx], sizeof(cl_mem*) );
   // Set each argument's input device memory object
-  printf("%d\n", arg_idx );
   kernel_args[kernel_idx][arg_idx++] = &device_fp;
   kernel_args[kernel_idx][arg_idx++] = &device_fp_domain;
   kernel_args[kernel_idx][arg_idx++] = &device_u_upper;
@@ -802,7 +793,6 @@ void science(
   kernel_args[kernel_idx][arg_idx++] = &device_u_front_domain;
   kernel_args[kernel_idx][arg_idx++] = &device_u_right;
   kernel_args[kernel_idx][arg_idx++] = &device_u_right_domain;
-  printf("%d\n", arg_idx );
   // Set kernel's global and local work-group sizes
   total_work[kernel_idx][0] = Variant_Domain_nx(domain)-1;
   total_work[kernel_idx][1] = Variant_Domain_ny(domain)-1;
