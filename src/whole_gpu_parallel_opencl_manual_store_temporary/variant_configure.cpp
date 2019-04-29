@@ -59,6 +59,8 @@ VariantOptions parseVariantOptions( int argc, char** argv ){
     // Parse arguments
     char c;
     int option_index = 0;
+    optind = 1; // Reset getopt_long
+    opterr = 0;
     while( (c = getopt_long(args.argc, args.argv, short_options, variant_long_options, &option_index)) != -1 ){
 
       switch (c){

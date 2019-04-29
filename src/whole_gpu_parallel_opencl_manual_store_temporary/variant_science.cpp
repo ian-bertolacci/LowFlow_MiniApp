@@ -56,11 +56,11 @@ void science(
     assert( y_ssl_dat != nullptr  && "Error during science: input grid y_ssl_dat is null" );
   }
 
-  const int num_domains = 24;
+  const int num_domains = 23;
 
   const int num_compute_kernels = 4 /*main kernels*/ + 1 /*reduce kernels*/;
   const int num_util_kernels = 0;
-  const int num_preambles = 1 + num_domains;
+  const int num_preambles = 1 ;
 
   // Error code returned/out-var'ed by OpenCL functions
   int err;
@@ -153,6 +153,31 @@ void science(
   cl_mem device_u_right    = clCreateBuffer( context, CL_MEM_READ_WRITE, Variant_Grid_sizeof(u_right),    nullptr, &err );
   cl_mem device_u_front    = clCreateBuffer( context, CL_MEM_READ_WRITE, Variant_Grid_sizeof(u_front),    nullptr, &err );
   cl_mem device_u_upper    = clCreateBuffer( context, CL_MEM_READ_WRITE, Variant_Grid_sizeof(u_upper),    nullptr, &err );
+
+  // Domains
+  cl_mem device_fp_domain         = clCreateBuffer( context, CL_MEM_READ_ONLY, sizeof(Variant_Domain), nullptr, &err );
+  cl_mem device_dp_domain         = clCreateBuffer( context, CL_MEM_READ_ONLY, sizeof(Variant_Domain), nullptr, &err );
+  cl_mem device_et_domain         = clCreateBuffer( context, CL_MEM_READ_ONLY, sizeof(Variant_Domain), nullptr, &err );
+  cl_mem device_odp_domain        = clCreateBuffer( context, CL_MEM_READ_ONLY, sizeof(Variant_Domain), nullptr, &err );
+  cl_mem device_opp_domain        = clCreateBuffer( context, CL_MEM_READ_ONLY, sizeof(Variant_Domain), nullptr, &err );
+  cl_mem device_osp_domain        = clCreateBuffer( context, CL_MEM_READ_ONLY, sizeof(Variant_Domain), nullptr, &err );
+  cl_mem device_permxp_domain     = clCreateBuffer( context, CL_MEM_READ_ONLY, sizeof(Variant_Domain), nullptr, &err );
+  cl_mem device_permyp_domain     = clCreateBuffer( context, CL_MEM_READ_ONLY, sizeof(Variant_Domain), nullptr, &err );
+  cl_mem device_permzp_domain     = clCreateBuffer( context, CL_MEM_READ_ONLY, sizeof(Variant_Domain), nullptr, &err );
+  cl_mem device_pop_domain        = clCreateBuffer( context, CL_MEM_READ_ONLY, sizeof(Variant_Domain), nullptr, &err );
+  cl_mem device_pp_domain         = clCreateBuffer( context, CL_MEM_READ_ONLY, sizeof(Variant_Domain), nullptr, &err );
+  cl_mem device_rpp_domain        = clCreateBuffer( context, CL_MEM_READ_ONLY, sizeof(Variant_Domain), nullptr, &err );
+  cl_mem device_sp_domain         = clCreateBuffer( context, CL_MEM_READ_ONLY, sizeof(Variant_Domain), nullptr, &err );
+  cl_mem device_ss_domain         = clCreateBuffer( context, CL_MEM_READ_ONLY, sizeof(Variant_Domain), nullptr, &err );
+  cl_mem device_z_mult_dat_domain = clCreateBuffer( context, CL_MEM_READ_ONLY, sizeof(Variant_Domain), nullptr, &err );
+  cl_mem device_x_ssl_dat_domain  = clCreateBuffer( context, CL_MEM_READ_ONLY, sizeof(Variant_Domain), nullptr, &err );
+  cl_mem device_y_ssl_dat_domain  = clCreateBuffer( context, CL_MEM_READ_ONLY, sizeof(Variant_Domain), nullptr, &err );
+  cl_mem device_vx_domain         = clCreateBuffer( context, CL_MEM_READ_ONLY, sizeof(Variant_Domain), nullptr, &err );
+  cl_mem device_vy_domain         = clCreateBuffer( context, CL_MEM_READ_ONLY, sizeof(Variant_Domain), nullptr, &err );
+  cl_mem device_vz_domain         = clCreateBuffer( context, CL_MEM_READ_ONLY, sizeof(Variant_Domain), nullptr, &err );
+  cl_mem device_u_right_domain    = clCreateBuffer( context, CL_MEM_READ_ONLY, sizeof(Variant_Domain), nullptr, &err );
+  cl_mem device_u_front_domain    = clCreateBuffer( context, CL_MEM_READ_ONLY, sizeof(Variant_Domain), nullptr, &err );
+  cl_mem device_u_upper_domain    = clCreateBuffer( context, CL_MEM_READ_ONLY, sizeof(Variant_Domain), nullptr, &err );
 
   // Below is a collection of arrays that map between the host and device memory objects
   const int num_device_read_buffers = 20;
@@ -257,91 +282,125 @@ void science(
     Variant_Grid_sizeof(vz)
   };
 
-  Variant_Domain* domains[num_domains] = {
-    domain,
+  Variant_Domain* host_domains[num_domains] = {
     Variant_Grid_domain(fp),
     Variant_Grid_domain(dp),
     Variant_Grid_domain(et),
     Variant_Grid_domain(odp),
-
     Variant_Grid_domain(opp),
+
     Variant_Grid_domain(osp),
     Variant_Grid_domain(permxp),
     Variant_Grid_domain(permyp),
     Variant_Grid_domain(permzp),
-
     Variant_Grid_domain(pop),
+
     Variant_Grid_domain(pp),
     Variant_Grid_domain(rpp),
     Variant_Grid_domain(sp),
     Variant_Grid_domain(ss),
-
     Variant_Grid_domain(z_mult_dat),
+
     Variant_Grid_domain(x_ssl_dat),
     Variant_Grid_domain(y_ssl_dat),
     Variant_Grid_domain(vx),
     Variant_Grid_domain(vy),
-
     Variant_Grid_domain(vz),
+
     Variant_Grid_domain(u_right),
     Variant_Grid_domain(u_front),
     Variant_Grid_domain(u_upper)
   };
 
-  char* domain_names[num_domains] = {
-    (char*) STRINGIZE(domain),
-    (char*) STRINGIZE(fp),
-    (char*) STRINGIZE(dp),
-    (char*) STRINGIZE(et),
-    (char*) STRINGIZE(odp),
+  cl_mem* device_domains[num_domains] = {
+    &device_fp_domain,
+    &device_dp_domain,
+    &device_et_domain,
+    &device_odp_domain,
+    &device_opp_domain,
 
-    (char*) STRINGIZE(opp),
-    (char*) STRINGIZE(osp),
-    (char*) STRINGIZE(permxp),
-    (char*) STRINGIZE(permyp),
-    (char*) STRINGIZE(permzp),
+    &device_osp_domain,
+    &device_permxp_domain,
+    &device_permyp_domain,
+    &device_permzp_domain,
+    &device_pop_domain,
 
-    (char*) STRINGIZE(pop),
-    (char*) STRINGIZE(pp),
-    (char*) STRINGIZE(rpp),
-    (char*) STRINGIZE(sp),
-    (char*) STRINGIZE(ss),
+    &device_pp_domain,
+    &device_rpp_domain,
+    &device_sp_domain,
+    &device_ss_domain,
+    &device_z_mult_dat_domain,
 
-    (char*) STRINGIZE(z_mult_dat),
-    (char*) STRINGIZE(x_ssl_dat),
-    (char*) STRINGIZE(y_ssl_dat),
-    (char*) STRINGIZE(vx),
-    (char*) STRINGIZE(vy),
+    &device_x_ssl_dat_domain,
+    &device_y_ssl_dat_domain,
+    &device_vx_domain,
+    &device_vy_domain,
+    &device_vz_domain,
 
-    (char*) STRINGIZE(vz),
-    (char*) STRINGIZE(u_right),
-    (char*) STRINGIZE(u_front),
-    (char*) STRINGIZE(u_upper)
+    &device_u_right_domain,
+    &device_u_front_domain,
+    &device_u_upper_domain
   };
 
-  preamble_sources[0] = (char*)
-  "typedef struct struct_Basic_Domain { \
-      int nx, ny, nz; \
-    } Basic_Domain; \
-    typedef Basic_Domain Variant_Domain;";
+  // char* domain_names[num_domains] = {
+  //   (char*) STRINGIZE(domain),
+  //   (char*) STRINGIZE(fp),
+  //   (char*) STRINGIZE(dp),
+  //   (char*) STRINGIZE(et),
+  //   (char*) STRINGIZE(odp),
+  //
+  //   (char*) STRINGIZE(opp),
+  //   (char*) STRINGIZE(osp),
+  //   (char*) STRINGIZE(permxp),
+  //   (char*) STRINGIZE(permyp),
+  //   (char*) STRINGIZE(permzp),
+  //
+  //   (char*) STRINGIZE(pop),
+  //   (char*) STRINGIZE(pp),
+  //   (char*) STRINGIZE(rpp),
+  //   (char*) STRINGIZE(sp),
+  //   (char*) STRINGIZE(ss),
+  //
+  //   (char*) STRINGIZE(z_mult_dat),
+  //   (char*) STRINGIZE(x_ssl_dat),
+  //   (char*) STRINGIZE(y_ssl_dat),
+  //   (char*) STRINGIZE(vx),
+  //   (char*) STRINGIZE(vy),
+  //
+  //   (char*) STRINGIZE(vz),
+  //   (char*) STRINGIZE(u_right),
+  //   (char*) STRINGIZE(u_front),
+  //   (char*) STRINGIZE(u_upper)
+  // };
 
-  {
-    const int max_str_len = 512;
-    for( int i = 0; i < num_domains; i += 1){
+  preamble_sources[0] = (char*) STRINGIZE(
+    typedef struct struct_Basic_Domain {
+        int nx;
+        int ny;
+        int nz;
+      } Basic_Domain;
+      typedef Basic_Domain Variant_Domain;
+  );
 
-      preamble_sources[1+i] = (char*) calloc(max_str_len, sizeof(char));
-      sprintf(
-        preamble_sources[i+1],
-        "const int %1$s_domain_nx=%2$d;"\
-        "const int %1$s_domain_ny=%3$d;"\
-        "const int %1$s_domain_nz=%4$d;",
-        domain_names[i],
-        Variant_Domain_nx( domains[i] ),
-        Variant_Domain_ny( domains[i] ),
-        Variant_Domain_nz( domains[i] )
-      );
-    }
-  }
+  // {
+  //   const int max_str_len = 512;
+  //   for( int i = 0; i < num_domains; i += 1){
+  //
+  //     preamble_sources[1+i] = (char*) calloc(max_str_len, sizeof(char));
+  //     sprintf(
+  //       preamble_sources[i+1],
+  //       "const int %1$s_domain_nx=%2$d;"\
+  //       "const int %1$s_domain_ny=%3$d;"\
+  //       "const int %1$s_domain_nz=%4$d;",
+  //       domain_names[i],
+  //       Variant_Domain_nx( domains[i] ),
+  //       Variant_Domain_ny( domains[i] ),
+  //       Variant_Domain_nz( domains[i] )
+  //     );
+  //   }
+  // }
+
+
     // typedef struct struct_Basic_Grid { \
     //   __global Basic_Domain* domain; \
     //   __global double* data; \
@@ -349,21 +408,31 @@ void science(
     // typedef Basic_Domain Variant_Domain; \
     // typedef Basic_Grid Variant_Grid;";
 
-  int kernel_idx;
+  int kernel_idx, arg_idx;
   // Do baseline scientific kernel
   // NlFunctionEval:261 analogue
   kernel_idx = 0;
+  arg_idx = 0;
   // Setup arguments
-  kernel_num_args[kernel_idx] = 7;
+  kernel_num_args[kernel_idx] = 7*2; /* 7 array-domain pairs */
   kernel_args[kernel_idx] = (cl_mem**) calloc( kernel_num_args[kernel_idx], sizeof(cl_mem*) );
   // Set each argument's input device memory object
-  kernel_args[kernel_idx][ 0] = &device_fp;
-  kernel_args[kernel_idx][ 1] = &device_dp;
-  kernel_args[kernel_idx][ 2] = &device_odp;
-  kernel_args[kernel_idx][ 3] = &device_osp;
-  kernel_args[kernel_idx][ 4] = &device_pop;
-  kernel_args[kernel_idx][ 5] = &device_sp;
-  kernel_args[kernel_idx][ 6] = &device_z_mult_dat;
+  printf("%d\n", arg_idx );
+  kernel_args[kernel_idx][arg_idx++] = &device_fp;
+  kernel_args[kernel_idx][arg_idx++] = &device_fp_domain;
+  kernel_args[kernel_idx][arg_idx++] = &device_dp;
+  kernel_args[kernel_idx][arg_idx++] = &device_dp_domain;
+  kernel_args[kernel_idx][arg_idx++] = &device_odp;
+  kernel_args[kernel_idx][arg_idx++] = &device_odp_domain;
+  kernel_args[kernel_idx][arg_idx++] = &device_osp;
+  kernel_args[kernel_idx][arg_idx++] = &device_osp_domain;
+  kernel_args[kernel_idx][arg_idx++] = &device_pop;
+  kernel_args[kernel_idx][arg_idx++] = &device_pop_domain;
+  kernel_args[kernel_idx][arg_idx++] = &device_sp;
+  kernel_args[kernel_idx][arg_idx++] = &device_sp_domain;
+  kernel_args[kernel_idx][arg_idx++] = &device_z_mult_dat;
+  kernel_args[kernel_idx][arg_idx++] = &device_z_mult_dat_domain;
+  printf("%d\n", arg_idx );
   // Set kernel's global and local work-group sizes
   total_work[kernel_idx][0] = Variant_Domain_nx(domain)-2;
   total_work[kernel_idx][1] = Variant_Domain_ny(domain)-2;
@@ -372,13 +441,20 @@ void science(
   kernel_names[kernel_idx] = (char*)"function_NFE261";
   compute_kernel_sources[kernel_idx] = (char*) STRINGIZE(
     __kernel void function_NFE261(
-      __global   double* fp,
-      __constant double* dp,
-      __constant double* odp,
-      __constant double* osp,
-      __constant double* pop,
-      __constant double* sp,
-      __constant double* z_mult_dat
+      __global   double*         fp,
+      __constant Variant_Domain* fp_domain,
+      __constant double*         dp,
+      __constant Variant_Domain* dp_domain,
+      __constant double*         odp,
+      __constant Variant_Domain* odp_domain,
+      __constant double*         osp,
+      __constant Variant_Domain* osp_domain,
+      __constant double*         pop,
+      __constant Variant_Domain* pop_domain,
+      __constant double*         sp,
+      __constant Variant_Domain* sp_domain,
+      __constant double*         z_mult_dat,
+      __constant Variant_Domain* z_mult_dat_domain
     ){
       int x = get_global_id(0)+1;
       int y = get_global_id(1)+1;
@@ -397,19 +473,31 @@ void science(
 
   // NlFunctionEval:338 analogue
   kernel_idx = 1;
+  arg_idx = 0;
   // Setup arguments
-  kernel_num_args[kernel_idx] = 9;
+  kernel_num_args[kernel_idx] = 9*2; /* 9 array-domain pairs */
   kernel_args[kernel_idx] = (cl_mem**) calloc( kernel_num_args[kernel_idx], sizeof(cl_mem*) );
+  printf("%d\n", arg_idx );
   // Set each argument's input device memory object
-  kernel_args[kernel_idx][ 0] = &device_fp;
-  kernel_args[kernel_idx][ 1] = &device_dp;
-  kernel_args[kernel_idx][ 2] = &device_odp;
-  kernel_args[kernel_idx][ 3] = &device_opp;
-  kernel_args[kernel_idx][ 4] = &device_osp;
-  kernel_args[kernel_idx][ 5] = &device_pp;
-  kernel_args[kernel_idx][ 6] = &device_sp;
-  kernel_args[kernel_idx][ 7] = &device_ss;
-  kernel_args[kernel_idx][ 8] = &device_z_mult_dat;
+  kernel_args[kernel_idx][arg_idx++] = &device_fp;
+  kernel_args[kernel_idx][arg_idx++] = &device_fp_domain;
+  kernel_args[kernel_idx][arg_idx++] = &device_dp;
+  kernel_args[kernel_idx][arg_idx++] = &device_dp_domain;
+  kernel_args[kernel_idx][arg_idx++] = &device_odp;
+  kernel_args[kernel_idx][arg_idx++] = &device_odp_domain;
+  kernel_args[kernel_idx][arg_idx++] = &device_opp;
+  kernel_args[kernel_idx][arg_idx++] = &device_opp_domain;
+  kernel_args[kernel_idx][arg_idx++] = &device_osp;
+  kernel_args[kernel_idx][arg_idx++] = &device_osp_domain;
+  kernel_args[kernel_idx][arg_idx++] = &device_pp;
+  kernel_args[kernel_idx][arg_idx++] = &device_pp_domain;
+  kernel_args[kernel_idx][arg_idx++] = &device_sp;
+  kernel_args[kernel_idx][arg_idx++] = &device_sp_domain;
+  kernel_args[kernel_idx][arg_idx++] = &device_ss;
+  kernel_args[kernel_idx][arg_idx++] = &device_ss_domain;
+  kernel_args[kernel_idx][arg_idx++] = &device_z_mult_dat;
+  kernel_args[kernel_idx][arg_idx++] = &device_z_mult_dat_domain;
+  printf("%d\n", arg_idx );
   // Set kernel's global and local work-group sizes
   total_work[kernel_idx][0] = Variant_Domain_nx(domain)-2;
   total_work[kernel_idx][1] = Variant_Domain_ny(domain)-2;
@@ -418,15 +506,24 @@ void science(
   kernel_names[kernel_idx] = (char*)"function_NFE338";
   compute_kernel_sources[kernel_idx] = (char*) STRINGIZE(
     __kernel void function_NFE338(
-      __global   double* fp,
-      __constant double* dp,
-      __constant double* odp,
-      __constant double* opp,
-      __constant double* osp,
-      __constant double* pp,
-      __constant double* sp,
-      __constant double* ss,
-      __constant double* z_mult_dat
+      __global   double*         fp,
+      __constant Variant_Domain* fp_domain,
+      __constant double*         dp,
+      __constant Variant_Domain* dp_domain,
+      __constant double*         odp,
+      __constant Variant_Domain* odp_domain,
+      __constant double*         opp,
+      __constant Variant_Domain* opp_domain,
+      __constant double*         osp,
+      __constant Variant_Domain* osp_domain,
+      __constant double*         pp,
+      __constant Variant_Domain* pp_domain,
+      __constant double*         sp,
+      __constant Variant_Domain* sp_domain,
+      __constant double*         ss,
+      __constant Variant_Domain* ss_domain,
+      __constant double*         z_mult_dat,
+      __constant Variant_Domain* z_mult_dat_domain
     ){
       int x = get_global_id(0)+1;
       int y = get_global_id(1)+1;
@@ -448,13 +545,20 @@ void science(
   // NlFunctionEval:416 analogue
   // Setup arguments
   kernel_idx = 2;
-  kernel_num_args[kernel_idx] = 4;
+  arg_idx = 0;
+  kernel_num_args[kernel_idx] = 4*2 /* 4 array-domain object pairs */;
   kernel_args[kernel_idx] = (cl_mem**) calloc( kernel_num_args[kernel_idx], sizeof(cl_mem*) );
   // Set each argument's input device memory object
-  kernel_args[kernel_idx][0] = &device_fp;
-  kernel_args[kernel_idx][1] = &device_et;
-  kernel_args[kernel_idx][2] = &device_sp;
-  kernel_args[kernel_idx][3] = &device_z_mult_dat;
+  printf("%d\n", arg_idx );
+  kernel_args[kernel_idx][arg_idx++] = &device_fp;
+  kernel_args[kernel_idx][arg_idx++] = &device_fp_domain;
+  kernel_args[kernel_idx][arg_idx++] = &device_et;
+  kernel_args[kernel_idx][arg_idx++] = &device_et_domain;
+  kernel_args[kernel_idx][arg_idx++] = &device_sp;
+  kernel_args[kernel_idx][arg_idx++] = &device_sp_domain;
+  kernel_args[kernel_idx][arg_idx++] = &device_z_mult_dat;
+  kernel_args[kernel_idx][arg_idx++] = &device_z_mult_dat_domain;
+  printf("%d\n", arg_idx );
   // Set kernel's global and local work-group sizes
   total_work[kernel_idx][0] = Variant_Domain_nx(domain)-2;
   total_work[kernel_idx][1] = Variant_Domain_ny(domain)-2;
@@ -463,10 +567,14 @@ void science(
   kernel_names[kernel_idx] = (char*)"function_NFE416";
   compute_kernel_sources[kernel_idx] = (char*) STRINGIZE(
     __kernel void function_NFE416(
-      __global   double* fp,
-      __constant double* et,
-      __constant double* sp,
-      __constant double* z_mult_dat
+      __global   double*         fp,
+      __constant Variant_Domain* fp_domain,
+      __constant double*         et,
+      __constant Variant_Domain* et_domain,
+      __constant double*         sp,
+      __constant Variant_Domain* sp_domain,
+      __constant double*         z_mult_dat,
+      __constant Variant_Domain* z_mult_dat_domain
     ){
       int x = get_global_id(0)+1;
       int y = get_global_id(1)+1;
@@ -483,25 +591,44 @@ void science(
   // NlFunctionEval:551 analogue
   // Setup arguments
   kernel_idx = 3;
-  kernel_num_args[kernel_idx] = 16;
+  arg_idx = 0;
+  kernel_num_args[kernel_idx] = 16*2; /* 16 array-domain pairs */
   kernel_args[kernel_idx] = (cl_mem**) calloc( kernel_num_args[kernel_idx], sizeof(cl_mem*) );
   // Set each argument's input device memory object
-  kernel_args[kernel_idx][ 0] = &device_u_right;
-  kernel_args[kernel_idx][ 1] = &device_u_front;
-  kernel_args[kernel_idx][ 2] = &device_u_upper;
-  kernel_args[kernel_idx][ 3] = &device_fp;
-  kernel_args[kernel_idx][ 4] = &device_vx;
-  kernel_args[kernel_idx][ 5] = &device_vy;
-  kernel_args[kernel_idx][ 6] = &device_vz;
-  kernel_args[kernel_idx][ 7] = &device_dp;
-  kernel_args[kernel_idx][ 8] = &device_permxp;
-  kernel_args[kernel_idx][ 9] = &device_permyp;
-  kernel_args[kernel_idx][10] = &device_permzp;
-  kernel_args[kernel_idx][11] = &device_pp;
-  kernel_args[kernel_idx][12] = &device_rpp;
-  kernel_args[kernel_idx][13] = &device_z_mult_dat;
-  kernel_args[kernel_idx][14] = &device_x_ssl_dat;
-  kernel_args[kernel_idx][15] = &device_y_ssl_dat;
+  printf("%d\n", arg_idx );
+  kernel_args[kernel_idx][arg_idx++] = &device_u_right;
+  kernel_args[kernel_idx][arg_idx++] = &device_u_right_domain;
+  kernel_args[kernel_idx][arg_idx++] = &device_u_front;
+  kernel_args[kernel_idx][arg_idx++] = &device_u_front_domain;
+  kernel_args[kernel_idx][arg_idx++] = &device_u_upper;
+  kernel_args[kernel_idx][arg_idx++] = &device_u_upper_domain;
+  kernel_args[kernel_idx][arg_idx++] = &device_fp;
+  kernel_args[kernel_idx][arg_idx++] = &device_fp_domain;
+  kernel_args[kernel_idx][arg_idx++] = &device_vx;
+  kernel_args[kernel_idx][arg_idx++] = &device_vx_domain;
+  kernel_args[kernel_idx][arg_idx++] = &device_vy;
+  kernel_args[kernel_idx][arg_idx++] = &device_vy_domain;
+  kernel_args[kernel_idx][arg_idx++] = &device_vz;
+  kernel_args[kernel_idx][arg_idx++] = &device_vz_domain;
+  kernel_args[kernel_idx][arg_idx++] = &device_dp;
+  kernel_args[kernel_idx][arg_idx++] = &device_dp_domain;
+  kernel_args[kernel_idx][arg_idx++] = &device_permxp;
+  kernel_args[kernel_idx][arg_idx++] = &device_permxp_domain;
+  kernel_args[kernel_idx][arg_idx++] = &device_permyp;
+  kernel_args[kernel_idx][arg_idx++] = &device_permyp_domain;
+  kernel_args[kernel_idx][arg_idx++] = &device_permzp;
+  kernel_args[kernel_idx][arg_idx++] = &device_permzp_domain;
+  kernel_args[kernel_idx][arg_idx++] = &device_pp;
+  kernel_args[kernel_idx][arg_idx++] = &device_pp_domain;
+  kernel_args[kernel_idx][arg_idx++] = &device_rpp;
+  kernel_args[kernel_idx][arg_idx++] = &device_rpp_domain;
+  kernel_args[kernel_idx][arg_idx++] = &device_z_mult_dat;
+  kernel_args[kernel_idx][arg_idx++] = &device_z_mult_dat_domain;
+  kernel_args[kernel_idx][arg_idx++] = &device_x_ssl_dat;
+  kernel_args[kernel_idx][arg_idx++] = &device_x_ssl_dat_domain;
+  kernel_args[kernel_idx][arg_idx++] = &device_y_ssl_dat;
+  kernel_args[kernel_idx][arg_idx++] = &device_y_ssl_dat_domain;
+  printf("%d\n", arg_idx );
   // Set kernel's global and local work-group sizes
   total_work[kernel_idx][0] = Variant_Domain_nx(domain)-2;
   total_work[kernel_idx][1] = Variant_Domain_ny(domain)-2;
@@ -510,35 +637,43 @@ void science(
   kernel_names[kernel_idx] = (char*)"function_NFE551";
   compute_kernel_sources[kernel_idx] = (char*) STRINGIZE(
     __kernel void function_NFE551(
-      __global   double* u_right,
-      __global   double* u_front,
-      __global   double* u_upper,
-      __global   double* fp,
-      __global   double* vx,
-      __global   double* vy,
-      __global   double* vz,
-      __constant double* dp,
-      __constant double* permxp,
-      __constant double* permyp,
-      __constant double* permzp,
-      __constant double* pp,
-      __constant double* rpp,
-      __constant double* z_mult_dat,
-      __constant double* x_ssl_dat,
-      __constant double* y_ssl_dat
+      __global   double*         u_right,
+      __constant Variant_Domain* u_right_domain,
+      __global   double*         u_front,
+      __constant Variant_Domain* u_front_domain,
+      __global   double*         u_upper,
+      __constant Variant_Domain* u_upper_domain,
+      __global   double*         fp,
+      __constant Variant_Domain* fp_domain,
+      __global   double*         vx,
+      __constant Variant_Domain* vx_domain,
+      __global   double*         vy,
+      __constant Variant_Domain* vy_domain,
+      __global   double*         vz,
+      __constant Variant_Domain* vz_domain,
+      __constant double*         dp,
+      __constant Variant_Domain* dp_domain,
+      __constant double*         permxp,
+      __constant Variant_Domain* permxp_domain,
+      __constant double*         permyp,
+      __constant Variant_Domain* permyp_domain,
+      __constant double*         permzp,
+      __constant Variant_Domain* permzp_domain,
+      __constant double*         pp,
+      __constant Variant_Domain* pp_domain,
+      __constant double*         rpp,
+      __constant Variant_Domain* rpp_domain,
+      __constant double*         z_mult_dat,
+      __constant Variant_Domain* z_mult_dat_domain,
+      __constant double*         x_ssl_dat,
+      __constant Variant_Domain* x_ssl_dat_domain,
+      __constant double*         y_ssl_dat,
+      __constant Variant_Domain* y_ssl_dat_domain
     ){
       int x = get_global_id(0)+1;
       int y = get_global_id(1)+1;
       int z = get_global_id(2)+1;
 
-      // printf("global (%u, %u, %u) size (%u, %u, %u), local (%u, %u, %u) size (%u, %u, %u) := (%d, %d, %d)\n",
-      //   get_global_id(0), get_global_id(1), get_global_id(2),
-      //   get_global_size(0), get_global_size(1), get_global_size(2),
-      //   get_local_id(0), get_local_id(1), get_local_id(2),
-      //   get_local_size(0), get_local_size(1), get_local_size(2),
-      //   x,y,z
-      // );
-      // printf("function_NFE551 (%d %d %d)\n", x,y,z);
       double x_dir_g   = ArithmeticMean( Variant_Grid_fast_access( x_ssl_dat, x, y, 0), Variant_Grid_fast_access( x_ssl_dat, x+1,  y, 0 ) );
       double x_dir_g_c = ArithmeticMean( Variant_Grid_fast_access( x_ssl_dat, x, y, 0), Variant_Grid_fast_access( x_ssl_dat, x+1,  y, 0 ) );
       double y_dir_g   = ArithmeticMean( Variant_Grid_fast_access( y_ssl_dat, x, y, 0), Variant_Grid_fast_access( y_ssl_dat, x,  y+1, 0 ) );
@@ -623,19 +758,21 @@ void science(
         );
 
       double u_upper_local =
-                  HarmonicMeanDZ(
-                      Variant_Grid_fast_access(permzp,     x, y, z  ),
-                      Variant_Grid_fast_access(permzp,     x, y, z+1),
-                      Variant_Grid_fast_access(z_mult_dat, x, y, z  ),
-                      Variant_Grid_fast_access(z_mult_dat, x, y, z+1)
-                  )
-                * diff_upper
-                * UpstreamMean(
-                    lower_cond,
-                    upper_cond,
-                    Variant_Grid_fast_access(rpp, x, y, z  ) * Variant_Grid_fast_access(dp, x, y, z  ),
-                    Variant_Grid_fast_access(rpp, x, y, z+1) * Variant_Grid_fast_access(dp, x, y, z+1)
-                  );
+        HarmonicMeanDZ(
+            Variant_Grid_fast_access(permzp,     x, y, z  ),
+            Variant_Grid_fast_access(permzp,     x, y, z+1),
+            Variant_Grid_fast_access(z_mult_dat, x, y, z  ),
+            Variant_Grid_fast_access(z_mult_dat, x, y, z+1)
+        )
+      * diff_upper
+      * UpstreamMean(
+          lower_cond,
+          upper_cond,
+          Variant_Grid_fast_access(rpp, x, y, z  ) * Variant_Grid_fast_access(dp, x, y, z  ),
+          Variant_Grid_fast_access(rpp, x, y, z+1) * Variant_Grid_fast_access(dp, x, y, z+1)
+        );
+
+
       Variant_Grid_fast_access(fp,      x, y, z) += u_right_local * u_front_local * u_upper_local;
 
       Variant_Grid_fast_access(vx,      x, y, z)  = u_right_local;
@@ -652,13 +789,20 @@ void science(
   // NlFunctionEval:551 reduction portion
   // Setup arguments
   kernel_idx = 4;
-  kernel_num_args[kernel_idx] = 4;
+  arg_idx = 0;
+  kernel_num_args[kernel_idx] = 4*2; /* 4 array-domain pairs */
   kernel_args[kernel_idx] = (cl_mem**) calloc( kernel_num_args[kernel_idx], sizeof(cl_mem*) );
   // Set each argument's input device memory object
-  kernel_args[kernel_idx][0] = &device_u_upper;
-  kernel_args[kernel_idx][1] = &device_u_front;
-  kernel_args[kernel_idx][2] = &device_u_right,
-  kernel_args[kernel_idx][3] = &device_fp;
+  printf("%d\n", arg_idx );
+  kernel_args[kernel_idx][arg_idx++] = &device_fp;
+  kernel_args[kernel_idx][arg_idx++] = &device_fp_domain;
+  kernel_args[kernel_idx][arg_idx++] = &device_u_upper;
+  kernel_args[kernel_idx][arg_idx++] = &device_u_upper_domain;
+  kernel_args[kernel_idx][arg_idx++] = &device_u_front;
+  kernel_args[kernel_idx][arg_idx++] = &device_u_front_domain;
+  kernel_args[kernel_idx][arg_idx++] = &device_u_right;
+  kernel_args[kernel_idx][arg_idx++] = &device_u_right_domain;
+  printf("%d\n", arg_idx );
   // Set kernel's global and local work-group sizes
   total_work[kernel_idx][0] = Variant_Domain_nx(domain)-1;
   total_work[kernel_idx][1] = Variant_Domain_ny(domain)-1;
@@ -667,10 +811,14 @@ void science(
   kernel_names[kernel_idx] = (char*)"function_NFE551_reduce";
   compute_kernel_sources[kernel_idx] = (char*) STRINGIZE(
     __kernel void function_NFE551_reduce(
-      __constant double* u_upper,
-      __constant double* u_front,
-      __constant double* u_right,
-      __global   double* fp
+      __global   double*         fp,
+      __constant Variant_Domain* fp_domain,
+      __constant double*         u_upper,
+      __constant Variant_Domain* u_upper_domain,
+      __constant double*         u_front,
+      __constant Variant_Domain* u_front_domain,
+      __constant double*         u_right,
+      __constant Variant_Domain* u_right_domain
     ){
       int x = get_global_id(0)+1;
       int y = get_global_id(1)+1;
@@ -697,6 +845,9 @@ void science(
 
   /* Create the compute program from the source buffer */
   program = clCreateProgramWithSource(context, num_compute_kernels+num_preambles, (const char**)sources, nullptr, &err);
+  if( err != SUCCESS ){
+    printf("Error: Failed to create compute program! (Error code %d)\n", err);
+  }
 
   char* compile_options = (char*)"-cl-std=CL2.0";
 
@@ -747,7 +898,7 @@ void science(
     }
 
     if( !program || err != CL_SUCCESS || build_status != CL_BUILD_SUCCESS ){
-      printf("Error: Failed to create compute program! (Error code %d)\n", err);
+      printf("Error: Failed to build compute program! (Error code %d)\n", err);
       exit(OPENCL_COMPILATION_FAILURE);
     }
   }
@@ -763,8 +914,18 @@ void science(
 
   // Copy read buffers
   for( int i = 0; i < num_device_read_buffers; i += 1 ){
-    if( options.verbose ) printf("clEnqueueWriteBuffer %d\n", i);
+    if( options.verbose ) printf("clEnqueueWriteBuffer read array %d\n", i);
     err = clEnqueueWriteBuffer( commands, *device_read_buffers[i], CL_FALSE, 0, sizeof_read_buffers[i], host_read_buffers[i], 0, nullptr, nullptr );
+    if( err != CL_SUCCESS ){
+      printf("Error: Failed enqueue write-buffer command (Error code %d)\n", err);
+      exit(OPENCL_BUFFER_WRITE_FAILURE);
+    }
+  }
+
+  // Copy Domains
+  for( int i = 0; i < num_domains; i += 1 ){
+    if( options.verbose ) printf("clEnqueueWriteBuffer domain %d (%p)\n", i, host_domains[i] );
+    err = clEnqueueWriteBuffer( commands, *device_domains[i], CL_FALSE, 0, sizeof(Variant_Domain), host_domains[i], 0, nullptr, nullptr );
     if( err != CL_SUCCESS ){
       printf("Error: Failed enqueue write-buffer command (Error code %d)\n", err);
       exit(OPENCL_BUFFER_WRITE_FAILURE);
@@ -817,8 +978,8 @@ void science(
   for( int k = 0; k < num_compute_kernels; k += 1 ){
     free(kernel_args[k]);
   }
-  for( int i = 0; i < num_domains; i += 1 ){
-    free( preamble_sources[1+i] );
-  }
+  // for( int i = 0; i < num_domains; i += 1 ){
+  //   free( preamble_sources[1+i] );
+  // }
 
 }
