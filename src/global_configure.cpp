@@ -143,8 +143,8 @@ ProgramOptions parseProgramOptions( int argc, char** argv ){
   char* short_options = createShortOptionsFromLongOptions( general_long_options );
 
   char c;
-  // optind = 1;
-  // opterr = 0;
+  optind = 1;
+  opterr = 0;
   int option_index = 0;
   bool continue_loop = true;
 
@@ -192,7 +192,7 @@ ProgramOptions parseProgramOptions( int argc, char** argv ){
         exit(SUCCESS);
 
       default:
-        fprintf(stderr, "Error while parsing general command line arguments!\n");
+        fprintf(stderr, "Error while parsing general command line arguments! (case %c, 0x%x)\n", c, c);
         printHelpMessage( stderr );
         exit(COMMAND_LINE_ERROR);
 
