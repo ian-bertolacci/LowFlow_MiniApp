@@ -2,6 +2,7 @@
 #define SCIENCE_HPP
 #include <types.hpp>
 #include <configure.hpp>
+#include <metrics.hpp>
 
 void science(
   Variant_Domain* domain,    // Iteration Domain
@@ -28,7 +29,8 @@ void science(
   Variant_Grid* x_ssl_dat,   // Input grid x_ssl_dat
   Variant_Grid* y_ssl_dat,   // Input grid y_ssl_dat
 
-  VariantOptions options     // Variant specific runtime configuration options
+  VariantOptions options,    // Variant specific runtime configuration options
+  Variant_Metrics* metrics   // Output metrics for variant
 );
 
 #endif

@@ -32,12 +32,12 @@ ArgsParameters createProgramArgs( int argc, char** argv );
 
 ArgsParameters createVariantArgs( int argc, char** argv );
 
-void printGeneralInformationMessage( FILE* steam );
-void printVariantInformationMessage( FILE* steam );
-void printGeneralOptionsMessage( FILE* steam );
+void printGeneralInformationMessage( FILE* stream );
+void printVariantInformationMessage( FILE* stream );
+void printGeneralOptionsMessage( FILE* stream );
 void printVariantOptionsMessage( FILE* stream );
 void printGeneralExitCodeMessage( FILE* stream );
-void printVariantExitCodeMessage( FILE* steam );
+void printVariantExitCodeMessage( FILE* stream );
 void printHelpMessage( FILE* stream );
 
 #include <variant_configure.hpp>

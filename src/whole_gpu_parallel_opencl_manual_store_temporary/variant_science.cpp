@@ -30,7 +30,8 @@ void science(
   Variant_Grid* z_mult_dat,
   Variant_Grid* x_ssl_dat,
   Variant_Grid* y_ssl_dat,
-  VariantOptions options
+  VariantOptions options,
+  Variant_Metrics* metrics
 ){
   if( ENABLE_DEBUG ){
     assert( domain != nullptr     && "Error during science: domain is null" );
@@ -55,6 +56,8 @@ void science(
     assert( x_ssl_dat != nullptr  && "Error during science: input grid x_ssl_dat is null" );
     assert( y_ssl_dat != nullptr  && "Error during science: input grid y_ssl_dat is null" );
   }
+
+  START_TIMER( metrics->elapsed_setup );
 
   const int num_domains = 23;
 
@@ -833,13 +836,17 @@ void science(
     }
   }
 
+  STOP_TIMER( metrics->elapsed_setup );
+
+
+  START_TIMER( metrics->elapsed_compile );
   /* Create the compute program from the source buffer */
   program = clCreateProgramWithSource(context, num_compute_kernels+num_preambles, (const char**)sources, nullptr, &err);
   if( err != SUCCESS ){
     printf("Error: Failed to create compute program! (Error code %d)\n", err);
   }
 
-  char* compile_options = (char*)"-cl-std=CL2.0";
+  char* compile_options = (char*)"-cl-std=CL2.0 -O3 -cl-mad-enable -cl-fast-relaxed-math";
 
   err = clBuildProgram( program, 1, &device_id, compile_options, nullptr, nullptr);
 
@@ -902,6 +909,10 @@ void science(
     }
   }
 
+  STOP_TIMER( metrics->elapsed_compile );
+
+  START_TIMER( metrics->elapsed_copy_host_to_device );
+
   // Copy read buffers
   for( int i = 0; i < num_device_read_buffers; i += 1 ){
     if( options.verbose ) printf("clEnqueueWriteBuffer read array %d\n", i);
@@ -922,6 +933,8 @@ void science(
     }
   }
 
+  START_TIMER( metrics->elapsed_exec_setup );
+
   // Setup args for each kernel
   for( int k = 0; k < num_compute_kernels; k += 1 ){
     for( int i = 0; i < kernel_num_args[k]; i += 1 ){
@@ -934,13 +947,22 @@ void science(
     }
   }
 
+
   // Wait for memory copies (reminder: writes currently non-blocking)
   clFinish( commands );
+  STOP_TIMER( metrics->elapsed_copy_host_to_device );
+  STOP_TIMER( metrics->elapsed_exec_setup );
 
+  START_TIMER( metrics->elapsed_exec );
+  #ifdef ENABLE_VARIANT_METRICS
+  double* timers[num_compute_kernels] = { &metrics->elapsed_216, &metrics->elapsed_338, &metrics->elapsed_416, &metrics->elapsed_551, &metrics->elapsed_551_reduce };
+  #endif
   // Invoke kernels
   for( int k = 0; k < num_compute_kernels; k += 1 ){
     if( options.verbose ) printf("clEnqueueNDRangeKernel %s\n", kernel_names[k]);
+    START_TIMER( *timers[k] );
     err = clEnqueueNDRangeKernel( commands, compute_kernels[k], 3, nullptr, total_work[k], nullptr, 0, nullptr, nullptr );
+    STOP_TIMER( *timers[k] );
     if( err != CL_SUCCESS ){
       printf("Error: Failed to execute kernel %s! (Error code %d)\n", kernel_names[k], err);
       exit(OPENCL_KERNEL_EXECUTION_FAILURE);
@@ -949,7 +971,9 @@ void science(
 
   // Wait for all kernels to complete
   clFinish( commands );
+  STOP_TIMER( metrics->elapsed_exec );
 
+  START_TIMER( metrics->elapsed_copy_device_to_host );
   // Read from out grids
   for( int i = 0; i < num_device_write_buffers; i += 1 ){
     if( options.verbose ) printf("clEnqueueReadBuffer %d\n", i);
@@ -962,7 +986,9 @@ void science(
 
   // Wait for all memory copies (reminder: reads currently non-blocking)
   clFinish( commands );
+  STOP_TIMER( metrics->elapsed_copy_device_to_host );
 
+  START_TIMER( metrics->elapsed_teardown );
   // Free structures
   // TODO FREE EVERYTHING INCLUDING OPENCL STRUCTURES
   for( int k = 0; k < num_compute_kernels; k += 1 ){
@@ -971,5 +997,5 @@ void science(
   // for( int i = 0; i < num_domains; i += 1 ){
   //   free( preamble_sources[1+i] );
   // }
-
+  STOP_TIMER( metrics->elapsed_teardown );
 }

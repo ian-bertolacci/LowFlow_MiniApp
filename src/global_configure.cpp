@@ -73,7 +73,7 @@ char* createShortOptionsFromLongOptions( const struct option* long_options ){
   return short_options;
 }
 
-void printGeneralInformationMessage( FILE* steam ){
+void printGeneralInformationMessage( FILE* stream ){
   /* Nothing */
 }
 

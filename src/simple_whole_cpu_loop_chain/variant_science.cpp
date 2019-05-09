@@ -13,7 +13,7 @@ void science(Variant_Domain *domain, Variant_Grid *fp, Variant_Grid *vx,
              Variant_Grid *rpp, Variant_Grid *sp, Variant_Grid *ss,
              Variant_Grid *z_mult_dat, Variant_Grid *x_ssl_dat,
              Variant_Grid *y_ssl_dat,
-             VariantOptions options) {
+             VariantOptions options,Variant_Metrics* metrics) {
   if (true) {
     domain != nullptr && "Error during science: domain is null"
         ? (static_cast<void>(0))

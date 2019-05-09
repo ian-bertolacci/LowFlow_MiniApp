@@ -13,6 +13,7 @@
 #include <types.hpp>
 #include <macros.hpp>
 #include <science.hpp>
+#include <metrics.hpp>
 #include <util.hpp>
 
 typedef struct struct_ExperimentalResults {
@@ -22,6 +23,7 @@ typedef struct struct_ExperimentalResults {
   Variant_Grid* vx;
   Variant_Grid* vy;
   Variant_Grid* vz;
+  Variant_Metrics metrics;
 } ExperimentalResults;
 
 bool verify( Basic_Domain* domain, ExperimentalResults results, double epsilon, unsigned int seed ){
@@ -382,9 +384,18 @@ ExperimentalResults experiment( Basic_Domain* domain, unsigned int seed, Variant
   Variant_Grid* x_ssl_dat  = input_grids[14];
   Variant_Grid* y_ssl_dat  = input_grids[15];
 
+  // Create and initialize results object
+  ExperimentalResults results;
+  results.variant_domain = variant_domain;
+  results.fp = fp;
+  results.vx = vx;
+  results.vy = vy;
+  results.vz = vz;
+
+
   // Time and Perform science
   double start = omp_get_wtime();
-  science( domain, fp, vx, vy, vz, dp, et, odp, opp, osp, permxp, permyp, permzp, pop, pp, rpp, sp, ss, z_mult_dat, x_ssl_dat, y_ssl_dat, options );
+  science( domain, fp, vx, vy, vz, dp, et, odp, opp, osp, permxp, permyp, permzp, pop, pp, rpp, sp, ss, z_mult_dat, x_ssl_dat, y_ssl_dat, options, &results.metrics );
   double end = omp_get_wtime();
 
   // Deallocate input grids
@@ -392,15 +403,8 @@ ExperimentalResults experiment( Basic_Domain* domain, unsigned int seed, Variant
     Variant_Grid_dealloc( input_grids[i] );
   }
 
-  // Return results
-  ExperimentalResults results = {
-    .elapsed = end - start,
-    .variant_domain = variant_domain,
-    .fp = fp,
-    .vx = vx,
-    .vy = vy,
-    .vz = vz
-  };
+  // Set total elapsed time.
+  results.elapsed = end - start;
 
   return results;
 }
@@ -417,6 +421,7 @@ int main( int argc, char** argv ){
   ExperimentalResults results = experiment( base_domain, opts.seed, opts.variant_options );
 
   printf( "Elapsed: %fs\n", results.elapsed );
+  printVariantMetricInformation( stdout, &results.metrics );
 
   bool passed = true;
   if( opts.verify ){

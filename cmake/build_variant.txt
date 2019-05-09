@@ -1,23 +1,52 @@
 cmake_minimum_required(VERSION 3.5)
 include(${CMAKE_DIR}/utilities.txt)
 
-FUNCTION(CREATE_VARIANT_TARGET VARIANT BASE_SOURCE_FILES VARIANT_SOURCE_FILES INSTALL_BIN_DIR VARIANT_LINK_LIBRARIES)
+# Create a new target from a variant implementation
+# \arg VARIANT: name of variant
+# \arg BASE_SOURCE_FILES: ';' list of source files used by all variants
+# \arg VARIANT_SOURCE_FILES: ';' list of source files used by this variant
+# \arg INSTALL_BIN_DIR: installation directory
+# \arg VARIANT_LINK_LIBRARIES: libraries linked by this specific variant
+# \arg CONFIGURATION_DEFINITIONS: preprocessor symbol specific to this variant (note! only symbols, no definitions)
+FUNCTION(CREATE_VARIANT_TARGET VARIANT BASE_SOURCE_FILES VARIANT_SOURCE_FILES INSTALL_BIN_DIR VARIANT_LINK_LIBRARIES CONFIGURATION_DEFINITIONS)
   ## BELOW SHOULD BE ALL THE SAME FOR ALL VARIANTS ##
   # Create variant target and project name
-  set(VARIANT_TARGET_NAME LowFlow_${VARIANT})
+
+  # Create variant specific compile time configuration's variant
+  # If no configurations listed, simply suffix to empty string
+  # otherwise, create suffix by joining all with '_' and prefixing result with '_'.
+  if (CONFIGURATION_DEFINITIONS STREQUAL "")
+    set(CONFIGURATION_VARIANTS_SUFFIX "")
+  else()
+    JOIN( "${CONFIGURATION_DEFINITIONS}" "_" CONFIGURATION_VARIANTS_JOINED)
+    set(CONFIGURATION_VARIANTS_SUFFIX "_${CONFIGURATION_VARIANTS_JOINED}")
+  endif()
+
+  # Set target name
+  set(VARIANT_TARGET_NAME LowFlow_${VARIANT}${CONFIGURATION_VARIANTS_SUFFIX})
   project(${VARIANT_TARGET_NAME})
 
-  PREPEND(VARIANT_SOURCE_FILES ${PROJECT_SOURCE_DIR} ${VARIANT_SOURCE_FILES})
+  # Set sources
+  PREPENDPATH(VARIANT_SOURCE_FILES ${PROJECT_SOURCE_DIR} ${VARIANT_SOURCE_FILES})
 
   # Create rooted prefix to sources
   # Create new executable target, listing all source files
   add_executable(${VARIANT_TARGET_NAME} ${VARIANT_SOURCE_FILES} ${BASE_SOURCE_FILES})
+
+  # Set compile flags for this specific variant and configuration
+  FOREACH(CONFIGURATION_DEFN ${CONFIGURATION_DEFINITIONS})
+    target_compile_options(${VARIANT_TARGET_NAME} PUBLIC "-D${CONFIGURATION_DEFN}")
+  ENDFOREACH(CONFIGURATION_DEFN)
 
   # Set variant target specific include directory
   target_include_directories(${VARIANT_TARGET_NAME} PRIVATE .)
 
   # Set variant target specific library includes
   target_link_libraries(${VARIANT_TARGET_NAME} ${VARIANT_LINK_LIBRARIES})
+
+  # Set configuration flags
+
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D${}")
 
   # Setup install target for variant executable
   install(TARGETS ${VARIANT_TARGET_NAME} DESTINATION ${INSTALL_BIN_DIR})

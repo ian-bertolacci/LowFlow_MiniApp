@@ -28,7 +28,8 @@ void science(
   Variant_Grid* z_mult_dat,
   Variant_Grid* x_ssl_dat,
   Variant_Grid* y_ssl_dat,
-  VariantOptions options
+  VariantOptions options,
+  Variant_Metrics* metrics
 ){
   if( ENABLE_DEBUG ){
     assert( domain != nullptr     && "Error during science: domain is null" );
@@ -62,267 +63,275 @@ void science(
 
   // Do baseline scientific kernel
   // NlFunctionEval:261 analogue
-  {
-    fp_data = Variant_Grid_data(fp);
-    vx_data = Variant_Grid_data(vx);
-    vy_data = Variant_Grid_data(vy);
-    vz_data = Variant_Grid_data(vz);
-    dp_data = Variant_Grid_data(dp);
-    et_data = Variant_Grid_data(et);
-    odp_data = Variant_Grid_data(odp);
-    opp_data = Variant_Grid_data(opp);
-    osp_data = Variant_Grid_data(osp);
-    permxp_data = Variant_Grid_data(permxp);
-    permyp_data = Variant_Grid_data(permyp);
-    permzp_data = Variant_Grid_data(permzp);
-    pop_data = Variant_Grid_data(pop);
-    pp_data = Variant_Grid_data(pp);
-    rpp_data = Variant_Grid_data(rpp);
-    sp_data = Variant_Grid_data(sp);
-    ss_data = Variant_Grid_data(ss);
-    z_mult_dat_data = Variant_Grid_data(z_mult_dat);
-    x_ssl_dat_data = Variant_Grid_data(x_ssl_dat);
-    y_ssl_dat_data = Variant_Grid_data(y_ssl_dat);
+  TIMEIT( metrics->elapsed_216,
+    {
+      fp_data = Variant_Grid_data(fp);
+      vx_data = Variant_Grid_data(vx);
+      vy_data = Variant_Grid_data(vy);
+      vz_data = Variant_Grid_data(vz);
+      dp_data = Variant_Grid_data(dp);
+      et_data = Variant_Grid_data(et);
+      odp_data = Variant_Grid_data(odp);
+      opp_data = Variant_Grid_data(opp);
+      osp_data = Variant_Grid_data(osp);
+      permxp_data = Variant_Grid_data(permxp);
+      permyp_data = Variant_Grid_data(permyp);
+      permzp_data = Variant_Grid_data(permzp);
+      pop_data = Variant_Grid_data(pop);
+      pp_data = Variant_Grid_data(pp);
+      rpp_data = Variant_Grid_data(rpp);
+      sp_data = Variant_Grid_data(sp);
+      ss_data = Variant_Grid_data(ss);
+      z_mult_dat_data = Variant_Grid_data(z_mult_dat);
+      x_ssl_dat_data = Variant_Grid_data(x_ssl_dat);
+      y_ssl_dat_data = Variant_Grid_data(y_ssl_dat);
 
-    Variant_Domain_fast_loop_interior(domain, x,y,z,
-      {
-        idx = Variant_Grid_idx(fp, x,y,z);
-        fp_data[idx] =
-         (  sp_data[idx]
-          * dp_data[idx]
-          - osp_data[idx]
-          * odp_data[idx]
-         )
-         * pop_data[idx]
-         * z_mult_dat_data[idx];
-      }
-    );
-  }
+      Variant_Domain_fast_loop_interior(domain, x,y,z,
+        {
+          idx = Variant_Grid_idx(fp, x,y,z);
+          fp_data[idx] =
+           (  sp_data[idx]
+            * dp_data[idx]
+            - osp_data[idx]
+            * odp_data[idx]
+           )
+           * pop_data[idx]
+           * z_mult_dat_data[idx];
+        }
+      );
+    }
+  );
 
   // sNlFunctionEval:338 analogue
-  {
-    fp_data = Variant_Grid_data(fp);
-    vx_data = Variant_Grid_data(vx);
-    vy_data = Variant_Grid_data(vy);
-    vz_data = Variant_Grid_data(vz);
-    dp_data = Variant_Grid_data(dp);
-    et_data = Variant_Grid_data(et);
-    odp_data = Variant_Grid_data(odp);
-    opp_data = Variant_Grid_data(opp);
-    osp_data = Variant_Grid_data(osp);
-    permxp_data = Variant_Grid_data(permxp);
-    permyp_data = Variant_Grid_data(permyp);
-    permzp_data = Variant_Grid_data(permzp);
-    pop_data = Variant_Grid_data(pop);
-    pp_data = Variant_Grid_data(pp);
-    rpp_data = Variant_Grid_data(rpp);
-    sp_data = Variant_Grid_data(sp);
-    ss_data = Variant_Grid_data(ss);
-    z_mult_dat_data = Variant_Grid_data(z_mult_dat);
-    x_ssl_dat_data = Variant_Grid_data(x_ssl_dat);
-    y_ssl_dat_data = Variant_Grid_data(y_ssl_dat);
-    Variant_Domain_fast_loop_interior(domain, x,y,z,
-      {
-        idx = Variant_Grid_idx(fp, x,y,z);
-        fp_data[idx] +=
-            ss_data[idx]
-          * z_mult_dat_data[idx]
-          * (   pp_data[idx]
-              * sp_data[idx]
-              * dp_data[idx]
-              - opp_data[idx]
-              * osp_data[idx]
-              * odp_data[idx]
-            );
-      }
-    );
-  }
+  TIMEIT( metrics->elapsed_338,
+    {
+      fp_data = Variant_Grid_data(fp);
+      vx_data = Variant_Grid_data(vx);
+      vy_data = Variant_Grid_data(vy);
+      vz_data = Variant_Grid_data(vz);
+      dp_data = Variant_Grid_data(dp);
+      et_data = Variant_Grid_data(et);
+      odp_data = Variant_Grid_data(odp);
+      opp_data = Variant_Grid_data(opp);
+      osp_data = Variant_Grid_data(osp);
+      permxp_data = Variant_Grid_data(permxp);
+      permyp_data = Variant_Grid_data(permyp);
+      permzp_data = Variant_Grid_data(permzp);
+      pop_data = Variant_Grid_data(pop);
+      pp_data = Variant_Grid_data(pp);
+      rpp_data = Variant_Grid_data(rpp);
+      sp_data = Variant_Grid_data(sp);
+      ss_data = Variant_Grid_data(ss);
+      z_mult_dat_data = Variant_Grid_data(z_mult_dat);
+      x_ssl_dat_data = Variant_Grid_data(x_ssl_dat);
+      y_ssl_dat_data = Variant_Grid_data(y_ssl_dat);
+      Variant_Domain_fast_loop_interior(domain, x,y,z,
+        {
+          idx = Variant_Grid_idx(fp, x,y,z);
+          fp_data[idx] +=
+              ss_data[idx]
+            * z_mult_dat_data[idx]
+            * (   pp_data[idx]
+                * sp_data[idx]
+                * dp_data[idx]
+                - opp_data[idx]
+                * osp_data[idx]
+                * odp_data[idx]
+              );
+        }
+      );
+    }
+  );
 
   // NlFunctionEval:416 analogue
-  {
-    fp_data = Variant_Grid_data(fp);
-    vx_data = Variant_Grid_data(vx);
-    vy_data = Variant_Grid_data(vy);
-    vz_data = Variant_Grid_data(vz);
-    dp_data = Variant_Grid_data(dp);
-    et_data = Variant_Grid_data(et);
-    odp_data = Variant_Grid_data(odp);
-    opp_data = Variant_Grid_data(opp);
-    osp_data = Variant_Grid_data(osp);
-    permxp_data = Variant_Grid_data(permxp);
-    permyp_data = Variant_Grid_data(permyp);
-    permzp_data = Variant_Grid_data(permzp);
-    pop_data = Variant_Grid_data(pop);
-    pp_data = Variant_Grid_data(pp);
-    rpp_data = Variant_Grid_data(rpp);
-    sp_data = Variant_Grid_data(sp);
-    ss_data = Variant_Grid_data(ss);
-    z_mult_dat_data = Variant_Grid_data(z_mult_dat);
-    x_ssl_dat_data = Variant_Grid_data(x_ssl_dat);
-    y_ssl_dat_data = Variant_Grid_data(y_ssl_dat);
-    Variant_Domain_fast_loop_interior(domain, x,y,z,
-      {
-        idx = Variant_Grid_idx(fp, x,y,z);
-        fp_data[idx] -=
-            z_mult_dat_data[idx]
-          * (   sp_data[idx]
-              * et_data[idx]
-            );
-      }
-    );
-  }
+  TIMEIT( metrics->elapsed_416,
+    {
+      fp_data = Variant_Grid_data(fp);
+      vx_data = Variant_Grid_data(vx);
+      vy_data = Variant_Grid_data(vy);
+      vz_data = Variant_Grid_data(vz);
+      dp_data = Variant_Grid_data(dp);
+      et_data = Variant_Grid_data(et);
+      odp_data = Variant_Grid_data(odp);
+      opp_data = Variant_Grid_data(opp);
+      osp_data = Variant_Grid_data(osp);
+      permxp_data = Variant_Grid_data(permxp);
+      permyp_data = Variant_Grid_data(permyp);
+      permzp_data = Variant_Grid_data(permzp);
+      pop_data = Variant_Grid_data(pop);
+      pp_data = Variant_Grid_data(pp);
+      rpp_data = Variant_Grid_data(rpp);
+      sp_data = Variant_Grid_data(sp);
+      ss_data = Variant_Grid_data(ss);
+      z_mult_dat_data = Variant_Grid_data(z_mult_dat);
+      x_ssl_dat_data = Variant_Grid_data(x_ssl_dat);
+      y_ssl_dat_data = Variant_Grid_data(y_ssl_dat);
+      Variant_Domain_fast_loop_interior(domain, x,y,z,
+        {
+          idx = Variant_Grid_idx(fp, x,y,z);
+          fp_data[idx] -=
+              z_mult_dat_data[idx]
+            * (   sp_data[idx]
+                * et_data[idx]
+              );
+        }
+      );
+    }
+  );
 
   // NlFunctionEval:551 analogue
-  {
-    fp_data = Variant_Grid_data(fp);
-    vx_data = Variant_Grid_data(vx);
-    vy_data = Variant_Grid_data(vy);
-    vz_data = Variant_Grid_data(vz);
-    dp_data = Variant_Grid_data(dp);
-    et_data = Variant_Grid_data(et);
-    odp_data = Variant_Grid_data(odp);
-    opp_data = Variant_Grid_data(opp);
-    osp_data = Variant_Grid_data(osp);
-    permxp_data = Variant_Grid_data(permxp);
-    permyp_data = Variant_Grid_data(permyp);
-    permzp_data = Variant_Grid_data(permzp);
-    pop_data = Variant_Grid_data(pop);
-    pp_data = Variant_Grid_data(pp);
-    rpp_data = Variant_Grid_data(rpp);
-    sp_data = Variant_Grid_data(sp);
-    ss_data = Variant_Grid_data(ss);
-    z_mult_dat_data = Variant_Grid_data(z_mult_dat);
-    x_ssl_dat_data = Variant_Grid_data(x_ssl_dat);
-    y_ssl_dat_data = Variant_Grid_data(y_ssl_dat);
+  TIMEIT( metrics->elapsed_551,
+    {
+      fp_data = Variant_Grid_data(fp);
+      vx_data = Variant_Grid_data(vx);
+      vy_data = Variant_Grid_data(vy);
+      vz_data = Variant_Grid_data(vz);
+      dp_data = Variant_Grid_data(dp);
+      et_data = Variant_Grid_data(et);
+      odp_data = Variant_Grid_data(odp);
+      opp_data = Variant_Grid_data(opp);
+      osp_data = Variant_Grid_data(osp);
+      permxp_data = Variant_Grid_data(permxp);
+      permyp_data = Variant_Grid_data(permyp);
+      permzp_data = Variant_Grid_data(permzp);
+      pop_data = Variant_Grid_data(pop);
+      pp_data = Variant_Grid_data(pp);
+      rpp_data = Variant_Grid_data(rpp);
+      sp_data = Variant_Grid_data(sp);
+      ss_data = Variant_Grid_data(ss);
+      z_mult_dat_data = Variant_Grid_data(z_mult_dat);
+      x_ssl_dat_data = Variant_Grid_data(x_ssl_dat);
+      y_ssl_dat_data = Variant_Grid_data(y_ssl_dat);
 
-    x_ssl_dat_xm = 1;
-    y_ssl_dat_ym = Variant_Domain_nx( Variant_Grid_domain(y_ssl_dat) );
-    fp_xm = 1;
-    fp_ym = Variant_Domain_nx( Variant_Grid_domain(fp) );
-    fp_zm = Variant_Domain_nx( Variant_Grid_domain(fp) ) * Variant_Domain_ny( Variant_Grid_domain(fp) );
-    Variant_Domain_fast_loop_interior(domain, x,y,z,
-      {
-        idx  = Variant_Grid_idx(fp, x,y,z);
-        idx_alt = Variant_Grid_idx(x_ssl_dat, x,y,0);
-        x_dir_g   = ArithmeticMean( x_ssl_dat_data[idx_alt], x_ssl_dat_data[idx_alt+x_ssl_dat_xm] ); //Variant_Grid_access( x_ssl_dat, x+1,  y, 0 ) );
-        x_dir_g_c = ArithmeticMean( x_ssl_dat_data[idx_alt], x_ssl_dat_data[idx_alt+x_ssl_dat_xm] ); //Variant_Grid_access( x_ssl_dat, x+1,  y, 0 ) );
-        y_dir_g   = ArithmeticMean( y_ssl_dat_data[idx_alt], y_ssl_dat_data[idx_alt+y_ssl_dat_ym] ); //Variant_Grid_access( y_ssl_dat, x,  y+1, 0 ) );
-        y_dir_g_c = ArithmeticMean( y_ssl_dat_data[idx_alt], y_ssl_dat_data[idx_alt+y_ssl_dat_ym] ); //Variant_Grid_access( y_ssl_dat, x,  y+1, 0 ) );
+      x_ssl_dat_xm = 1;
+      y_ssl_dat_ym = Variant_Domain_nx( Variant_Grid_domain(y_ssl_dat) );
+      fp_xm = 1;
+      fp_ym = Variant_Domain_nx( Variant_Grid_domain(fp) );
+      fp_zm = Variant_Domain_nx( Variant_Grid_domain(fp) ) * Variant_Domain_ny( Variant_Grid_domain(fp) );
+      Variant_Domain_fast_loop_interior(domain, x,y,z,
+        {
+          idx  = Variant_Grid_idx(fp, x,y,z);
+          idx_alt = Variant_Grid_idx(x_ssl_dat, x,y,0);
+          x_dir_g   = ArithmeticMean( x_ssl_dat_data[idx_alt], x_ssl_dat_data[idx_alt+x_ssl_dat_xm] ); //Variant_Grid_access( x_ssl_dat, x+1,  y, 0 ) );
+          x_dir_g_c = ArithmeticMean( x_ssl_dat_data[idx_alt], x_ssl_dat_data[idx_alt+x_ssl_dat_xm] ); //Variant_Grid_access( x_ssl_dat, x+1,  y, 0 ) );
+          y_dir_g   = ArithmeticMean( y_ssl_dat_data[idx_alt], y_ssl_dat_data[idx_alt+y_ssl_dat_ym] ); //Variant_Grid_access( y_ssl_dat, x,  y+1, 0 ) );
+          y_dir_g_c = ArithmeticMean( y_ssl_dat_data[idx_alt], y_ssl_dat_data[idx_alt+y_ssl_dat_ym] ); //Variant_Grid_access( y_ssl_dat, x,  y+1, 0 ) );
 
-        diff_right = pp_data[idx] - pp_data[idx+fp_xm];
-        diff_front = pp_data[idx] - pp_data[idx+fp_ym];
+          diff_right = pp_data[idx] - pp_data[idx+fp_xm];
+          diff_front = pp_data[idx] - pp_data[idx+fp_ym];
 
-        updir_right = diff_right * x_dir_g_c - x_dir_g;
-        updir_front = diff_front * y_dir_g_c - y_dir_g;
+          updir_right = diff_right * x_dir_g_c - x_dir_g;
+          updir_front = diff_front * y_dir_g_c - y_dir_g;
 
-        sep = ArithmeticMean( z_mult_dat_data[idx],  z_mult_dat_data[idx+fp_zm] );
+          sep = ArithmeticMean( z_mult_dat_data[idx],  z_mult_dat_data[idx+fp_zm] );
 
-        lower_cond =
-          pp_data[idx] / sep
-        - (   z_mult_dat_data[idx]
-            / ( z_mult_dat_data[idx]
-              + z_mult_dat_data[idx+fp_zm]
-              )
+          lower_cond =
+            pp_data[idx] / sep
+          - (   z_mult_dat_data[idx]
+              / ( z_mult_dat_data[idx]
+                + z_mult_dat_data[idx+fp_zm]
+                )
+            )
+          * dp_data[idx];
+
+          upper_cond =
+            pp_data[idx+fp_zm] / sep
+          + (   z_mult_dat_data[idx+fp_zm]
+              / ( z_mult_dat_data[idx]
+                + z_mult_dat_data[idx+fp_zm]
+                )
+            )
+          * dp_data[idx+fp_zm];
+
+          diff_upper = lower_cond - upper_cond;
+
+          /*
+          NOTE!
+          Originally the harmonic mean was
+          PMean( pp_data[idx],
+                 Variant_Grid_access(pp, x+1, y, z),
+                 permxp[ip],
+                 permxp[ip + 1]
           )
-        * dp_data[idx];
+          However! PMean(a,b,c,d) in parflow is simply HarmonicMean(c, d)
+          so the first two terms have been removed
+          */
 
-        upper_cond =
-          pp_data[idx+fp_zm] / sep
-        + (   z_mult_dat_data[idx+fp_zm]
-            / ( z_mult_dat_data[idx]
-              + z_mult_dat_data[idx+fp_zm]
-              )
-          )
-        * dp_data[idx+fp_zm];
-
-        diff_upper = lower_cond - upper_cond;
-
-        /*
-        NOTE!
-        Originally the harmonic mean was
-        PMean( pp_data[idx],
-               Variant_Grid_access(pp, x+1, y, z),
-               permxp[ip],
-               permxp[ip + 1]
-        )
-        However! PMean(a,b,c,d) in parflow is simply HarmonicMean(c, d)
-        so the first two terms have been removed
-        */
-
-        u_right =
-          (
-             z_mult_dat_data[idx]
-           * HarmonicMean( permxp_data[idx],
-                           permxp_data[idx+fp_xm] )
-           * diff_right * x_dir_g_c
-           * UpstreamMean(
-               updir_right,
-               0.0,
-               rpp_data[idx] * dp_data[idx],
-               rpp_data[idx+fp_xm] * dp_data[idx+fp_xm]
-             )
-         ) + (
-            z_mult_dat_data[idx]
-           * HarmonicMean( permxp_data[idx],
-                           permxp_data[idx+fp_xm] )
-           * (-x_dir_g)
-           * UpstreamMean(
-               updir_right,
-               0.0,
-               rpp_data[idx] * dp_data[idx],
-               rpp_data[idx+fp_xm] * dp_data[idx+fp_xm]
-             )
-         );
-
-         u_front =
-           (
+          u_right =
+            (
+               z_mult_dat_data[idx]
+             * HarmonicMean( permxp_data[idx],
+                             permxp_data[idx+fp_xm] )
+             * diff_right * x_dir_g_c
+             * UpstreamMean(
+                 updir_right,
+                 0.0,
+                 rpp_data[idx] * dp_data[idx],
+                 rpp_data[idx+fp_xm] * dp_data[idx+fp_xm]
+               )
+           ) + (
               z_mult_dat_data[idx]
-            * HarmonicMean( permyp_data[idx],
-                            permyp_data[idx+fp_xm] )
-            * diff_front * x_dir_g_c
-            * UpstreamMean(
-                updir_front,
-                0.0,
-                rpp_data[idx] * dp_data[idx],
-                rpp_data[idx+fp_xm] * dp_data[idx+fp_xm]
-              )
-          ) + (
-             z_mult_dat_data[idx]
-            * HarmonicMean( permyp_data[idx],
-                            permyp_data[idx+fp_xm] )
-            * (-x_dir_g)
-            * UpstreamMean(
-                updir_front,
-                0.0,
-                rpp_data[idx] * dp_data[idx],
-                rpp_data[idx+fp_xm] * dp_data[idx+fp_xm]
-              )
-          );
+             * HarmonicMean( permxp_data[idx],
+                             permxp_data[idx+fp_xm] )
+             * (-x_dir_g)
+             * UpstreamMean(
+                 updir_right,
+                 0.0,
+                 rpp_data[idx] * dp_data[idx],
+                 rpp_data[idx+fp_xm] * dp_data[idx+fp_xm]
+               )
+           );
 
-        u_upper =
-                    HarmonicMeanDZ(
-                        permzp_data[idx],
-                        permzp_data[idx+fp_zm],
-                        z_mult_dat_data[idx],
-                        z_mult_dat_data[idx+fp_zm]
-                    )
-                  * diff_upper
-                  * UpstreamMean(
-                      lower_cond,
-                      upper_cond,
-                      rpp_data[idx] * dp_data[idx],
-                      rpp_data[idx+fp_zm] * dp_data[idx+fp_zm]
-                    );
+           u_front =
+             (
+                z_mult_dat_data[idx]
+              * HarmonicMean( permyp_data[idx],
+                              permyp_data[idx+fp_xm] )
+              * diff_front * x_dir_g_c
+              * UpstreamMean(
+                  updir_front,
+                  0.0,
+                  rpp_data[idx] * dp_data[idx],
+                  rpp_data[idx+fp_xm] * dp_data[idx+fp_xm]
+                )
+            ) + (
+               z_mult_dat_data[idx]
+              * HarmonicMean( permyp_data[idx],
+                              permyp_data[idx+fp_xm] )
+              * (-x_dir_g)
+              * UpstreamMean(
+                  updir_front,
+                  0.0,
+                  rpp_data[idx] * dp_data[idx],
+                  rpp_data[idx+fp_xm] * dp_data[idx+fp_xm]
+                )
+            );
 
-        vx_data[idx] = u_right;
-        vy_data[idx] = u_front;
-        vz_data[idx] = u_upper;
+          u_upper =
+                      HarmonicMeanDZ(
+                          permzp_data[idx],
+                          permzp_data[idx+fp_zm],
+                          z_mult_dat_data[idx],
+                          z_mult_dat_data[idx+fp_zm]
+                      )
+                    * diff_upper
+                    * UpstreamMean(
+                        lower_cond,
+                        upper_cond,
+                        rpp_data[idx] * dp_data[idx],
+                        rpp_data[idx+fp_zm] * dp_data[idx+fp_zm]
+                      );
 
-        fp_data[idx] += u_right * u_front * u_upper;
-        fp_data[idx+fp_xm] += u_right;
-        fp_data[idx+fp_ym] -= u_front;
-        fp_data[idx+fp_zm] -= u_upper;
-      }
-    );
-  }
+          vx_data[idx] = u_right;
+          vy_data[idx] = u_front;
+          vz_data[idx] = u_upper;
+
+          fp_data[idx] += u_right * u_front * u_upper;
+          fp_data[idx+fp_xm] += u_right;
+          fp_data[idx+fp_ym] -= u_front;
+          fp_data[idx+fp_zm] -= u_upper;
+        }
+      );
+    }
+  );
 }

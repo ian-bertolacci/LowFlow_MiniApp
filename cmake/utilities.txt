@@ -1,12 +1,35 @@
 cmake_minimum_required(VERSION 3.5)
-# Apply prefix to one or more variables
+# Apply prefix path to one or more variables
 # \arg var: Variable to store result into
 # \arg prefix: value to prefix to source values
 # \arg ...: variadic list of arguments to be prefixed
-FUNCTION(PREPEND var prefix)
+FUNCTION(PREPENDPATH var prefix)
    SET(listVar "")
    FOREACH(f ${ARGN})
       LIST(APPEND listVar "${prefix}/${f}")
    ENDFOREACH(f)
    SET(${var} "${listVar}" PARENT_SCOPE)
+ENDFUNCTION(PREPENDPATH)
+
+# Apply path to one or more variables with other string
+# \arg var: Variable to store result into
+# \arg prefix: value to prefix to source values
+# \arg ...: variadic list of arguments to be prefixed
+FUNCTION(PREPEND var prefix)
+   SET(listVar "")
+   FOREACH(s ${ARGN})
+      LIST(APPEND listVar "${prefix}${s}")
+   ENDFOREACH(s)
+   SET(${var} "${listVar}" PARENT_SCOPE)
 ENDFUNCTION(PREPEND)
+
+# Join a list of strings with some delimiter (a la pythons str.join method)
+# \arg VALUES: List of strings to be joined
+# \arg DELIMITER: String that separates the joined strings in the list
+# \arg OUTPUT: Variable to store result into
+# Note: Sourced from https://stackoverflow.com/a/7216542/3614863
+function(JOIN VALUES DELIMITER OUTPUT)
+  string (REGEX REPLACE "([^\\]|^);" "\\1${DELIMITER}" _TMP_STR "${VALUES}")
+  string (REGEX REPLACE "[\\](.)" "\\1" _TMP_STR "${_TMP_STR}") #fixes escaping
+  set (${OUTPUT} "${_TMP_STR}" PARENT_SCOPE)
+endfunction()

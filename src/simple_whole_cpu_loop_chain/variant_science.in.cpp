@@ -31,7 +31,8 @@ void science(
   Variant_Grid* z_mult_dat,
   Variant_Grid* x_ssl_dat,
   Variant_Grid* y_ssl_dat,
-  VariantOptions options
+  VariantOptions options,
+  Variant_Metrics* metrics
 ){
   if( ENABLE_DEBUG ){
     assert( domain != nullptr     && "Error during science: domain is null" );
