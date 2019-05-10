@@ -846,7 +846,14 @@ void science(
     printf("Error: Failed to create compute program! (Error code %d)\n", err);
   }
 
-  char* compile_options = (char*)"-cl-std=CL2.0 -O3 -cl-mad-enable -cl-fast-relaxed-math";
+  char* compile_options = (char*)
+  #if defined(INTEL_OPENCL)
+    "-cl-std=CL2.0 -O3 -cl-mad-enable -cl-fast-relaxed-math";
+  #elif defined(NVIDIA_OPENCL)
+    "-cl-std=CL2.0 -cl-mad-enable -cl-fast-relaxed-math";
+  #else
+    "-cl-std=CL2.0";
+  #endif
 
   err = clBuildProgram( program, 1, &device_id, compile_options, nullptr, nullptr);
 

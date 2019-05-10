@@ -3,6 +3,10 @@
 
 #include <global_configure.hpp>
 
+// Variant specific metrics:
+// INTEL_OPENCL : Using Intel's OpenCL runtime (or something like that)
+// NVIDIA_OPENCL : Using NVidia's OpenCL runtime (or something like that)
+
 typedef struct struct_VariantOptions {
   bool verbose;
 } VariantOptions;
