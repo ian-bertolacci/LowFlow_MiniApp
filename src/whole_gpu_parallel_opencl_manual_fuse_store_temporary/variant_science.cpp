@@ -471,7 +471,8 @@ void science(
       int x = get_global_id(0)+1;
       int y = get_global_id(1)+1;
       int z = get_global_id(2)+1;
-      // printf("function_NFE261 (%d %d %d) %f\n", x,y,z, Variant_Grid_fast_access(sp,x,y,z));
+
+      // NFE261
       Variant_Grid_fast_access(fp, x,y,z) =
        (  Variant_Grid_fast_access(sp,  x,y,z)
         * Variant_Grid_fast_access(dp,  x,y,z)
@@ -481,22 +482,26 @@ void science(
        * Variant_Grid_fast_access(pop, x,y,z)
        * Variant_Grid_fast_access(z_mult_dat, x,y,z);
 
-       Variant_Grid_fast_access(fp, x,y,z) +=
-           Variant_Grid_fast_access(ss, x,y,z)
-         * Variant_Grid_fast_access(z_mult_dat, x,y,z)
-         * (   Variant_Grid_fast_access(pp, x,y,z)
-             * Variant_Grid_fast_access(sp, x,y,z)
-             * Variant_Grid_fast_access(dp, x,y,z)
-             - Variant_Grid_fast_access(opp, x,y,z)
-             * Variant_Grid_fast_access(osp, x,y,z)
-             * Variant_Grid_fast_access(odp, x,y,z)
-           );
+     // NFE338
+     Variant_Grid_fast_access(fp, x,y,z) +=
+         Variant_Grid_fast_access(ss, x,y,z)
+       * Variant_Grid_fast_access(z_mult_dat, x,y,z)
+       * (   Variant_Grid_fast_access(pp, x,y,z)
+           * Variant_Grid_fast_access(sp, x,y,z)
+           * Variant_Grid_fast_access(dp, x,y,z)
+           - Variant_Grid_fast_access(opp, x,y,z)
+           * Variant_Grid_fast_access(osp, x,y,z)
+           * Variant_Grid_fast_access(odp, x,y,z)
+         );
+
+      // NFE416
       Variant_Grid_fast_access(fp, x,y,z) -=
          Variant_Grid_fast_access(z_mult_dat, x,y,z)
        * (   Variant_Grid_fast_access(sp, x,y,z)
            * Variant_Grid_fast_access(et, x,y,z)
          );
 
+      // Non-reduction portion of NFE551
       double x_dir_g   = ArithmeticMean( Variant_Grid_fast_access( x_ssl_dat, x, y, 0), Variant_Grid_fast_access( x_ssl_dat, x+1,  y, 0 ) );
       double x_dir_g_c = ArithmeticMean( Variant_Grid_fast_access( x_ssl_dat, x, y, 0), Variant_Grid_fast_access( x_ssl_dat, x+1,  y, 0 ) );
       double y_dir_g   = ArithmeticMean( Variant_Grid_fast_access( y_ssl_dat, x, y, 0), Variant_Grid_fast_access( y_ssl_dat, x,  y+1, 0 ) );

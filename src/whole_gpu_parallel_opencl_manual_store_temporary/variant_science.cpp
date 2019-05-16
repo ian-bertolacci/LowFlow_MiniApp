@@ -345,37 +345,6 @@ void science(
     &device_u_upper_domain
   };
 
-  // char* domain_names[num_domains] = {
-  //   (char*) STRINGIZE(domain),
-  //   (char*) STRINGIZE(fp),
-  //   (char*) STRINGIZE(dp),
-  //   (char*) STRINGIZE(et),
-  //   (char*) STRINGIZE(odp),
-  //
-  //   (char*) STRINGIZE(opp),
-  //   (char*) STRINGIZE(osp),
-  //   (char*) STRINGIZE(permxp),
-  //   (char*) STRINGIZE(permyp),
-  //   (char*) STRINGIZE(permzp),
-  //
-  //   (char*) STRINGIZE(pop),
-  //   (char*) STRINGIZE(pp),
-  //   (char*) STRINGIZE(rpp),
-  //   (char*) STRINGIZE(sp),
-  //   (char*) STRINGIZE(ss),
-  //
-  //   (char*) STRINGIZE(z_mult_dat),
-  //   (char*) STRINGIZE(x_ssl_dat),
-  //   (char*) STRINGIZE(y_ssl_dat),
-  //   (char*) STRINGIZE(vx),
-  //   (char*) STRINGIZE(vy),
-  //
-  //   (char*) STRINGIZE(vz),
-  //   (char*) STRINGIZE(u_right),
-  //   (char*) STRINGIZE(u_front),
-  //   (char*) STRINGIZE(u_upper)
-  // };
-
   preamble_sources[0] = (char*) STRINGIZE(
     typedef struct struct_Basic_Domain {
         int nx;
@@ -384,32 +353,6 @@ void science(
       } Basic_Domain;
       typedef Basic_Domain Variant_Domain;
   );
-
-  // {
-  //   const int max_str_len = 512;
-  //   for( int i = 0; i < num_domains; i += 1){
-  //
-  //     preamble_sources[1+i] = (char*) calloc(max_str_len, sizeof(char));
-  //     sprintf(
-  //       preamble_sources[i+1],
-  //       "const int %1$s_domain_nx=%2$d;"\
-  //       "const int %1$s_domain_ny=%3$d;"\
-  //       "const int %1$s_domain_nz=%4$d;",
-  //       domain_names[i],
-  //       Variant_Domain_nx( domains[i] ),
-  //       Variant_Domain_ny( domains[i] ),
-  //       Variant_Domain_nz( domains[i] )
-  //     );
-  //   }
-  // }
-
-
-    // typedef struct struct_Basic_Grid { \
-    //   __global Basic_Domain* domain; \
-    //   __global double* data; \
-    // } Basic_Grid; \
-    // typedef Basic_Domain Variant_Domain; \
-    // typedef Basic_Grid Variant_Grid;";
 
   int kernel_idx, arg_idx;
   // Do baseline scientific kernel
