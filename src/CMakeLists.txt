@@ -7,8 +7,9 @@ set(VARIANTS
   simple_whole_serial
   simple_whole_cpu_parallel_omp
   whole_gpu_parallel_opencl_manual_store_temporary
-  whole_gpu_parallel_opencl_manual_fuse_store_temporary
   simple_whole_serial_manual_fuse
+  simple_whole_cpu_parallel_omp_manual_fuse
+  whole_gpu_parallel_opencl_manual_fuse_store_temporary
 )
 
 # List all source files
