@@ -146,7 +146,6 @@ ProgramOptions parseProgramOptions( int argc, char** argv ){
   optind = 1;
   opterr = 0;
   int option_index = 0;
-  bool continue_loop = true;
 
   while( (c = getopt_long(args.argc, args.argv, short_options, general_long_options, &option_index)) != -1 ){
     switch (c){
@@ -195,7 +194,6 @@ ProgramOptions parseProgramOptions( int argc, char** argv ){
         fprintf(stderr, "Error while parsing general command line arguments! (case %c, 0x%x)\n", c, c);
         printHelpMessage( stderr );
         exit(COMMAND_LINE_ERROR);
-
     }
   }
 
