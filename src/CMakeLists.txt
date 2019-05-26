@@ -6,6 +6,7 @@ include(${CMAKE_DIR}/build_variant.txt)
 set(VARIANTS
   simple_whole_serial
   simple_whole_serial_agi
+  simple_whole_serial_agi_access_using_domain
   simple_whole_serial_manual_fuse
   simple_whole_cpu_parallel_omp
   simple_whole_cpu_parallel_omp_manual_fuse
