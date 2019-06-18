@@ -650,11 +650,17 @@ void science(
       int y = get_global_id(1)+1;
       int z = get_global_id(2)+1;
 
-      Variant_Grid_fast_access(fp, x, y, z) =
-            Variant_Grid_fast_access(fp,      x,   y,   z  )
-        +   Variant_Grid_fast_access(u_right, x-1, y  , z  )
-        + (-Variant_Grid_fast_access(u_front, x  , y-1, z  ))
-        + (-Variant_Grid_fast_access(u_upper, x  , y  , z-1));
+      double fp_val = Variant_Grid_fast_access(fp, x, y, z);
+      // In transformation from scatter to gather, we need to not gather from
+      // locations that did not scatter to us.
+      // Basic rules:
+      //   1. Gather from axis i if iterator i is > 1;
+      //   2. Gather from *only* axis i if iterator i is == to Ni,
+      //      where Ni is the size in the i axis
+      double u_right_val = ( (1 < x && y < fp_domain->ny && z < fp_domain->nz ) ?  Variant_Grid_fast_access(u_right, x-1, y  , z  ) : 0.0 );
+      double u_front_val = ( (1 < y && x < fp_domain->nx && z < fp_domain->nz ) ? -Variant_Grid_fast_access(u_front, x  , y-1, z  ) : 0.0 );
+      double u_upper_val = ( (1 < z && x < fp_domain->nx && y < fp_domain->ny ) ? -Variant_Grid_fast_access(u_upper, x  , y  , z-1) : 0.0 );
+      Variant_Grid_fast_access(fp, x, y, z) = fp_val + u_right_val + u_front_val + u_upper_val;
     }
   );
 
