@@ -25,7 +25,7 @@ include_directories(${BASE_SOURCE_DIR})
 
 # Enable debug mode globally
 if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Debug)
+  set(CMAKE_BUILD_TYPE Release)
 endif()
 
 # Flag options
