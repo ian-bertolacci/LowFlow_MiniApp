@@ -44,6 +44,7 @@ void printHelpMessage( FILE* stream );
 
 // Program Options struct
 typedef struct struct_ProgramOptions {
+  ArgsParameters all_argument_parameters;
   int T;
   int nx;
   int ny;
@@ -55,6 +56,10 @@ typedef struct struct_ProgramOptions {
 } ProgramOptions;
 
 static const ProgramOptions ProgramOptions_Defaults {
+  .all_argument_parameters = {
+    .argc = 0,
+    .argv = nullptr
+  },
   .T = 100,
   .nx = 100,
   .ny = 100,

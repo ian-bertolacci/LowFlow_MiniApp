@@ -15,6 +15,7 @@
 #include <science.hpp>
 #include <metrics.hpp>
 #include <util.hpp>
+#include <setup_teardown.hpp>
 
 typedef struct struct_ExperimentalResults {
   double elapsed;
@@ -349,7 +350,7 @@ ExperimentalResults experiment( Basic_Domain* domain, unsigned int seed, Variant
   }
   // Allocate and populate input grids
   for( int i = 0; i < input_grid_count; i += 1 ){
-    input_grids[i] = Variant_Grid_alloc( domain );
+    input_grids[i] = Variant_Grid_alloc( variant_domain );
     Variant_Grid_populate_seeded( variant_domain, input_grids[i], seeds[i] );
   }
 
@@ -395,7 +396,7 @@ ExperimentalResults experiment( Basic_Domain* domain, unsigned int seed, Variant
 
   // Time and Perform science
   double start = omp_get_wtime();
-  science( domain, fp, vx, vy, vz, dp, et, odp, opp, osp, permxp, permyp, permzp, pop, pp, rpp, sp, ss, z_mult_dat, x_ssl_dat, y_ssl_dat, options, &results.metrics );
+  science( variant_domain, fp, vx, vy, vz, dp, et, odp, opp, osp, permxp, permyp, permzp, pop, pp, rpp, sp, ss, z_mult_dat, x_ssl_dat, y_ssl_dat, options, &results.metrics );
   double end = omp_get_wtime();
 
   // Deallocate input grids
@@ -413,6 +414,7 @@ ExperimentalResults experiment( Basic_Domain* domain, unsigned int seed, Variant
 int main( int argc, char** argv ){
 
   ProgramOptions opts = parseProgramOptions( argc, argv );
+  programSetup( opts );
 
   printf( "(nx, ny, nz): (%d, %d, %d)\n", opts.nx, opts.ny, opts.nz );
 
@@ -435,5 +437,6 @@ int main( int argc, char** argv ){
   Variant_Grid_dealloc( results.vz );
   Variant_Domain_dealloc( results.variant_domain );
 
+  programTeardown( opts );
   return (!passed)?VERIFICATION_FAIL:SUCCESS;
 }

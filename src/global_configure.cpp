@@ -138,6 +138,12 @@ void printHelpMessage( FILE* stream ){
 ProgramOptions parseProgramOptions( int argc, char** argv ){
   ProgramOptions opts = ProgramOptions_Defaults;
 
+  ArgsParameters all_args {
+    .argc = argc,
+    .argv = argv
+  };
+  opts.all_argument_parameters = all_args;
+
   ArgsParameters args = createProgramArgs( argc, argv );
 
   char* short_options = createShortOptionsFromLongOptions( general_long_options );

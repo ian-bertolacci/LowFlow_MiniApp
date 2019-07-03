@@ -5,7 +5,7 @@ include(${CMAKE_DIR}/build_variant.txt)
 # Variant name
 set(VARIANT_NAME whole_gpu_parallel_opencl_fuse_store_temporary)
 # List source files
-set(VARIANT_SOURCE_FILES variant_types.cpp variant_science.cpp variant_metrics.cpp variant_configure.cpp)
+set(VARIANT_SOURCE_FILES variant_types.cpp variant_science.cpp variant_metrics.cpp variant_configure.cpp variant_setup_teardown.cpp)
 # List libraries
 set(VARIANT_LINK_LIBRARIES OpenCL)
 
