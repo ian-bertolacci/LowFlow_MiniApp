@@ -7,7 +7,8 @@ include(${CMAKE_DIR}/utilities.txt)
 # \arg VARIANT_SOURCE_FILES: ';' list of source files used by this variant
 # \arg INSTALL_BIN_DIR: installation directory
 # \arg VARIANT_LINK_LIBRARIES: libraries linked by this specific variant
-# \arg CONFIGURATION_DEFINITIONS: preprocessor symbol specific to this variant (note! only symbols, no definitions)
+# \arg CONFIGURATION_DEFINITIONS: '; list of preprocessor symbols specific to this variant (note! only symbols, no definitions)
+# \arg VARIANT_CXX_FLAGS: simple string of flags that are added to this variants CXX_FLAGS
 FUNCTION(CREATE_VARIANT_TARGET VARIANT BASE_SOURCE_FILES VARIANT_SOURCE_FILES INSTALL_BIN_DIR VARIANT_LINK_LIBRARIES CONFIGURATION_DEFINITIONS)
   ## BELOW SHOULD BE ALL THE SAME FOR ALL VARIANTS ##
   # Create variant target and project name
@@ -38,15 +39,16 @@ FUNCTION(CREATE_VARIANT_TARGET VARIANT BASE_SOURCE_FILES VARIANT_SOURCE_FILES IN
     target_compile_options(${VARIANT_TARGET_NAME} PUBLIC "-D${CONFIGURATION_DEFN}")
   ENDFOREACH(CONFIGURATION_DEFN)
 
+  # TODO Enable
+  # if (VARIANT_CXX_FLAGS STREQUAL "")
+  #   target_compile_options(${VARIANT_TARGET_NAME} PUBLIC ${VARIANT_CXX_FLAGS})
+  # endif()
+
   # Set variant target specific include directory
   target_include_directories(${VARIANT_TARGET_NAME} PRIVATE .)
 
   # Set variant target specific library includes
   target_link_libraries(${VARIANT_TARGET_NAME} ${VARIANT_LINK_LIBRARIES})
-
-  # Set configuration flags
-
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D${}")
 
   # Setup install target for variant executable
   install(TARGETS ${VARIANT_TARGET_NAME} DESTINATION ${INSTALL_BIN_DIR})

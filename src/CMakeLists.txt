@@ -23,7 +23,7 @@ PREPENDPATH(BASE_SOURCE_FILES ${BASE_SOURCE_DIR} ${BASE_SOURCE_FILES})
 # Add local include
 include_directories(${BASE_SOURCE_DIR})
 
-# Enable debug mode globally
+# Enable Release mode globally
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
