@@ -1,5 +1,5 @@
 #ifndef VARIANT_TYPES_HPP
-#define VARIANT_TYEPS_HPP
+#define VARIANT_TYPES_HPP
 
 #include <global_types.hpp>
 
