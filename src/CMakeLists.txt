@@ -47,5 +47,6 @@ endif()
 
 # Execute all variant cmake files
 foreach(VARIANT ${VARIANTS})
+  # set(VARIANT_DIR ${VARIANT})
   add_subdirectory( ${VARIANT} )
 endforeach(VARIANT)

@@ -3,53 +3,127 @@ include(${CMAKE_DIR}/utilities.txt)
 
 # Create a new target from a variant implementation
 # \arg VARIANT: name of variant
-# \arg BASE_SOURCE_FILES: ';' list of source files used by all variants
-# \arg VARIANT_SOURCE_FILES: ';' list of source files used by this variant
+# \arg BASE_SRC_FILES: ';' list of source files used by all variants
+# \arg VARIANT_SRC_FILES: ';' list of source files used by this variant
 # \arg INSTALL_BIN_DIR: installation directory
-# \arg VARIANT_LINK_LIBRARIES: libraries linked by this specific variant
-# \arg CONFIGURATION_DEFINITIONS: '; list of preprocessor symbols specific to this variant (note! only symbols, no definitions)
+# \arg VARIANT_LINK_LIBS: libraries linked by this specific variant
+# \arg CONFIG_MACRO_DEFNS: '; list of preprocessor symbols specific to this variant (note! only symbols, no definitions)
 # \arg VARIANT_CXX_FLAGS: simple string of flags that are added to this variants CXX_FLAGS
-FUNCTION(CREATE_VARIANT_TARGET VARIANT BASE_SOURCE_FILES VARIANT_SOURCE_FILES INSTALL_BIN_DIR VARIANT_LINK_LIBRARIES CONFIGURATION_DEFINITIONS)
-  ## BELOW SHOULD BE ALL THE SAME FOR ALL VARIANTS ##
+function(CREATE_VARIANT_TARGET)
+  set(
+    options
+      VARIANT_CXX_OVERWRITE_FLAGS
+      DEBUG_CMAKE_CONFIGURE
+  )
+
+  set(
+    oneValueArgs
+      NAME
+      INSTALL_DIR
+  )
+
+  set(
+    multiValueArgs
+      BASE_SRC_FILES
+      VARIANT_SRC_FILES
+      VARIANT_INCLUDE_DIRS
+      VARIANT_LINK_LIBS
+      VARIANT_LINK_DIRS
+      CONFIG_MACRO_DEFNS
+      VARIANT_CXX_FLAGS
+  )
+
+  cmake_parse_arguments(
+    CREATE_VARIANT_TARGET
+    "${options}"
+    "${oneValueArgs}"
+    "${multiValueArgs}"
+    ${ARGN}
+  )
+
+  # Assign arguments to local variables under the argument name
+  # foreach argument list
+  foreach(arg_list options oneValueArgs multiValueArgs)
+    # message( "arg List: ${arg_list}" )
+    # foreach argument in that list
+    foreach(arg ${${arg_list}})
+      # Unwrap the arg name, concatonate with the the function name to create
+      # the argument name cmake_parse_arguments generates, then unwrap that
+      # value, and store into a new variable named the argument name
+      set( ${arg} ${CREATE_VARIANT_TARGET_${arg}})
+    endforeach(arg)
+  endforeach(arg_list)
+
+  if(${DEBUG_CMAKE_CONFIGURE})
+    message( "-- new variant under: ${NAME}" )
+    message( "  -- BASE_SRC_FILES: ${BASE_SRC_FILES}" )
+    message( "  -- VARIANT_SRC_FILES: ${VARIANT_SRC_FILES}" )
+    message( "  -- VARIANT_INCLUDE_DIRS: ${VARIANT_INCLUDE_DIRS}" )
+    message( "  -- VARIANT_LINK_LIBS: ${VARIANT_LINK_LIBS}" )
+    message( "  -- VARIANT_LINK_DIRS: ${VARIANT_LINK_DIRS}" )
+    message( "  -- CONFIG_MACRO_DEFNS: ${CONFIG_MACRO_DEFNS}" )
+    message( "  -- VARIANT_CXX_FLAGS: ${VARIANT_CXX_FLAGS}" )
+    message( "  -- INSTALL_DIR: ${INSTALL_DIR}" )
+    message( "  -- VARIANT_CXX: ${VARIANT_CXX}" )
+    message( "  -- VARIANT_CXX_OVERWRITE_FLAGS: ${VARIANT_CXX_OVERWRITE_FLAGS}" )
+  endif()
+
   # Create variant target and project name
 
   # Create variant specific compile time configuration's variant
   # If no configurations listed, simply suffix to empty string
-  # otherwise, create suffix by joining all with '_' and prefixing result with '_'.
-  if (CONFIGURATION_DEFINITIONS STREQUAL "")
-    set(CONFIGURATION_VARIANTS_SUFFIX "")
+  # otherwise, create suffix by joining all with '.' and prefixing result with '.'.
+
+  # if(CONFIG_MACRO_DEFNS STREQUAL "")
+  if(CONFIG_MACRO_DEFNS)
+    join( "${CONFIG_MACRO_DEFNS}" "." CONFIGURATION_VARIANTS_JOINED)
+    set(CONFIGURATION_VARIANTS_SUFFIX ".${CONFIGURATION_VARIANTS_JOINED}")
   else()
-    JOIN( "${CONFIGURATION_DEFINITIONS}" "_" CONFIGURATION_VARIANTS_JOINED)
-    set(CONFIGURATION_VARIANTS_SUFFIX "_${CONFIGURATION_VARIANTS_JOINED}")
+    set(CONFIGURATION_VARIANTS_SUFFIX "")
   endif()
 
-  # Set target name
-  set(VARIANT_TARGET_NAME LowFlow_${VARIANT}${CONFIGURATION_VARIANTS_SUFFIX})
+  # Overwrite original cxx flags
+  if(VARIANT_CXX_OVERWRITE_FLAGS)
+    set( before_overwrite_flags_CXX_FLAGS "${CXX_FLAGS}" )
+    set( CXX_FLAGS "" )
+  endif()
+
+  # Set target and project name
+  set(VARIANT_TARGET_NAME ${VARIANT}${CONFIGURATION_VARIANTS_SUFFIX})
   project(${VARIANT_TARGET_NAME})
 
-  # Set sources
-  PREPENDPATH(VARIANT_SOURCE_FILES ${PROJECT_SOURCE_DIR} ${VARIANT_SOURCE_FILES})
-
   # Create rooted prefix to sources
+  PREPENDPATH(VARIANT_SRC_FILES ${PROJECT_SOURCE_DIR} ${VARIANT_SRC_FILES})
+
   # Create new executable target, listing all source files
-  add_executable(${VARIANT_TARGET_NAME} ${VARIANT_SOURCE_FILES} ${BASE_SOURCE_FILES})
+  add_executable(${VARIANT_TARGET_NAME} ${VARIANT_SRC_FILES} ${BASE_SRC_FILES})
 
   # Set compile flags for this specific variant and configuration
-  FOREACH(CONFIGURATION_DEFN ${CONFIGURATION_DEFINITIONS})
-    target_compile_options(${VARIANT_TARGET_NAME} PUBLIC "-D${CONFIGURATION_DEFN}")
-  ENDFOREACH(CONFIGURATION_DEFN)
+  target_compile_definitions(${VARIANT_TARGET_NAME} PRIVATE ${CONFIG_MACRO_DEFNS})
 
-  # TODO Enable
-  # if (VARIANT_CXX_FLAGS STREQUAL "")
-  #   target_compile_options(${VARIANT_TARGET_NAME} PUBLIC ${VARIANT_CXX_FLAGS})
-  # endif()
+  if(VARIANT_CXX_FLAGS)
+    target_compile_options( ${VARIANT_TARGET_NAME} PRIVATE ${VARIANT_CXX_FLAGS} )
+  endif()
 
   # Set variant target specific include directory
-  target_include_directories(${VARIANT_TARGET_NAME} PRIVATE .)
+  target_include_directories(${VARIANT_TARGET_NAME} PRIVATE . ${VARIANT_INCLUDE_DIRS})
 
+  # Set variant target specific library search paths
+  if(VARIANT_LINK_DIRS)
+    # TODO If upgrading to cmake 3.13 use target_link_directories
+    target_compile_options(${VARIANT_TARGET_NAME} PRIVATE ${VARIANT_LINK_DIRS})
+  endif()
   # Set variant target specific library includes
-  target_link_libraries(${VARIANT_TARGET_NAME} ${VARIANT_LINK_LIBRARIES})
+  if(VARIANT_LINK_LIBS)
+    target_link_libraries(${VARIANT_TARGET_NAME} ${VARIANT_LINK_LIBS})
+  endif()
 
   # Setup install target for variant executable
   install(TARGETS ${VARIANT_TARGET_NAME} DESTINATION ${INSTALL_BIN_DIR})
-ENDFUNCTION(CREATE_VARIANT_TARGET)
+
+  # Restore original cxx flags
+  if(VARIANT_CXX_OVERWRITE_FLAGS)
+    set(CXX_FLAGS ${before_overwrite_flags_CXX_FLAGS})
+  endif()
+
+endfunction(CREATE_VARIANT_TARGET)
