@@ -23,11 +23,6 @@ Possible options for kokkos_execution_space:
 + USE_CUDA:  Use Kokkos::CUDA
 */
 
-typedef Kokkos::HostSpace kokkos_storage_space;
-typedef Kokkos::HostSpace kokkos_storage_space;
-typedef Kokkos::HostSpace kokkos_storage_space;
-typedef Kokkos::HostSpace kokkos_storage_space;
-
 // Check that at most one is defined
 #if defined(USE_SERIAL) + defined(USE_OPENMP) + defined(USE_PTHREADS) + defined(USE_CUDA) <= 1
   // Define correct execution space
