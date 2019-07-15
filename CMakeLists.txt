@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-# project(LowFlow)
+project(LowFlow)
 
 set(CMAKE_DIR ${PROJECT_SOURCE_DIR}/cmake)
 

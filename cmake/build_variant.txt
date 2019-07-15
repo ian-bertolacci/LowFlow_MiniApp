@@ -64,7 +64,6 @@ function(CREATE_VARIANT_TARGET)
     message( "  -- CONFIG_MACRO_DEFNS: ${CONFIG_MACRO_DEFNS}" )
     message( "  -- VARIANT_CXX_FLAGS: ${VARIANT_CXX_FLAGS}" )
     message( "  -- INSTALL_DIR: ${INSTALL_DIR}" )
-    message( "  -- VARIANT_CXX: ${VARIANT_CXX}" )
     message( "  -- VARIANT_CXX_OVERWRITE_FLAGS: ${VARIANT_CXX_OVERWRITE_FLAGS}" )
   endif()
 
