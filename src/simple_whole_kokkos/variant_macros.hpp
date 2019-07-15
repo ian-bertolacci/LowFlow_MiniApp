@@ -7,6 +7,8 @@
 // #include <Kokkos_OpenMP.hpp>
 // #include <Kokkos_Serial.hpp>
 
+static bool kokkos_is_local = true;
+
 // Variant Domain
 #define Variant_Domain_nx(domain) ((domain)->nx)
 #define Variant_Domain_ny(domain) ((domain)->ny)
@@ -14,7 +16,12 @@
 #define Variant_Domain_idx(domain, x,y,z) ((x)+(Variant_Domain_nx(domain)*(y))+(Variant_Domain_nx(domain)*Variant_Domain_ny(domain)*(z)))
 
 // Variant Grid
-#define Variant_Grid_data(grid) ((grid)->data)
+#ifdef USE_CUDA
+  #define Variant_Grid_data(grid) ( kokkos_is_local ? (grid)->data.template view<host_mirror_space>((grid)->data) :  (grid)->data.template view<memory_space>((grid)->data) )
+#else
+  #define Variant_Grid_data(grid) ((grid)->data)
+#endif
+
 #define Variant_Grid_domain(grid) ((grid)->domain)
 #define Variant_Grid_idx(grid, x,y,z) (Variant_Domain_idx(Variant_Grid_domain(grid), x,y,z))
 // #define Variant_Grid_access_index(grid,idx) (Variant_Grid_data(grid)[idx])

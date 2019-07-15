@@ -23,19 +23,29 @@ Possible options for kokkos_execution_space:
 + USE_CUDA:  Use Kokkos::CUDA
 */
 
+typedef Kokkos::HostSpace kokkos_storage_space;
+typedef Kokkos::HostSpace kokkos_storage_space;
+typedef Kokkos::HostSpace kokkos_storage_space;
+typedef Kokkos::HostSpace kokkos_storage_space;
+
 // Check that at most one is defined
 #if defined(USE_SERIAL) + defined(USE_OPENMP) + defined(USE_PTHREADS) + defined(USE_CUDA) <= 1
   // Define correct execution space
   #if defined(USE_SERIAL)
-    #define kokkos_execution_space Kokkos::Serial
+    typedef Kokkos::Serial kokkos_execution_space;
+    typedef Kokkos::HostSpace kokkos_storage_space;
   #elif defined(USE_OPENMP)
-    #define kokkos_execution_space Kokkos::OpenMP
+    typedef Kokkos::OpenMP kokkos_execution_space;
+    typedef Kokkos::HostSpace kokkos_storage_space;
   #elif defined(USE_PTHREADS)
-    #define kokkos_execution_space Kokkos::Threads
+    typedef Kokkos::Threads kokkos_execution_space;
+    typedef Kokkos::HostSpace kokkos_storage_space;
   #elif defined(USE_CUDA)
-    #define kokkos_execution_space Kokkos::CUDA
+    typedef Kokkos::Cuda kokkos_execution_space;
+    typedef Kokkos::CudaSpace kokkos_storage_space;
   #else
-    #define kokkos_execution_space Kokkos::Serial
+    typedef Kokkos::Serial kokkos_execution_space;
+    typedef Kokkos::HostSpace kokkos_storage_space;
   #endif
 // Error out if more than one is defined
 #else
