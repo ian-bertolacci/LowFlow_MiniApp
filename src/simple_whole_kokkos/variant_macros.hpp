@@ -10,6 +10,7 @@
 // #include <Kokkos_Serial.hpp>
 
 static bool kokkos_is_local = true;
+typedef view_3D_double_t::host_mirror_space proper_kokkos_memory_space;
 
 // Variant Domain
 #define Variant_Domain_nx(domain) ((domain)->nx)
@@ -20,7 +21,7 @@ static bool kokkos_is_local = true;
 
 // Variant Grid
 #ifdef USE_CUDA
-  #define Variant_Grid_unwrap_data(grid) ( kokkos_is_local ? Variant_Grid_data(grid)->template view<view_3D_double_t::host_mirror_space>() : Variant_Grid_data(grid)->template view<view_3D_double_t::memory_space>() )
+  #define Variant_Grid_unwrap_data(grid) ( Variant_Grid_data(grid)->template view<proper_kokkos_memory_space>() )
 #else
   #define Variant_Grid_unwrap_data(grid) (*((grid)->data))
 #endif
@@ -60,6 +61,7 @@ static bool kokkos_is_local = true;
   iter_z, lower_bound_z, upper_bound_z, \
   body) \
   { \
+    typedef view_3D_double_t::host_mirror_space proper_kokkos_memory_space; \
     /* std::cout << "Hello from Variant_Domain_fast_loop_in_bounds" << std::endl; */ \
     LowFlow_3D_Execution_Fast_Policy __local_Variant_Domain_fast_loop_in_bounds_policy( \
       {{lower_bound_x, lower_bound_y, lower_bound_z}}, \
