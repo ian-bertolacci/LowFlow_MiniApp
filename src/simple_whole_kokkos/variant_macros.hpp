@@ -9,28 +9,20 @@
 // #include <Kokkos_OpenMP.hpp>
 // #include <Kokkos_Serial.hpp>
 
-static bool kokkos_is_local = true;
-typedef view_3D_double_t::host_mirror_space proper_kokkos_memory_space;
 
 // Variant Domain
 #define Variant_Domain_nx(domain) ((domain)->nx)
 #define Variant_Domain_ny(domain) ((domain)->ny)
 #define Variant_Domain_nz(domain) ((domain)->nz)
 #define Variant_Domain_idx(domain, x,y,z) ((x)+(Variant_Domain_nx(domain)*(y))+(Variant_Domain_nx(domain)*Variant_Domain_ny(domain)*(z)))
-#define Variant_Grid_data(grid) ((grid)->data)
 
 // Variant Grid
-#ifdef USE_CUDA
-  #define Variant_Grid_unwrap_data(grid) ( Variant_Grid_data(grid)->template view<proper_kokkos_memory_space>() )
-#else
-  #define Variant_Grid_unwrap_data(grid) (*((grid)->data))
-#endif
-
+#define Variant_Grid_data(grid) error "Do not use Variant_Grid_data"
 #define Variant_Grid_domain(grid) ((grid)->domain)
 #define Variant_Grid_idx(grid, x,y,z) (Variant_Domain_idx(Variant_Grid_domain(grid), x,y,z))(grid)->data
 // #define Variant_Grid_access_index(grid,idx) (Variant_Grid_data(grid)[idx])
 #define Variant_Grid_access_index(grid, idx) error "Do not use Variant_Grid_access_index"
-#define Variant_Grid_access(grid,x,y,z) (Variant_Grid_unwrap_data(grid)(x,y,z))
+#define Variant_Grid_access(grid,x,y,z) (grid->access( current_location,x,y,z))
 
 #define Variant_Domain_equal(domain_a, domain_b) \
   (Variant_Domain_nx(domain_a) == Variant_Domain_nx(domain_b) \
@@ -61,7 +53,7 @@ typedef view_3D_double_t::host_mirror_space proper_kokkos_memory_space;
   iter_z, lower_bound_z, upper_bound_z, \
   body) \
   { \
-    typedef view_3D_double_t::host_mirror_space proper_kokkos_memory_space; \
+    access_location_t current_location = access_host; \
     /* std::cout << "Hello from Variant_Domain_fast_loop_in_bounds" << std::endl; */ \
     LowFlow_3D_Execution_Fast_Policy __local_Variant_Domain_fast_loop_in_bounds_policy( \
       {{lower_bound_x, lower_bound_y, lower_bound_z}}, \
