@@ -17,7 +17,7 @@ static bool kokkos_is_local = true;
 
 // Variant Grid
 #ifdef USE_CUDA
-  #define Variant_Grid_data(grid) ( kokkos_is_local ? (grid)->data.template view<host_mirror_space>((grid)->data) :  (grid)->data.template view<memory_space>((grid)->data) )
+  #define Variant_Grid_data(grid) ( kokkos_is_local ? (grid)->data.template view<kokkos_host_mirror_space>((grid)->data) :  (grid)->data.template view<kokkos_device_storage_space>((grid)->data) )
 #else
   #define Variant_Grid_data(grid) ((grid)->data)
 #endif

@@ -42,7 +42,9 @@ typedef Kokkos::HostSpace kokkos_storage_space;
     typedef Kokkos::HostSpace kokkos_storage_space;
   #elif defined(USE_CUDA)
     typedef Kokkos::Cuda kokkos_execution_space;
-    typedef Kokkos::CudaSpace kokkos_storage_space;
+    typedef Kokkos::HostSpace kokkos_host_storage_space;
+    typedef Kokkos::CudaSpace kokkos_device_storage_space;
+    typedef kokkos_device_storage_space kokkos_storage_space;
   #else
     typedef Kokkos::Serial kokkos_execution_space;
     typedef Kokkos::HostSpace kokkos_storage_space;
