@@ -6,13 +6,7 @@
 #include <Kokkos_DualView.hpp>
 #include <configure.hpp>
 
-enum access_location_t {
-  access_host,
-  access_device
-};
-static access_location_t current_location = access_host;
-
-
+static bool is_on_cpu = true;
 
 typedef struct struct_Variant_Domain {
   // int x, y, z; // TODO Include positions? Would be used for multi-grid situations (like distributed solves)
@@ -20,23 +14,14 @@ typedef struct struct_Variant_Domain {
 } Variant_Domain;
 
 // Note: The Execution Space (kokkos_execution_space) symbol is defined in variant_configure.hpp
-typedef typename Kokkos::Experimental::MDRangePolicy< kokkos_execution_space, Kokkos::Experimental::Rank<3, Kokkos::Experimental::Iterate::Left, Kokkos::Experimental::Iterate::Left> > LowFlow_3D_Execution_Fast_Policy;
+typedef typename Kokkos::MDRangePolicy< kokkos_execution_space, Kokkos::Experimental::Rank<3, Kokkos::Experimental::Iterate::Left, Kokkos::Experimental::Iterate::Left> > LowFlow_3D_Execution_Fast_Policy;
 
-// #ifdef USE_CUDA
-  typedef Kokkos::DualView<double***> view_3D_double_t;
-// #else
-  // typedef Kokkos::View<double***> view_3D_double_t;
-// #endif
+typedef Kokkos::DualView<double***> view_3D_double_t;
 
-class Variant_Grid {
-  private:
-    Variant_Domain* domain;
-    view_3D_double_t* data;
-  public:
-    Variant_Grid( Variant_Domain* domain );
-    ~Variant_Grid();
-    double& access( access_location_t location, size_t i, size_t j, size_t k );
-};
+typedef struct struct_Variant_Grid {
+  Variant_Domain* domain;
+  view_3D_double_t* data;
+} Variant_Grid;
 
 Variant_Domain* Variant_Domain_alloc( int nx, int ny, int nz );
 void Variant_Domain_dealloc( Variant_Domain* domain );

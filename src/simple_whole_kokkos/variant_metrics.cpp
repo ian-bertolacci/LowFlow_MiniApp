@@ -6,11 +6,13 @@ void printVariantMetricInformation( FILE* stream, Variant_Metrics* metrics ){
     "Elapsed 216: %f\n"
     "Elapsed 338: %f\n"
     "Elapsed 416: %f\n"
-    "Elapsed 551: %f\n",
+    "Elapsed 551 forall: %f\n"
+    "Elapsed 551 reduce: %f\n",
     metrics->elapsed_216,
     metrics->elapsed_338,
     metrics->elapsed_416,
-    metrics->elapsed_551
+    metrics->elapsed_551_forall,
+    metrics->elapsed_551_reduce
   );
 #else
   /* Do nothing */

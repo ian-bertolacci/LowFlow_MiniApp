@@ -55,6 +55,10 @@ void science(
     assert( y_ssl_dat != nullptr  && "Error during science: input grid y_ssl_dat is null" );
   }
 
+  Variant_Grid* u_right = Variant_Grid_alloc( domain );
+  Variant_Grid* u_front = Variant_Grid_alloc( domain );
+  Variant_Grid* u_upper = Variant_Grid_alloc( domain );
+
   // Do baseline scientific kernel
   // NlFunctionEval:261 analogue
   TIMEIT( metrics->elapsed_216,
@@ -62,7 +66,10 @@ void science(
       int x;
       int y;
       int z;
-      Variant_Domain_fast_loop_interior(domain, x,y,z,
+      Variant_Domain_fast_loop_interior(
+        domain, x,y,z,
+        writes(fp),
+        reads(sp, dp, osp, odp, pop, z_mult_dat),
         {
           Variant_Grid_access(fp, x,y,z) =
            (  Variant_Grid_access(sp,  x,y,z)
@@ -83,7 +90,10 @@ void science(
       int x;
       int y;
       int z;
-      Variant_Domain_fast_loop_interior(domain, x,y,z,
+      Variant_Domain_fast_loop_interior(
+        domain, x,y,z,
+        writes(fp),
+        reads(fp, ss, z_mult_dat, pp, sp, dp, opp, osp, odp),
         {
           Variant_Grid_access(fp, x,y,z) +=
               Variant_Grid_access(ss, x,y,z)
@@ -106,7 +116,10 @@ void science(
       int x;
       int y;
       int z;
-      Variant_Domain_fast_loop_interior(domain, x,y,z,
+      Variant_Domain_fast_loop_interior(
+        domain, x,y,z,
+        writes(fp),
+        reads(fp, z_mult_dat, sp, et),
         {
           Variant_Grid_access(fp, x,y,z) -=
               Variant_Grid_access(z_mult_dat, x,y,z)
@@ -118,13 +131,16 @@ void science(
     }
   )
 
-  // NlFunctionEval:551 analogue
-  TIMEIT( metrics->elapsed_551,
+  // NlFunctionEval:551 forall half
+  TIMEIT( metrics->elapsed_551_forall,
     {
       int x;
       int y;
       int z;
-      Variant_Domain_fast_loop_interior(domain, x,y,z,
+      Variant_Domain_fast_loop_interior(
+        domain, x,y,z,
+        writes(fp, vx, vy, vz, u_right, u_front, u_upper),
+        reads(x_ssl_dat, y_ssl_dat, z_mult_dat, pp, dp, rpp, permxp, permyp, permzp ),
         {
 
           double x_dir_g   = ArithmeticMean( Variant_Grid_access( x_ssl_dat, x, y, 0), Variant_Grid_access( x_ssl_dat, x+1,  y, 0 ) );
@@ -172,7 +188,7 @@ void science(
           so the first two terms have been removed
           */
 
-          double u_right =
+          double u_right_local =
             (
                Variant_Grid_access(z_mult_dat, x,y,z)
              * HarmonicMean( Variant_Grid_access(permxp, x,   y, z),
@@ -197,7 +213,7 @@ void science(
                )
            );
 
-           double u_front =
+           double u_front_local =
              (
                 Variant_Grid_access(z_mult_dat, x,y,z)
               * HarmonicMean( Variant_Grid_access(permyp, x,   y, z),
@@ -222,7 +238,7 @@ void science(
                 )
             );
 
-          double u_upper =
+          double u_upper_local =
                       HarmonicMeanDZ(
                           Variant_Grid_access(permzp,     x, y, z  ),
                           Variant_Grid_access(permzp,     x, y, z+1),
@@ -237,16 +253,48 @@ void science(
                         Variant_Grid_access(rpp, x, y, z+1) * Variant_Grid_access(dp, x, y, z+1)
                       );
 
-          Variant_Grid_access(vx, x,y,z) = u_right;
-          Variant_Grid_access(vy, x,y,z) = u_front;
-          Variant_Grid_access(vz, x,y,z) = u_upper;
+          Variant_Grid_access(fp,      x, y, z) += u_right_local * u_front_local * u_upper_local;
 
-          Variant_Grid_access(fp, x  , y  , z  ) += u_right * u_front * u_upper;
-          Variant_Grid_access(fp, x+1, y  , z  ) += u_right;
-          Variant_Grid_access(fp, x  , y+1, z  ) -= u_front;
-          Variant_Grid_access(fp, x  , y  , z+1) -= u_upper;
+          Variant_Grid_access(vx,      x, y, z)  = u_right_local;
+          Variant_Grid_access(vy,      x, y, z)  = u_front_local;
+          Variant_Grid_access(vz,      x, y, z)  = u_upper_local;
+
+          Variant_Grid_access(u_right, x, y, z)  = u_right_local;
+          Variant_Grid_access(u_front, x, y, z)  = u_front_local;
+          Variant_Grid_access(u_upper, x, y, z)  = u_upper_local;
         }
       );
     }
   )
+
+  TIMEIT( metrics->elapsed_551_reduce,
+    {
+      int x;
+      int y;
+      int z;
+      Variant_Domain* outer_expaned = Variant_Domain_alloc( Variant_Domain_nx(domain)+1, Variant_Domain_ny(domain)+1, Variant_Domain_nz(domain)+1);
+      Variant_Domain_fast_loop_interior(
+        outer_expaned, x,y,z,
+        writes(fp),
+        reads(fp, u_right, u_front, u_upper),
+        {
+          double fp_val = Variant_Grid_access(fp, x, y, z);
+          // In transformation from scatter to gather, we need to not gather from
+          // locations that did not scatter to us.
+          // Basic rules:
+          //   1. Gather from axis i if iterator i is > 1;
+          //   2. Gather from *only* axis i if iterator i is == to Ni,
+          //      where Ni is the size in the i axis
+          double u_right_val = ( (1 < x && y < Variant_Grid_domain(fp)->ny && z < Variant_Grid_domain(fp)->nz ) ?  Variant_Grid_access(u_right, x-1, y  , z  ) : 0.0 );
+          double u_front_val = ( (1 < y && x < Variant_Grid_domain(fp)->nx && z < Variant_Grid_domain(fp)->nz ) ? -Variant_Grid_access(u_front, x  , y-1, z  ) : 0.0 );
+          double u_upper_val = ( (1 < z && x < Variant_Grid_domain(fp)->nx && y < Variant_Grid_domain(fp)->ny ) ? -Variant_Grid_access(u_upper, x  , y  , z-1) : 0.0 );
+          Variant_Grid_access(fp, x, y, z) = fp_val + u_right_val + u_front_val + u_upper_val;
+        }
+      );
+    }
+  )
+
+  Variant_Grid_dealloc( u_right );
+  Variant_Grid_dealloc( u_front );
+  Variant_Grid_dealloc( u_upper );
 }

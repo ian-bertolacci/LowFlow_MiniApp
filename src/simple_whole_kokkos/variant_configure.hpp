@@ -29,18 +29,23 @@ Possible options for kokkos_execution_space:
   #if defined(USE_SERIAL)
     typedef Kokkos::Serial kokkos_execution_space;
     typedef Kokkos::HostSpace kokkos_storage_space;
+    const bool use_host_when_in_fast_loop = true;
   #elif defined(USE_OPENMP)
     typedef Kokkos::OpenMP kokkos_execution_space;
     typedef Kokkos::HostSpace kokkos_storage_space;
+    const bool use_host_when_in_fast_loop = true;
   #elif defined(USE_PTHREADS)
     typedef Kokkos::Threads kokkos_execution_space;
     typedef Kokkos::HostSpace kokkos_storage_space;
+    const bool use_host_when_in_fast_loop = true;
   #elif defined(USE_CUDA)
     typedef Kokkos::Cuda kokkos_execution_space;
     typedef Kokkos::CudaSpace kokkos_storage_space;
+    const bool use_host_when_in_fast_loop = false;
   #else
     typedef Kokkos::Serial kokkos_execution_space;
     typedef Kokkos::HostSpace kokkos_storage_space;
+    const bool use_host_when_in_fast_loop = true;
   #endif
 // Error out if more than one is defined
 #else

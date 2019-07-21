@@ -27,31 +27,26 @@ void Variant_Domain_dealloc( Variant_Domain* domain ){
   free(domain);
 }
 
-Variant_Grid::Variant_Grid( Variant_Domain* domain )
-{
-  this->domain = domain;
-  this->data = new view_3D_double_t( "data", Variant_Domain_nx(domain), Variant_Domain_ny(domain), Variant_Domain_nz(domain) );
-}
-
-Variant_Grid::~Variant_Grid(){
-  delete this->data;
-}
-
-double& Variant_Grid::access( access_location_t location, size_t i, size_t j, size_t k ){
-  if( location == access_host ){
-    return (this->data->template view<view_3D_double_t::host_mirror_space>() )(i,j,k);
-  } else {
-    return (this->data->template view<view_3D_double_t::host_mirror_space>() )(i,j,k);
-  }
-}
-
 Variant_Grid* Variant_Grid_alloc( Variant_Domain* domain ){
-  return new Variant_Grid( domain );
+  Variant_Grid* result = (Variant_Grid*) malloc( sizeof(Variant_Grid) );
+  assert( result != nullptr && "Error during Variant_Grid_Alloc: Unable to allocate Variant_Grid struct" );
+
+  Variant_Grid_domain(result) = domain;
+
+  result->data = new view_3D_double_t( "data", Variant_Domain_nx(domain), Variant_Domain_ny(domain), Variant_Domain_nz(domain) );
+
+  assert( Variant_Grid_data(result) != nullptr && "Error during Variant_Grid_alloc: Unable to allocate Variant_Grid data" );
+
+  return result;
 }
 
 void Variant_Grid_dealloc( Variant_Grid* grid ){
   assert( grid != nullptr && "Error during Variant_Grid_dealloc: Variant_Grid pointer is nullptr" );
-  delete grid;
+  assert( Variant_Grid_data(grid) != nullptr && "Error during Variant_Grid_dealloc: Variant_Grid has Null data array");
+
+  delete Variant_Grid_data(grid);
+
+  free( grid );
 }
 
 void Variant_Grid_populate_int_increment( Variant_Domain* domain, Variant_Grid* grid ){
