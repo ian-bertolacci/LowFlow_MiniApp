@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.5)
 include(${CMAKE_DIR}/utilities.txt)
 include(${CMAKE_DIR}/build_variant.txt)
 
+if(${WITHOUT_KOKKOS})
+else()
 set(VARIANT_NAME simple_kokkos)
 set(VARIANT_SOURCE_FILES variant_types.cpp variant_science.cpp variant_metrics.cpp variant_configure.cpp variant_setup_teardown.cpp)
 set(VARIANT_LINK_LIBRARIES kokkos dl pthread )
@@ -83,4 +85,5 @@ if(${CMAKE_CXX_COMPILER} MATCHES "nvcc_wrapper$")
     VARIANT_LINK_LIBS ${VARIANT_LINK_LIBRARIES}
     CONFIG_MACRO_DEFNS "USE_CUDA;ENABLE_VARIANT_METRICS"
   )
+endif()
 endif()

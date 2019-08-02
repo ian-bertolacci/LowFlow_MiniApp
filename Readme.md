@@ -18,10 +18,17 @@ There are multiple build types:
 
 They are specified at cmake configure time with `-DCMAKE_BUILD_TYPE=<build-type>`
 
-
 It's worth noting that attempting to change the compiler for any target is (as of writing) frustratingly impossible.
 Setting the compiler needs to be done during cmake configuration with `-DCMAKE_CXX_COMPILER=<compiler>` where compiler is a valid command, or is a path (not sure if it needs to be absolute) to the compiler executable.
 
+Below are flags used to disable certain families of builds
+- `-D WITHOUT_KOKKOS=true`
+  + Disable Kokkos variants (namely simple_whole_kokkos)
+
+## Prerequisite libraries
+### Kokkos
+[Kokkos](https://github.com/kokkos/kokkos) is required for variants using it.
+All Kokkos variants are enabled by default (disabled during configuration with `-D WITHOUT_KOKKOS=true`).
 
 # Running
 Each program is a different, self-contained variant, and will be run in roughly the same way.
