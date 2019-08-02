@@ -180,10 +180,6 @@ ProgramOptions parseProgramOptions( int argc, char** argv ){
         opts.nz = atoi( optarg );
         break;
 
-      case 'T':
-        opts.T = atoi( optarg );
-        break;
-
       case 'e':
         opts.epsilon = strtod( optarg, NULL );
         break;

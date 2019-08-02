@@ -6,7 +6,7 @@
 #include <Kokkos_DualView.hpp>
 #include <configure.hpp>
 
-static bool is_on_cpu = true;
+const static bool is_on_host = true;
 
 typedef struct struct_Variant_Domain {
   // int x, y, z; // TODO Include positions? Would be used for multi-grid situations (like distributed solves)

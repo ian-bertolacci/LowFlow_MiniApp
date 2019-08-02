@@ -12,11 +12,17 @@
 #define CONCATENATE_NO_PREPROCESS(arg1, arg2)  arg1##arg2
 
 #define EMPTY()
-#define DELAY(...) __VA_ARGS__ EMPTY()
+#define DELAY(x) x EMPTY()
+#define STRINGIZE(x) STRINGIZE_NO_PREPROCESS(x)
+#define STRINGIZE_NO_PREPROCESS(x) #x
 
-#define DELAYED_PRAGMA(args) _Pragma( STRINGIZE(args) )
-#define PRAGMA DELAY(DELAYED_PRAGMA)
+#define PRAGMA(x) _Pragma( STRINGIZE(x) )
+#define DELAYED_PRAGMA_assist(x) PRAGMA(x)
+#define DELAYED_PRAGMA DELAY(DELAYED_PRAGMA_assist)
 
+#define PRAGMA_IN_MACRO_ARG(x) DELAYED_PRAGMA(x)
+#define PRAGMA_IN_MACRO_BODY(x) PRAGMA(x)
+#define PRAGMA_IN_CODE(x) PRAGMA(x)
 
 // Foreach macros
 // See this stack overflow answer (https://stackoverflow.com/a/1872506/3614863)

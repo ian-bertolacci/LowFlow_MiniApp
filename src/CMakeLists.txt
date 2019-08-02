@@ -34,11 +34,14 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Flag options
+# NVCC (prefixed) compiler
 if(${CMAKE_CXX_COMPILER} MATCHES "nvcc")
   set(CMAKE_CXX_FLAGS "--expt-extended-lambda -D_FORCE_INLINES -D_MWAITXINTRIN_H_INCLUDED -Wall -Wextra -Wno-unused-parameter -Wno-unused-variable")
-  set(CMAKE_CXX_FLAGS_DEBUG "-g -Og")
+  set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
   set(CMAKE_CXX_FLAGS_RELEASE "-O3")
   set(CMAKE_CXX_EXTENSIONS OFF) # use std=c++11 instead of std=gnu++11
+
+# Default compilers
 else()
   set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wno-unused-parameter -Wno-unused-variable")
   set(CMAKE_CXX_FLAGS_DEBUG "-g -Og")
@@ -51,7 +54,7 @@ if (OPENMP_FOUND)
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
   set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 else()
-  warning( "OpenMP is mandatory, but not found. manually setting flags." )
+  message( WARNING "OpenMP is mandatory, but not found. manually setting flags." )
   set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fopenmp")
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
 endif()

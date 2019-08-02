@@ -24,10 +24,12 @@
 // #endif
 
 #define Variant_Grid_domain(grid) ((grid)->domain)
-#define Variant_Grid_idx(grid, x,y,z) (Variant_Domain_idx(Variant_Grid_domain(grid), x,y,z))(grid)->data
+#define Variant_Grid_idx(grid, x,y,z) ((Variant_Domain_idx(Variant_Grid_domain(grid), x,y,z))(grid)->data)
 // #define Variant_Grid_access_index(grid,idx) (Variant_Grid_data(grid)[idx])
 #define Variant_Grid_access_index(grid, idx) error "Do not use Variant_Grid_access_index"
-#define Variant_Grid_access(grid,x,y,z) ( is_on_cpu ? Variant_Grid_data(grid)->template view<view_3D_double_t::host_mirror_space>()(x,y,z) : Variant_Grid_data(grid)->template view<view_3D_double_t::memory_space>()(x,y,z) )
+#define Variant_Grid_access(grid,x,y,z) ( is_on_host ? Variant_Grid_data(grid)->template view<view_3D_double_t::host_mirror_space>()(x,y,z) : Variant_Grid_data(grid)->template view<view_3D_double_t::memory_space>()(x,y,z) )
+//(grid(x,y,z))
+
 
 #define Variant_Domain_equal(domain_a, domain_b) \
   (Variant_Domain_nx(domain_a) == Variant_Domain_nx(domain_b) \
@@ -52,11 +54,12 @@
     } \
   }
 
-#define unwrap_to_device(arg_name) arg_name->data->template view<view_3D_double_t::memory_space>();
-#define unwrap_to_host(arg_name) arg_name->data->template view<view_3D_double_t::host_mirror_space>();
+#define unwrap_to_device(arg_name) Variant_Grid_data(arg_name)->template view<view_3D_double_t::memory_space>();
+#define unwrap_to_host(arg_name) Variant_Grid_data(arg_name)->template view<view_3D_double_t::host_mirror_space>();
 #define sync( arg_name, from, to ) \
-  arg_name->data->modify<view_3D_double_t::from>(); \
-  arg_name->data->sync<view_3D_double_t::to>();
+  Variant_Grid_data(arg_name)->modify<view_3D_double_t::from>(); \
+  Variant_Grid_data(arg_name)->sync<view_3D_double_t::to>();
+#define sync_from_device_to_host( arg_name ) sync( arg_name, memory_space, host_mirror_space)
 #define sync_from_device_to_host( arg_name ) sync( arg_name, memory_space, host_mirror_space)
 
 #define writes(...) DELAY(__VA_ARGS__)
@@ -71,20 +74,22 @@
   body \
 ) \
 { \
-  FOR_EACH( unwrap_to_device, _reads ) \
+  /*FOR_EACH( unwrap_to_device, _reads )*/ \
   { \
-    FOR_EACH( unwrap_to_device, _writes ) \
+    /*FOR_EACH( unwrap_to_device, _writes ) */ \
     LowFlow_3D_Execution_Fast_Policy __local_Variant_Domain_fast_loop_in_bounds_policy( \
       {{lower_bound_x, lower_bound_y, lower_bound_z}}, \
       {{upper_bound_x, upper_bound_y, upper_bound_z}} \
     ); \
-    bool is_on_cpu = false; \
+    const bool is_on_host = use_host_when_in_fast_loop; \
     Kokkos::parallel_for( "__local_Variant_Domain_fast_loop_in_bounds_parallel_for", __local_Variant_Domain_fast_loop_in_bounds_policy, \
       KOKKOS_LAMBDA (const int iter_x, const int iter_y, const int iter_z ){ \
         body; \
       } \
     ); \
-    FOR_EACH( sync_from_device_to_host, _writes ) \
+    if( !is_on_host ){ \
+      FOR_EACH( sync_from_device_to_host, _writes ) \
+    } \
   } \
 }
 
