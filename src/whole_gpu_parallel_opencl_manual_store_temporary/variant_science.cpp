@@ -4,7 +4,7 @@
 #include <util.hpp>
 
 #include <assert.h>
-#include <CL/opencl.h>
+#include <CL/cl.h>
 #include <math.h>
 #include <stdio.h>
 
@@ -118,7 +118,18 @@ void science(
   }
 
   /* Create a command commands */
-  commands = clCreateCommandQueueWithProperties(context, device_id, nullptr, &err);
+  // Because is trying to monopolize the GPU programming space,
+  // NVIDIA does not support OpenCL version > 1.2
+  #if defined(CL_VERSION_2_0) or defined(CL_VERSION_2_1) or defined(CL_VERSION_2_2)
+    commands = clCreateCommandQueueWithProperties(context, device_id, nullptr, &err);
+  #elif defined(CL_VERSION_1_0) or defined(CL_VERSION_1_1) or defined(CL_VERSION_1_2)
+    commands = clCreateCommandQueue(context, device_id, 0, &err);
+  #endif
+  if( !commands ){
+    printf("Error: Failed to create a command commands! (Error code %d)\n", err);
+    exit(OPENCL_DEVICE_CREATION_FAILURE);
+  }
+
   if( !commands ){
     printf("Error: Failed to create a command commands! (Error code %d)\n", err);
     exit(OPENCL_DEVICE_CREATION_FAILURE);
