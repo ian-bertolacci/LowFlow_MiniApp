@@ -12,7 +12,7 @@
 #define CONCATENATE_NO_PREPROCESS(arg1, arg2)  arg1##arg2
 
 #define EMPTY()
-#define DELAY(x) x EMPTY()
+#define DELAY(...) __VA_ARGS__ EMPTY()
 #define STRINGIZE(x) STRINGIZE_NO_PREPROCESS(x)
 #define STRINGIZE_NO_PREPROCESS(x) #x
 
