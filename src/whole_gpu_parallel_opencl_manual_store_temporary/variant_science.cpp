@@ -65,8 +65,14 @@ void science(
   const int num_util_kernels = 0;
   const int num_preambles = 1 ;
 
+  bool use_gpu = true;
+
   // Error code returned/out-var'ed by OpenCL functions
   int err;
+  // platforms and used platform id
+  cl_uint num_platforms;
+  cl_platform_id* platforms;
+  cl_platform_id platform_id;
   // compute device id
   cl_device_id device_id;
   // compute context
@@ -103,8 +109,36 @@ void science(
   size_t local[num_compute_kernels][3];
 
   /* Connect to a compute device */
-  bool use_gpu = true;
-  err = clGetDeviceIDs(nullptr, use_gpu ? CL_DEVICE_TYPE_GPU : CL_DEVICE_TYPE_CPU, 1, &device_id, nullptr);
+
+  // Get platforms
+  err = clGetPlatformIDs( 0, nullptr, &num_platforms );
+  if( err != CL_SUCCESS ){
+    printf("Error: Error while getting number of platforms! (Error code %d)\n", err);
+    exit(OPENCL_PLATFORM_INTERROGATION_FAILURE);
+  }
+
+  if( num_platforms < 1 ){
+    printf("Error: No platforms! (num_platforms == %d)\n", num_platforms);
+    exit(OPENCL_PLATFORM_INTERROGATION_FAILURE);
+  }
+
+  platforms = (cl_platform_id*) calloc( sizeof(cl_platform_id), num_platforms);
+  if( platforms == nullptr ){
+    printf("Error: Failed to allocate space for platform IDs!\n");
+    exit(OPENCL_PLATFORM_INTERROGATION_FAILURE);
+  }
+
+  err = clGetPlatformIDs( num_platforms, platforms, nullptr );
+  if( err != CL_SUCCESS ){
+    printf("Error: Error while getting platform IDs! (Error code %d)\n", err);
+    exit(OPENCL_PLATFORM_INTERROGATION_FAILURE);
+  }
+
+  // Choose correct platform
+  platform_id = platforms[0];
+
+  // Get device on that platform
+  err = clGetDeviceIDs(platform_id, use_gpu ? CL_DEVICE_TYPE_GPU : CL_DEVICE_TYPE_CPU, 1, &device_id, nullptr);
   if( err != CL_SUCCESS ){
     printf("Error: Failed to create a device group! (Error code %d)\n", err);
     exit(OPENCL_DEVICE_CREATION_FAILURE);
@@ -125,6 +159,20 @@ void science(
   #elif defined(CL_VERSION_1_0) or defined(CL_VERSION_1_1) or defined(CL_VERSION_1_2)
     commands = clCreateCommandQueue(context, device_id, 0, &err);
   #endif
+  if( !commands ){
+    printf("Error: Failed to create a command commands! (Error code %d)\n", err);
+    exit(OPENCL_DEVICE_CREATION_FAILURE);
+  }
+
+  /* Create a command commands */
+  // Because is trying to monopolize the GPU programming space,
+  // NVIDIA does not support OpenCL version > 1.2
+  #if defined(CL_VERSION_2_0) or defined(CL_VERSION_2_1) or defined(CL_VERSION_2_2)
+    commands = clCreateCommandQueueWithProperties(context, device_id, nullptr, &err);
+  #elif defined(CL_VERSION_1_0) or defined(CL_VERSION_1_1) or defined(CL_VERSION_1_2)
+    commands = clCreateCommandQueue(context, device_id, 0, &err);
+  #endif
+
   if( !commands ){
     printf("Error: Failed to create a command commands! (Error code %d)\n", err);
     exit(OPENCL_DEVICE_CREATION_FAILURE);
