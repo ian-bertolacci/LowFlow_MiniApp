@@ -22,13 +22,27 @@ It's worth noting that attempting to change the compiler for any target is (as o
 Setting the compiler needs to be done during cmake configuration with `-DCMAKE_CXX_COMPILER=<compiler>` where compiler is a valid command, or is a path (not sure if it needs to be absolute) to the compiler executable.
 
 Below are flags used to disable certain families of builds
+- `-D WITHOUT_OPENCL=true`
+  + Disables OpenCL Variants
 - `-D WITHOUT_KOKKOS=true`
   + Disable Kokkos variants (namely simple_whole_kokkos)
 
+
 ## Prerequisite libraries
+### OpenCL
+OpenCL is required for variants using it.
+All OpenCL variants are enabled by default.
+They can be disabled during configuration with `-D WITHOUT_OPENCL=true`.
+
+Note that there are different versions of the API, particularly 1.x vs 2.x.
+The preferred API is 2.0, however because NVIDIA refuses to upgrade their implementation
+to fully support this OpenCL 2.0 standard (as ratified in late 2013), OpenCL 1.2
+must be also supported.
+
 ### Kokkos
 [Kokkos](https://github.com/kokkos/kokkos) is required for variants using it.
-All Kokkos variants are enabled by default (disabled during configuration with `-D WITHOUT_KOKKOS=true`).
+All Kokkos variants are enabled by default.
+They can be disabled during configuration with `-D WITHOUT_KOKKOS=true`.
 
 # Running
 Each program is a different, self-contained variant, and will be run in roughly the same way.
