@@ -70,7 +70,7 @@ else()
 
   # CUDA Configuration
   # Enabled only if Kokkos' nvcc_wrapper is the compiler
-  if(${CMAKE_CXX_COMPILER} MATCHES "nvcc_wrapper$")
+  if(${USE_KOKKOS_CUDA})
     CREATE_VARIANT_TARGET(
       NAME ${VARIANT}_
       BASE_SRC_FILES ${BASE_SOURCE_FILES}

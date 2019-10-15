@@ -33,15 +33,13 @@ endif()
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Flag options
-# NVCC (prefixed) compiler
-if(${CMAKE_CXX_COMPILER} MATCHES "nvcc")
+# Compiler and compiler flags
+if(${USE_CUDA})
+  set(CMAKE_CXX_COMPILER nvcc)
   set(CMAKE_CXX_FLAGS "--expt-extended-lambda -D_FORCE_INLINES -D_MWAITXINTRIN_H_INCLUDED -Wall -Wextra -Wno-unused-parameter -Wno-unused-variable")
   set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
   set(CMAKE_CXX_FLAGS_RELEASE "-O3")
   set(CMAKE_CXX_EXTENSIONS OFF) # use std=c++11 instead of std=gnu++11
-
-# Default compilers
 else()
   set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wno-unused-parameter -Wno-unused-variable")
   set(CMAKE_CXX_FLAGS_DEBUG "-g -Og")

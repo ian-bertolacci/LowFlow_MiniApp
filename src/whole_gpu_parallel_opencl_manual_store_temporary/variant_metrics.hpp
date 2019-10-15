@@ -8,15 +8,14 @@
 #define START_TIMER(variable) (variable) = omp_get_wtime();
 #define STOP_TIMER(variable) (variable) = omp_get_wtime() - (variable);
 #define TIMEIT(variable, body) \
-  variable = omp_get_wtime(); \
+  START_TIMER( variable ); \
   body \
-  variable = omp_get_wtime() - variable;
+  STOP_TIMER( variable );
 #else
 #define TIMEIT(variable, body) body
 #define START_TIMER(variable)
 #define STOP_TIMER(variable)
 #endif
-
 
 typedef struct struct_Variant_Metrics {
   double elapsed_216;
