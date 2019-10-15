@@ -2,11 +2,8 @@ cmake_minimum_required(VERSION 3.5)
 include(${CMAKE_DIR}/utilities.txt)
 include(${CMAKE_DIR}/build_variant.txt)
 
-# If OpenCL specifically disabled, do nothing
-if(${WITHOUT_OPENCL})
-  # do nothing
-else()
-
+# If OpenCL enabled
+if(${WITH_OPENCL})
   set(VARIANT_NAME whole_gpu_parallel_opencl_store_temporary)
   set(VARIANT_SOURCE_FILES variant_types.cpp variant_science.cpp variant_metrics.cpp variant_configure.cpp variant_setup_teardown.cpp)
   set(VARIANT_LINK_LIBRARIES OpenCL)
@@ -49,4 +46,4 @@ else()
     VARIANT_LINK_LIBS ${VARIANT_LINK_LIBRARIES}
   )
 
-endif() # end if WITHOUT_OPENCL
+endif() # end if WITH_OPENCL

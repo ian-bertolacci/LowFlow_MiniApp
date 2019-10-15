@@ -2,11 +2,8 @@ cmake_minimum_required(VERSION 3.5)
 include(${CMAKE_DIR}/utilities.txt)
 include(${CMAKE_DIR}/build_variant.txt)
 
-# If OpenCL specifically disabled, do nothing
-if(${WITHOUT_OPENCL})
-  # Do nothing
-else()
-
+# If OpenCL enabled
+if(${WITH_OPENCL})
   set(VARIANT_NAME whole_gpu_parallel_opencl_fuse_store_temporary)
   set(VARIANT_SOURCE_FILES variant_types.cpp variant_science.cpp variant_metrics.cpp variant_configure.cpp variant_setup_teardown.cpp)
   set(VARIANT_LINK_LIBRARIES OpenCL)
@@ -30,23 +27,25 @@ else()
   )
 
   # NVIDIA OpenCL implementation
-  # Note, NVCC is not required to compile with NVIDIA's OpenCL implementaiton
-  CREATE_VARIANT_TARGET(
-    NAME ${VARIANT}
-    BASE_SRC_FILES ${BASE_SOURCE_FILES}
-    VARIANT_SRC_FILES ${VARIANT_SOURCE_FILES}
-    INSTALL_DIR ${INSTALL_BIN_DIR}
-    CONFIG_MACRO_DEFNS "NVIDIA_OPENCL"
-    VARIANT_LINK_LIBS ${VARIANT_LINK_LIBRARIES}
-  )
+  # Note, NVCC is not required to compile with NVIDIA's OpenCL implementation
+  if(${WITH_CUDA})
+    CREATE_VARIANT_TARGET(
+      NAME ${VARIANT}
+      BASE_SRC_FILES ${BASE_SOURCE_FILES}
+      VARIANT_SRC_FILES ${VARIANT_SOURCE_FILES}
+      INSTALL_DIR ${INSTALL_BIN_DIR}
+      CONFIG_MACRO_DEFNS "NVIDIA_OPENCL"
+      VARIANT_LINK_LIBS ${VARIANT_LINK_LIBRARIES}
+    )
 
-  CREATE_VARIANT_TARGET(
-    NAME ${VARIANT}
-    BASE_SRC_FILES ${BASE_SOURCE_FILES}
-    VARIANT_SRC_FILES ${VARIANT_SOURCE_FILES}
-    INSTALL_DIR ${INSTALL_BIN_DIR}
-    CONFIG_MACRO_DEFNS "NVIDIA_OPENCL;ENABLE_VARIANT_METRICS"
-    VARIANT_LINK_LIBS ${VARIANT_LINK_LIBRARIES}
-  )
+    CREATE_VARIANT_TARGET(
+      NAME ${VARIANT}
+      BASE_SRC_FILES ${BASE_SOURCE_FILES}
+      VARIANT_SRC_FILES ${VARIANT_SOURCE_FILES}
+      INSTALL_DIR ${INSTALL_BIN_DIR}
+      CONFIG_MACRO_DEFNS "NVIDIA_OPENCL;ENABLE_VARIANT_METRICS"
+      VARIANT_LINK_LIBS ${VARIANT_LINK_LIBRARIES}
+    )
+  endif()
 
-endif() # end if WITHOUT_OPENCL
+endif() # end if WITH_OPENCL
