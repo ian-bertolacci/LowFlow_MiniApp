@@ -23,4 +23,8 @@
 
 #define Variant_Domain_loop_interior(domain, iter_x, iter_y, iter_z, body) Basic_Domain_loop_interior(domain, iter_x, iter_y, iter_z, body)
 
+#define Variant_Domain_fast_loop_whole(domain, iter_x, iter_y, iter_z, body) Basic_Domain_loop_whole(domain, iter_x, iter_y, iter_z, body)
+
+#define Variant_Domain_fast_loop_interior(domain, iter_x, iter_y, iter_z, body) Basic_Domain_loop_interior(domain, iter_x, iter_y, iter_z, body)
+
 #endif

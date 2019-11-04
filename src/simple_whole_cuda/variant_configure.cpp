@@ -11,7 +11,7 @@
 #include <stdbool.h>
 
 void printVariantInformationMessage( FILE* stream ){
-  fprintf( stream, "This is the serial implementation of the LowFlow mini-app\n" );
+  fprintf( stream, "This is the CUDA implementation of the LowFlow mini-app\n" );
 }
 
 void printVariantOptionsMessage( FILE* stream ){

@@ -13,6 +13,7 @@ set(VARIANTS
   whole_gpu_parallel_opencl_manual_store_temporary
   whole_gpu_parallel_opencl_manual_fuse_store_temporary
   simple_whole_kokkos
+  simple_whole_cuda
 )
 
 # List all source files

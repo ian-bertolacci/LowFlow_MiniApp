@@ -4,7 +4,7 @@ include(${CMAKE_DIR}/build_variant.txt)
 
 # If using CUDA
 if(${USE_CUDA})
-  set(VARIANT_NAME simple_whole_CUDA)
+  set(VARIANT_NAME simple_whole_cuda)
   set(VARIANT_SOURCE_FILES variant_types.cpp variant_science.cpp variant_metrics.cpp variant_configure.cpp variant_setup_teardown.cpp)
 
   CREATE_VARIANT_TARGET(
