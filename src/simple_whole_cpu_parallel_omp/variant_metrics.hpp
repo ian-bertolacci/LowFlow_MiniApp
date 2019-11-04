@@ -18,7 +18,7 @@ typedef struct struct_Variant_Metrics {
   double elapsed_338;
   double elapsed_416;
   double elapsed_551;
-
+  double elapsed_551_reduce;
 } Variant_Metrics;
 
 #endif
