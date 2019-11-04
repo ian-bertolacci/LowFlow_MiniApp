@@ -36,14 +36,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Compiler and compiler flags
 if(${WITH_CUDA})
-  if(NOT ${CMAKE_CXX_COMPILER})
-    if(${WITH_KOKKOS})
-       set(CMAKE_CXX_COMPILER nvcc_wrapper)
-    else()
-      set(CMAKE_CXX_COMPILER nvcc)
-    endif()
+  if(${WITH_KOKKOS})
+     set(CMAKE_CXX_COMPILER nvcc_wrapper)
+     set(CMAKE_CXX_FLAGS "--expt-extended-lambda -D_FORCE_INLINES -D_MWAITXINTRIN_H_INCLUDED")
   endif()
-  set(CMAKE_CXX_FLAGS "--expt-extended-lambda -D_FORCE_INLINES -D_MWAITXINTRIN_H_INCLUDED -Wall -Wextra -Wno-unused-parameter -Wno-unused-variable")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-unused-parameter -Wno-unused-variable")
   set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
   set(CMAKE_CXX_FLAGS_RELEASE "-O3")
   set(CMAKE_CXX_EXTENSIONS OFF) # use std=c++11 instead of std=gnu++11
