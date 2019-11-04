@@ -55,6 +55,14 @@ void science(
     assert( y_ssl_dat != nullptr  && "Error during science: input grid y_ssl_dat is null" );
   }
 
+  // Create domain for reduction portion. It is 1 larger than the normal domain.
+  Variant_Domain* reduction_domain = Variant_Domain_alloc( Variant_Domain_nx(domain)+1, Variant_Domain_nz(domain)+1, Variant_Domain_ny(domain)+1 );
+
+  // Create temporary grids for reduction portion.
+  Variant_Grid* u_right = Variant_Grid_alloc( domain );
+  Variant_Grid* u_front = Variant_Grid_alloc( domain );
+  Variant_Grid* u_upper = Variant_Grid_alloc( domain );
+
   // Do baseline scientific kernel
   // NlFunctionEval:261 analogue
   TIMEIT( metrics->elapsed_216,
@@ -172,7 +180,7 @@ void science(
           so the first two terms have been removed
           */
 
-          double u_right =
+          double u_right_val =
             (
                Variant_Grid_access(z_mult_dat, x,y,z)
              * HarmonicMean( Variant_Grid_access(permxp, x,   y, z),
@@ -197,7 +205,7 @@ void science(
                )
            );
 
-           double u_front =
+           double u_front_val =
              (
                 Variant_Grid_access(z_mult_dat, x,y,z)
               * HarmonicMean( Variant_Grid_access(permyp, x,   y, z),
@@ -222,7 +230,7 @@ void science(
                 )
             );
 
-          double u_upper =
+          double u_upper_val =
                       HarmonicMeanDZ(
                           Variant_Grid_access(permzp,     x, y, z  ),
                           Variant_Grid_access(permzp,     x, y, z+1),
@@ -237,16 +245,51 @@ void science(
                         Variant_Grid_access(rpp, x, y, z+1) * Variant_Grid_access(dp, x, y, z+1)
                       );
 
-          Variant_Grid_access(vx, x,y,z) = u_right;
-          Variant_Grid_access(vy, x,y,z) = u_front;
-          Variant_Grid_access(vz, x,y,z) = u_upper;
+          Variant_Grid_access(vx, x, y, z) = u_right_val;
+          Variant_Grid_access(vy, x, y, z) = u_front_val;
+          Variant_Grid_access(vz, x, y, z) = u_upper_val;
 
-          Variant_Grid_access(fp, x  , y  , z  ) += u_right * u_front * u_upper;
-          Variant_Grid_access(fp, x+1, y  , z  ) += u_right;
-          Variant_Grid_access(fp, x  , y+1, z  ) -= u_front;
-          Variant_Grid_access(fp, x  , y  , z+1) -= u_upper;
+          /* Note:
+          A reasonable person might ask:
+          "Ian, Why are we not just using vx, vy, and vz for the value of
+          u_right, u_front, u_upper in the reduction?", which is totally valid.
+          The answer is that, in the original parflow code, vx, vy, and vz are
+          not set to the u_*_value, but rather a constant expression involving
+          u_*_value. Now, maybe it's worth it to delay that computation until
+          later to reduce the temporary storage requirement at the cost of
+          having to reload that data, but it's complicated.
+          */
+
+          Variant_Grid_access(u_right, x, y, z) = u_right_val;
+          Variant_Grid_access(u_front, x, y, z) = u_front_val;
+          Variant_Grid_access(u_upper, x, y, z) = u_upper_val;
+
+          Variant_Grid_access(fp, x, y, z) += u_right_val * u_front_val * u_upper_val;
         }
       );
     }
   )
+
+  // NlFunctionEval:551 reduction analogue
+  TIMEIT( metrics->elapsed_551_reduce,
+    {
+      int x;
+      int y;
+      int z;
+      Variant_Domain_fast_loop_interior(reduction_domain, x,y,z,
+        {
+          double u_right_val =  Variant_Grid_access(u_right, x-1, y  , z  );
+          double u_front_val = -Variant_Grid_access(u_front, x  , y-1, z  );
+          double u_upper_val = -Variant_Grid_access(u_upper, x  , y  , z-1);
+          Variant_Grid_access(fp, x, y, z) += u_right_val + u_front_val + u_upper_val;
+        }
+      );
+    }
+  )
+
+  // Deallocate local grids and domains.
+  Variant_Domain_dealloc( reduction_domain );
+  Variant_Grid_dealloc(u_right);
+  Variant_Grid_dealloc(u_front);
+  Variant_Grid_dealloc(u_upper);
 }

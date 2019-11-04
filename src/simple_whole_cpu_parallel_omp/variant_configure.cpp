@@ -11,7 +11,7 @@
 #include <stdbool.h>
 
 void printVariantInformationMessage( FILE* stream ){
-  fprintf( stream, "This is the LIKELY BROKEN CPU parallel via OpenMP in macro loops implementation of the LowFlow mini-app\n" );
+  fprintf( stream, "This is the CPU parallel via OpenMP in macro loops implementation of the LowFlow mini-app\n" );
 }
 
 void printVariantOptionsMessage( FILE* stream ){
