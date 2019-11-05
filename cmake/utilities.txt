@@ -33,3 +33,21 @@ function(JOIN VALUES DELIMITER OUTPUT)
   string (REGEX REPLACE "[\\](.)" "\\1" _TMP_STR "${_TMP_STR}") #fixes escaping
   set (${OUTPUT} "${_TMP_STR}" PARENT_SCOPE)
 endfunction()
+
+function(INSERT_BETWEEN INSERT SEPARATE INPUT OUTPUT)
+  string(REGEX REPLACE "[ \t]+" "${SEPARATE}${INSERT}${SEPARATE}" _TMP_STR ${INPUT})
+  set( ${OUTPUT} "${_TMP_STR}" PARENT_SCOPE )
+endfunction()
+
+function(LISTIFY_FLAGS INPUT OUTPUT)
+  string(STRIP ${INPUT} _TMP_STR)
+  # \\\\; is how to do a ; in cmake
+  string(REGEX REPLACE " +" "\\\\;" _TMP_LIST "${_TMP_STR}")
+  set( ${OUTPUT} "${_TMP_LIST}" PARENT_SCOPE )
+endfunction()
+
+function(COMMAFY_FLAGS INPUT OUTPUT)
+  string(STRIP ${INPUT} _TMP_STR)
+  string(REGEX REPLACE " +" "," _TMP_LIST "${_TMP_STR}")
+  set( ${OUTPUT} "${_TMP_LIST}" PARENT_SCOPE )
+endfunction()

@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(LowFlow)
+if(${WITH_CUDA})
+  project(LowFlow LANGUAGES CXX CUDA)
+else()
+  project(LowFlow LANGUAGES CXX)
+endif()
 
 set(CMAKE_DIR ${PROJECT_SOURCE_DIR}/cmake)
 
