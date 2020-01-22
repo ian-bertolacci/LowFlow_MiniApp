@@ -8,9 +8,7 @@ Variant_Domain* Variant_Domain_alloc( int nx, int ny, int nz ){
   Variant_Domain *result = nullptr;
   cudaError_t x = cudaMallocManaged(&result, sizeof(Variant_Domain));
   assert(x == cudaSuccess);
-
-  //Fails here, when assigning nx/ny/nz. The above assert passes, so the memory should
-  //be allocated correctly. Am I missing something?
+  
   result->nx = nx;
   result->ny = ny;
   result->nz = nz;
