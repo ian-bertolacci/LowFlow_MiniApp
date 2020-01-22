@@ -6,7 +6,8 @@
 
 Variant_Domain* Variant_Domain_alloc( int nx, int ny, int nz ){
   Variant_Domain *result = nullptr;
-  assert(cudaMallocManaged(&result, sizeof(Variant_Domain)) == cudaSuccess);
+  cudaError_t x = cudaMallocManaged(&result, sizeof(Variant_Domain));
+  assert(x == cudaSuccess);
 
   //Fails here, when assigning nx/ny/nz. The above assert passes, so the memory should
   //be allocated correctly. Am I missing something?
@@ -23,10 +24,12 @@ void Variant_Domain_dealloc( Variant_Domain* domain ){
 
 Variant_Grid* Variant_Grid_alloc( Variant_Domain* domain ){
   Variant_Grid *result = nullptr;
-  assert(cudaMallocManaged(&result, sizeof(Variant_Grid)) == cudaSuccess);
+  cudaError_t x = cudaMallocManaged(&result, sizeof(Variant_Grid));
+  assert(x == cudaSuccess);
   
   result->domain = domain;
-  assert(cudaMallocManaged(&result->data, (domain->nx * domain->ny * domain->nz) * sizeof(double)) == cudaSuccess);
+  x = cudaMallocManaged(&result->data, (domain->nx * domain->ny * domain->nz) * sizeof(double));
+  assert(x == cudaSuccess);
 
   return result;
 }
