@@ -278,13 +278,6 @@ void science(
   Variant_Grid* u_right = Variant_Grid_alloc( domain );
   Variant_Grid* u_front = Variant_Grid_alloc( domain );
   Variant_Grid* u_upper = Variant_Grid_alloc( domain );
-  
-/* ------------------------------ NLFE216 ------------------------------ */
-
-  //Variables used for timing
-  double NLFE216_CUDAAllocTime;
-  double NLFE216_CUDAHTDTime;
-  double NLFE216_CUDAKernelTime;
 
   //Determine dimensions of kernel grid
   //A static block size of 16x16x4 threads is used
@@ -296,192 +289,37 @@ void science(
   int gridz = (int) ceil(((float) (Basic_Domain_nz(domain) - 2)) / blockz);
   dim3 block = dim3(blockx, blocky, blockz);
   dim3 grid = dim3(gridx, gridy, gridz);
-
-  //Device pointers for the grids
-  Variant_Grid *fpCUDA, *spCUDA, *dpCUDA, *ospCUDA, *odpCUDA, *popCUDA, *z_mult_datCUDA;
-
-  //Time the allocation time for NLFE216
-  TIMEIT(NLFE216_CUDAAllocTime, {
-    assert(cudaMalloc(&fpCUDA, sizeof(Variant_Grid)) == cudaSuccess);
-    assert(cudaMalloc(&spCUDA, sizeof(Variant_Grid)) == cudaSuccess);
-    assert(cudaMalloc(&dpCUDA, sizeof(Variant_Grid)) == cudaSuccess);
-    assert(cudaMalloc(&ospCUDA, sizeof(Variant_Grid)) == cudaSuccess);
-    assert(cudaMalloc(&odpCUDA, sizeof(Variant_Grid)) == cudaSuccess);
-    assert(cudaMalloc(&popCUDA, sizeof(Variant_Grid)) == cudaSuccess);
-    assert(cudaMalloc(&z_mult_datCUDA, sizeof(Variant_Grid)) == cudaSuccess);
-  })
-
-  //Time the Host to Device copy time
-  TIMEIT(NLFE216_CUDAHTDTime, {
-    assert(cudaMemcpy(fpCUDA, fp, sizeof(Variant_Grid), cudaMemcpyHostToDevice) == cudaSuccess);
-    assert(cudaMemcpy(spCUDA, sp, sizeof(Variant_Grid), cudaMemcpyHostToDevice) == cudaSuccess);
-    assert(cudaMemcpy(dpCUDA, dp, sizeof(Variant_Grid), cudaMemcpyHostToDevice) == cudaSuccess);
-    assert(cudaMemcpy(ospCUDA, osp, sizeof(Variant_Grid), cudaMemcpyHostToDevice) == cudaSuccess);
-    assert(cudaMemcpy(odpCUDA, odp, sizeof(Variant_Grid), cudaMemcpyHostToDevice) == cudaSuccess);
-    assert(cudaMemcpy(popCUDA, pop, sizeof(Variant_Grid), cudaMemcpyHostToDevice) == cudaSuccess);
-    assert(cudaMemcpy(z_mult_datCUDA, z_mult_dat, sizeof(Variant_Grid), cudaMemcpyHostToDevice) == cudaSuccess);
-  })
+  
+/* ------------------------------ NLFE216 ------------------------------ */
 
   //Time the kernel execution time
-  TIMEIT(NLFE216_CUDAKernelTime, {
-    NLFE216Kernel<<<grid, block>>>(Basic_Domain_nx(domain) - 2, Basic_Domain_ny(domain) - 2, Basic_Domain_nz(domain) -2, fpCUDA, spCUDA, dpCUDA, ospCUDA, odpCUDA, popCUDA, z_mult_datCUDA);
-    cudaDeviceSynchronize();
-  })
+  NLFE216Kernel<<<grid, block>>>(Basic_Domain_nx(domain) - 2, Basic_Domain_ny(domain) - 2, Basic_Domain_nz(domain) -2, fp, sp, dp, osp, odp, pop, z_mult_dat);
+  cudaDeviceSynchronize();
 
 /* ------------------------------ NLFE338 ------------------------------ */
 
-  //Variables used for timing
-  double NLFE338_CUDAAllocTime;
-  double NLFE338_CUDAHTDTime;
-  double NLFE338_CUDAKernelTime;
-
-  //Device pointers for the grids not already on the device
-  Variant_Grid *ssCUDA, *ppCUDA, *oppCUDA;
-
-  //Time the allocation time for NLFE338
-  TIMEIT(NLFE338_CUDAAllocTime, {
-    assert(cudaMalloc(&ssCUDA, sizeof(Variant_Grid)) == cudaSuccess);
-    assert(cudaMalloc(&ppCUDA, sizeof(Variant_Grid)) == cudaSuccess);
-    assert(cudaMalloc(&oppCUDA, sizeof(Variant_Grid)) == cudaSuccess);
-  })
-
-  //Time the Host to Device copy time
-  TIMEIT(NLFE338_CUDAHTDTime, {
-    assert(cudaMemcpy(ssCUDA, ss, sizeof(Variant_Grid), cudaMemcpyHostToDevice) == cudaSuccess);
-    assert(cudaMemcpy(ppCUDA, pp, sizeof(Variant_Grid), cudaMemcpyHostToDevice) == cudaSuccess);
-    assert(cudaMemcpy(oppCUDA, opp, sizeof(Variant_Grid), cudaMemcpyHostToDevice) == cudaSuccess);
-  })
-
   //Time the kernel execution time
-  TIMEIT(NLFE338_CUDAKernelTime, {
-    NLFE338Kernel<<<grid, block>>>(Basic_Domain_nx(domain) - 2, Basic_Domain_ny(domain) - 2, Basic_Domain_nz(domain) -2, fpCUDA, ssCUDA, z_mult_datCUDA, ppCuda, spCUDA, dpCUDA, oppCUDA, ospCUDA, odpCUDA);
-    cudaDeviceSynchronize();
-  })
+
+  NLFE338Kernel<<<grid, block>>>(Basic_Domain_nx(domain) - 2, Basic_Domain_ny(domain) - 2, Basic_Domain_nz(domain) -2, fp, ss, z_mult_dat, pp, sp, dp, opp, osp, odp);
+  cudaDeviceSynchronize();
 
 /* ------------------------------ NLFE416 ------------------------------ */
 
-  //Variables used for timing
-  double NLFE416_CUDAAllocTime;
-  double NLFE416_CUDAHTDTime;
-  double NLFE416_CUDAKernelTime;
-
-  //Device pointers for the grids not already on the device
-  Variant_Grid *etCUDA;
-
-  //Time the allocation time for NLFE416
-  TIMEIT(NLFE416_CUDAAllocTime, {
-    assert(cudaMalloc(&etCUDA, sizeof(Variant_Grid)) == cudaSuccess);
-  })
-
-  //Time the Host to Device copy time
-  TIMEIT(NLFE416_CUDAHTDTime, {
-    assert(cudaMemcpy(etCUDA, et, sizeof(Variant_Grid), cudaMemcpyHostToDevice) == cudaSuccess);
-  })
-
-  //Time the kernel execution time
-  TIMEIT(NLFE416_CUDAKernelTime, {
-    NLFE416Kernel<<<grid, block>>>(Basic_Domain_nx(domain) - 2, Basic_Domain_ny(domain) - 2, Basic_Domain_nz(domain) -2, fpCUDA, z_mult_datCUDA, spCUDA, etCUDA);
-    cudaDeviceSynchronize();
-  })
+  NLFE416Kernel<<<grid, block>>>(Basic_Domain_nx(domain) - 2, Basic_Domain_ny(domain) - 2, Basic_Domain_nz(domain) -2, fp, z_mult_dat, sp, et);
+  cudaDeviceSynchronize();
 
 /* ------------------------------ NLFE551 ------------------------------ */
-
-  //Variables used for timing
-  double NLFE551_CUDAAllocTime;
-  double NLFE551_CUDAHTDTime;
-  double NLFE551_CUDAKernelTime;
-
-  //Device pointers for the grids not already on the device
-  Variant_Grid *x_ssl_datCUDA, *y_ssl_datCUDA, *permxpCUDA, *rppCUDA, *permypCUDA, *permzpCUDA, *vxCUDA, *vyCUDA, *vzCUDA, *u_rightCUDA, *u_frontCUDA, *u_upperCUDA;
-
-  //Time the allocation time for NLFE551
-  TIMEIT(NLFE551_CUDAAllocTime, {
-    assert(cudaMalloc(&x_ssl_datCUDA, sizeof(Variant_Grid)) == cudaSuccess);
-    assert(cudaMalloc(&y_ssl_datCUDA, sizeof(Variant_Grid)) == cudaSuccess);
-    assert(cudaMalloc(&permxpCUDA, sizeof(Variant_Grid)) == cudaSuccess);
-    assert(cudaMalloc(&rppCUDA, sizeof(Variant_Grid)) == cudaSuccess);
-    assert(cudaMalloc(&permypCUDA, sizeof(Variant_Grid)) == cudaSuccess);
-    assert(cudaMalloc(&permzpCUDA, sizeof(Variant_Grid)) == cudaSuccess);
-    assert(cudaMalloc(&vxCUDA, sizeof(Variant_Grid)) == cudaSuccess);
-    assert(cudaMalloc(&vyCUDA, sizeof(Variant_Grid)) == cudaSuccess);
-    assert(cudaMalloc(&vzCUDA, sizeof(Variant_Grid)) == cudaSuccess);
-    assert(cudaMalloc(&u_rightCUDA, sizeof(Variant_Grid)) == cudaSuccess);
-    assert(cudaMalloc(&u_frontCUDA, sizeof(Variant_Grid)) == cudaSuccess);
-    assert(cudaMalloc(&u_upperCUDA, sizeof(Variant_Grid)) == cudaSuccess);
-  })
-
-  //Time the Host to Device copy time
-  TIMEIT(NLFE551_CUDAHTDTime, {
-    assert(cudaMemcpy(x_ssl_datCUDA, x_ssl_dat, sizeof(Variant_Grid), cudaMemcpyHostToDevice) == cudaSuccess);
-    assert(cudaMemcpy(y_ssl_datCUDA, y_ssl_dat, sizeof(Variant_Grid), cudaMemcpyHostToDevice) == cudaSuccess);
-    assert(cudaMemcpy(permxpCUDA, permxp, sizeof(Variant_Grid), cudaMemcpyHostToDevice) == cudaSuccess);
-    assert(cudaMemcpy(rppCUDA, rpp, sizeof(Variant_Grid), cudaMemcpyHostToDevice) == cudaSuccess);
-    assert(cudaMemcpy(permypCUDA, permyp, sizeof(Variant_Grid), cudaMemcpyHostToDevice) == cudaSuccess);
-    assert(cudaMemcpy(permzpCUDA, permzp, sizeof(Variant_Grid), cudaMemcpyHostToDevice) == cudaSuccess);
-    assert(cudaMemcpy(vxCUDA, vx, sizeof(Variant_Grid), cudaMemcpyHostToDevice) == cudaSuccess);
-    assert(cudaMemcpy(vyCUDA, vy, sizeof(Variant_Grid), cudaMemcpyHostToDevice) == cudaSuccess);
-    assert(cudaMemcpy(vzCUDA, vz, sizeof(Variant_Grid), cudaMemcpyHostToDevice) == cudaSuccess);
-    assert(cudaMemcpy(u_rightCUDA, u_right, sizeof(Variant_Grid), cudaMemcpyHostToDevice) == cudaSuccess);
-    assert(cudaMemcpy(u_frontCUDA, u_front, sizeof(Variant_Grid), cudaMemcpyHostToDevice) == cudaSuccess);
-    assert(cudaMemcpy(u_upperCUDA, u_upper, sizeof(Variant_Grid), cudaMemcpyHostToDevice) == cudaSuccess);
-  })
   
-  //Time the kernel execution time
-  TIMEIT(NLFE551_CUDAKernelTime, {
-    NLFE551Kernel<<<grid, block>>>(Basic_Domain_nx(domain) - 2, Basic_Domain_ny(domain) - 2, Basic_Domain_nz(domain) -2, x_ssl_datCUDA, y_ssl_datCUDA, ppCUDA, z_mult_datCUDA, dpCUDA, permxpCUDA, rppCUDA, permypCUDA, permzpCUDA, vxCUDA, vyCUDA, vzCUDA, u_rightCUDA, u_frontCUDA, u_upperCUDA, fpCUDA);
-    cudaDeviceSynchronize();
-  })
+  NLFE551Kernel<<<grid, block>>>(Basic_Domain_nx(domain) - 2, Basic_Domain_ny(domain) - 2, Basic_Domain_nz(domain) -2, x_ssl_dat, y_ssl_dat, pp, z_mult_dat, dp, permxp, rpp, permyp, permzp, vx, vy, vz, u_right, u_front, u_upper, fp);
+  cudaDeviceSynchronize();
 
 /* ------------------------------ NLFE551 Reduction ------------------------------ */
 
-  //Variables used for timing
-  double NLFE551Reduction_CUDAKernelTime;
-
-  //Time the kernel execution time
-  TIMEIT(NLFE551_CUDAKernelTime, {
-    NLFE551ReductionKernel<<<grid, block>>>(Basic_Domain_nx(reduction_domain) - 2, Basic_Domain_ny(reduction_domain) - 2, Basic_Domain_nz(reduction_domain) -2, u_rightCUDA, u_frontCUDA, u_upperCUDA, fpCUDA);
-    cudaDeviceSynchronize();
-  })
+  NLFE551ReductionKernel<<<grid, block>>>(Basic_Domain_nx(reduction_domain) - 2, Basic_Domain_ny(reduction_domain) - 2, Basic_Domain_nz(reduction_domain) -2, u_right, u_front, u_upper, fp);
+  cudaDeviceSynchronize();
 
 /* ------------------------------ Cleanup ------------------------------ */
 
-  //Variables used for timing
-  double Cleanup_CUDADTHTime;
-  double Cleanup_CUDAFreeTime;
-
-  //Time the Device to Host transfer time for the final grids
-  TIMEIT(Cleanup_CUDADTHTime, {
-    assert(cudaMemcpy(vx, vxCUDA, sizeof(Variant_Grid), cudaMemcpyDeviceToHost) == cudaSuccess);
-    assert(cudaMemcpy(vy, vyCUDA, sizeof(Variant_Grid), cudaMemcpyDeviceToHost) == cudaSuccess);
-    assert(cudaMemcpy(vz, vzCUDA, sizeof(Variant_Grid), cudaMemcpyDeviceToHost) == cudaSuccess);
-    assert(cudaMemcpy(fp, fpCUDA, sizeof(Variant_Grid), cudaMemcpyDeviceToHost) == cudaSuccess);
-  })
-
-  //Time the freeing of all device grids
-  TIMEIT(Cleanup_CUDAFreeTime, {
-    assert(cudaFree(fpCUDA) == cudaSuccess);
-    assert(cudaFree(vxCUDA) == cudaSuccess);
-    assert(cudaFree(vyCUDA) == cudaSuccess);
-    assert(cudaFree(vzCUDA) == cudaSuccess);
-    assert(cudaFree(dpCUDA) == cudaSuccess);
-    assert(cudaFree(etCUDA) == cudaSuccess);
-    assert(cudaFree(odpCUDA) == cudaSuccess);
-    assert(cudaFree(oppCUDA) == cudaSuccess);
-    assert(cudaFree(ospCUDA) == cudaSuccess);
-    assert(cudaFree(permxpCUDA) == cudaSuccess);
-    assert(cudaFree(permypCUDA) == cudaSuccess);
-    assert(cudaFree(permzpCUDA) == cudaSuccess);
-    assert(cudaFree(popCUDA) == cudaSuccess);
-    assert(cudaFree(ppCUDA) == cudaSuccess);
-    assert(cudaFree(rppCUDA) == cudaSuccess);
-    assert(cudaFree(spCUDA) == cudaSuccess);
-    assert(cudaFree(ssCUDA) == cudaSuccess);
-    assert(cudaFree(z_mult_datCUDA) == cudaSuccess);
-    assert(cudaFree(x_ssl_datCUDA) == cudaSuccess);
-    assert(cudaFree(y_ssl_datCUDA) == cudaSuccess);
-  })
-
-  //Deallocate local grids and domains
   Variant_Domain_dealloc( reduction_domain );
   Variant_Grid_dealloc(u_right);
   Variant_Grid_dealloc(u_front);

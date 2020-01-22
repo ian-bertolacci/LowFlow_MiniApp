@@ -1,24 +1,40 @@
 #include <variant_types.hpp>
 #include <configure.hpp>
+#include <assert.h>
+#include "cuda_runtime.h"
+#include "device_launch_parameters.h"
 
 Variant_Domain* Variant_Domain_alloc( int nx, int ny, int nz ){
-  return (Variant_Domain*) Basic_Domain_alloc( nx, ny, nz );
-}
+  Variant_Domain *result = nullptr;
+  assert(cudaMallocManaged(&result, sizeof(Variant_Domain)) == cudaSuccess);
 
+  //Fails here, when assigning nx/ny/nz. The above assert passes, so the memory should
+  //be allocated correctly. Am I missing something?
+  result->nx = nx;
+  result->ny = ny;
+  result->nz = nz;
+
+  return result;
+}
 
 void Variant_Domain_dealloc( Variant_Domain* domain ){
-  return Basic_Domain_dealloc( (Basic_Domain*) domain );
+  assert(cudaFree(domain) == cudaSuccess);
 }
 
-
-
 Variant_Grid* Variant_Grid_alloc( Variant_Domain* domain ){
-  return (Variant_Grid*) Basic_Grid_alloc( (Basic_Domain*) domain );
+  Variant_Grid *result = nullptr;
+  assert(cudaMallocManaged(&result, sizeof(Variant_Grid)) == cudaSuccess);
+  
+  result->domain = domain;
+  assert(cudaMallocManaged(&result->data, (domain->nx * domain->ny * domain->nz) * sizeof(double)) == cudaSuccess);
+
+  return result;
 }
 
 
 void Variant_Grid_dealloc( Variant_Grid* grid ){
-  return Basic_Grid_dealloc( (Basic_Grid*) grid );
+  assert(cudaFree(grid->data) == cudaSuccess);
+  assert(cudaFree(grid) == cudaSuccess);
 }
 
 
