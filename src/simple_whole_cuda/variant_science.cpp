@@ -284,9 +284,9 @@ void science(
   int blockx = 16;
   int blocky = 16;
   int blockz = 4;
-  int gridx = (int) ceil(((float) (Basic_Domain_nx(domain) - 2)) / blockx);
-  int gridy = (int) ceil(((float) (Basic_Domain_ny(domain) - 2)) / blocky);
-  int gridz = (int) ceil(((float) (Basic_Domain_nz(domain) - 2)) / blockz);
+  int gridx = (int) ceil((float) Basic_Domain_nx(domain) / blockx);
+  int gridy = (int) ceil((float) Basic_Domain_ny(domain) / blocky);
+  int gridz = (int) ceil((float) Basic_Domain_nz(domain) / blockz);
   dim3 block = dim3(blockx, blocky, blockz);
   dim3 grid = dim3(gridx, gridy, gridz);
   
