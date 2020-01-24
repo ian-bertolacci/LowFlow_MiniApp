@@ -3,14 +3,14 @@
 void printVariantMetricInformation( FILE* stream, Variant_Metrics* metrics ){
     fprintf( stream,
       "Elapsed 216 338 416 551 fuse: %f\n"
-      "Elapsed 551 reduce: %f\n"
-      "Elapsed setup: %f\n"
-      "Elapsed compile: %f\n"
-      "Elapsed host->device: %f\n"
-      "Elapsed device->host: %f\n"
-      "Elapsed setup execution: %f\n"
-      "Elapsed execution: %f\n"
-      "Elapsed teardown: %f\n",
+      "Elapsed 551 reduce:           %f\n"
+      "Elapsed setup:                %f\n"
+      "Elapsed compile:              %f\n"
+      "Elapsed host->device:         %f\n"
+      "Elapsed device->host:         %f\n"
+      "Elapsed setup execution:      %f\n"
+      "Elapsed execution:            %f\n"
+      "Elapsed teardown:             %f\n",
 
       metrics->elapsed_216_338_416_551,
       metrics->elapsed_551_reduce,

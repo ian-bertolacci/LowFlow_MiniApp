@@ -2,17 +2,17 @@
 
 void printVariantMetricInformation( FILE* stream, Variant_Metrics* metrics ){
   fprintf( stream,
-    "Elapsed 216:                 %fs\n"
-    "Elapsed 338:                 %fs\n"
-    "Elapsed 416:                 %fs\n"
-    "Elapsed 551:                 %fs\n"
-    "Elapsed 551_reduce:          %fs\n"
-    "Elapsed setup:               %fs\n"
-    "Elapsed copy_host_to_device: %fs\n"
-    "Elapsed copy_device_to_host: %fs\n"
-    "Elapsed exec_setup:          %fs\n"
-    "Elapsed exec:                %fs\n"
-    "Elapsed teardown:            %fs\n",
+    "Elapsed 216:                 %f\n"
+    "Elapsed 338:                 %f\n"
+    "Elapsed 416:                 %f\n"
+    "Elapsed 551:                 %f\n"
+    "Elapsed 551_reduce:          %f\n"
+    "Elapsed setup:               %f\n"
+    "Elapsed copy_host_to_device: %f\n"
+    "Elapsed copy_device_to_host: %f\n"
+    "Elapsed exec_setup:          %f\n"
+    "Elapsed exec:                %f\n"
+    "Elapsed teardown:            %f\n",
     metrics->elapsed_216,
     metrics->elapsed_338,
     metrics->elapsed_416,
