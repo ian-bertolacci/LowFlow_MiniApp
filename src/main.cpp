@@ -439,7 +439,7 @@ int main( int argc, char** argv ){
 
   ExperimentalResults results = experiment( base_domain, opts.seed, opts.variant_options );
 
-  printf( "Elapsed: %fs\n", results.elapsed );
+  printf( "Elapsed: %f\n", results.elapsed );
   printMetricInformation( stdout, &results.standard_metrics, &results.variant_metrics );
 
   bool passed = true;

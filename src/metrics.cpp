@@ -12,9 +12,9 @@ void printMetricInformation( FILE* stream, Standard_Metrics* standard_metrics, V
 
 void printStandardMetricInformation( FILE* stream, Standard_Metrics* metrics ){
   fprintf( stream,
-    "Total grid allocation time:   %fs\n"
-    "Total grid deallocation time: %fs\n"
-    "Total grid population time:   %fs\n",
+    "Total grid allocation time:   %f\n"
+    "Total grid deallocation time: %f\n"
+    "Total grid population time:   %f\n",
     metrics->total_grid_allocation_time,
     metrics->total_grid_deallocation_time,
     metrics->total_grid_population_time
