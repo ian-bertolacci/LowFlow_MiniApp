@@ -1,7 +1,7 @@
 #include <metrics.hpp>
 
 void printVariantMetricInformation( FILE* stream, Variant_Metrics* metrics ){
-#ifdef ENABLE_VARIANT_METRICS
+#ifdef ENABLE_METRICS
   fprintf( stream,
     "Elapsed 216:        %fs\n"
     "Elapsed 338:        %fs\n"

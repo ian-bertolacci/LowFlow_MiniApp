@@ -969,7 +969,7 @@ void science(
   STOP_TIMER( metrics->elapsed_exec_setup );
 
   START_TIMER( metrics->elapsed_exec );
-  #ifdef ENABLE_VARIANT_METRICS
+  #ifdef ENABLE_METRICS
   double* timers[num_compute_kernels] = { &metrics->elapsed_216, &metrics->elapsed_338, &metrics->elapsed_416, &metrics->elapsed_551, &metrics->elapsed_551_reduce };
   #endif
   // Invoke kernels
