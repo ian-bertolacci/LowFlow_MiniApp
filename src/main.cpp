@@ -24,7 +24,8 @@ typedef struct struct_ExperimentalResults {
   Variant_Grid* vx;
   Variant_Grid* vy;
   Variant_Grid* vz;
-  Variant_Metrics metrics;
+  Standard_Metrics standard_metrics;
+  Variant_Metrics variant_metrics;
 } ExperimentalResults;
 
 bool verify( Basic_Domain* domain, ExperimentalResults results, double epsilon, unsigned int seed ){
@@ -333,6 +334,9 @@ bool verify( Basic_Domain* domain, ExperimentalResults results, double epsilon, 
 }
 
 ExperimentalResults experiment( Basic_Domain* domain, unsigned int seed, VariantOptions options ){
+  // Create results object
+  ExperimentalResults results;
+
   // Perform allocation in bulk, name later
   const int input_grid_count = 16;
   const int output_grid_count = 4;
@@ -350,14 +354,28 @@ ExperimentalResults experiment( Basic_Domain* domain, unsigned int seed, Variant
   }
   // Allocate and populate input grids
   for( int i = 0; i < input_grid_count; i += 1 ){
-    input_grids[i] = Variant_Grid_alloc( variant_domain );
-    Variant_Grid_populate_seeded( variant_domain, input_grids[i], seeds[i] );
+    TIMEIT_ACCUMULATE(
+      results.standard_metrics.total_grid_allocation_time,
+      input_grids[i] = Variant_Grid_alloc( variant_domain );
+    );
+
+    TIMEIT_ACCUMULATE(
+      results.standard_metrics.total_grid_population_time,
+      Variant_Grid_populate_seeded( variant_domain, input_grids[i], seeds[i] );
+    );
   }
 
   // Zero allocate output grids
   for( int i = 0; i < output_grid_count; i += 1 ){
-    output_grids[i] = Variant_Grid_alloc( variant_domain );
-    Variant_Grid_populate_zero( variant_domain, output_grids[i] );
+    TIMEIT_ACCUMULATE(
+      results.standard_metrics.total_grid_allocation_time,
+      output_grids[i] = Variant_Grid_alloc( variant_domain );
+    );
+
+    TIMEIT_ACCUMULATE(
+      results.standard_metrics.total_grid_population_time,
+      Variant_Grid_populate_zero( variant_domain, output_grids[i] );
+    );
   }
 
   // Give grids names
@@ -385,27 +403,26 @@ ExperimentalResults experiment( Basic_Domain* domain, unsigned int seed, Variant
   Variant_Grid* x_ssl_dat  = input_grids[14];
   Variant_Grid* y_ssl_dat  = input_grids[15];
 
-  // Create and initialize results object
-  ExperimentalResults results;
+  // Initialize results object's grids
   results.variant_domain = variant_domain;
   results.fp = fp;
   results.vx = vx;
   results.vy = vy;
   results.vz = vz;
 
-
   // Time and Perform science
-  double start = omp_get_wtime();
-  science( variant_domain, fp, vx, vy, vz, dp, et, odp, opp, osp, permxp, permyp, permzp, pop, pp, rpp, sp, ss, z_mult_dat, x_ssl_dat, y_ssl_dat, options, &results.metrics );
-  double end = omp_get_wtime();
+  ALWAYS_TIMEIT(
+    results.elapsed,
+    science( variant_domain, fp, vx, vy, vz, dp, et, odp, opp, osp, permxp, permyp, permzp, pop, pp, rpp, sp, ss, z_mult_dat, x_ssl_dat, y_ssl_dat, options, &results.variant_metrics );
+  );
 
   // Deallocate input grids
   for( int i = 0; i < input_grid_count; i += 1 ){
-    Variant_Grid_dealloc( input_grids[i] );
+    TIMEIT_ACCUMULATE(
+      results.standard_metrics.total_grid_deallocation_time,
+      Variant_Grid_dealloc( input_grids[i] );
+    );
   }
-
-  // Set total elapsed time.
-  results.elapsed = end - start;
 
   return results;
 }
@@ -422,8 +439,8 @@ int main( int argc, char** argv ){
 
   ExperimentalResults results = experiment( base_domain, opts.seed, opts.variant_options );
 
-  printf( "Elapsed: %fs\n", results.elapsed );
-  printVariantMetricInformation( stdout, &results.metrics );
+  printf( "Elapsed: %f\n", results.elapsed );
+  printMetricInformation( stdout, &results.standard_metrics, &results.variant_metrics );
 
   bool passed = true;
   if( opts.verify ){

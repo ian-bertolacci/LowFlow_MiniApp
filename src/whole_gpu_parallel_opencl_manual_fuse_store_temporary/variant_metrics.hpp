@@ -4,20 +4,6 @@
 #include <configure.hpp>
 #include <omp.h>
 
-#ifdef ENABLE_VARIANT_METRICS
-#define START_TIMER(variable) (variable) = omp_get_wtime();
-#define STOP_TIMER(variable) (variable) = omp_get_wtime() - (variable);
-#define TIMEIT(variable, body) \
-  variable = omp_get_wtime(); \
-  body \
-  variable = omp_get_wtime() - variable;
-#else
-#define TIMEIT(variable, body) body
-#define START_TIMER(variable)
-#define STOP_TIMER(variable)
-#endif
-
-
 typedef struct struct_Variant_Metrics {
   double elapsed_216_338_416_551;
   double elapsed_551_reduce;

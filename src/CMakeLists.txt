@@ -17,7 +17,7 @@ set(VARIANTS
 )
 
 # List all source files
-set(BASE_SOURCE_FILES global_types.cpp global_configure.cpp main.cpp)
+set(BASE_SOURCE_FILES global_types.cpp global_configure.cpp metrics.cpp main.cpp)
 
 # Create rooted path
 PREPENDPATH(BASE_SOURCE_FILES ${BASE_SOURCE_DIR} ${BASE_SOURCE_FILES})
