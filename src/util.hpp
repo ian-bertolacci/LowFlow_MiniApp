@@ -24,6 +24,9 @@
 #define PRAGMA_IN_MACRO_BODY(x) PRAGMA(x)
 #define PRAGMA_IN_CODE(x) PRAGMA(x)
 
+// Create a unique variable for this line
+#define MAKE_TEMP_VARIABLE_NAME_IN_LINE CONCATENATE( __TEMP__, CONCATENATE( __TEMP__, __LINE__ ) )
+
 // Foreach macros
 // See this stack overflow answer (https://stackoverflow.com/a/1872506/3614863)
 // for original idea. Adapted to handle at most 100 elements, as well as

@@ -337,24 +337,19 @@ It is also required to define the function: `void printVariantMetricInformation(
 This should write the name and values of each field in the `Variant_Metrics` instance to the file stream.
 This is invoked automatically at the end of the program.
 
-Additionally, the use of compile time configuration should be use (see in Build System) to conditionally perform measurements.
-Below is a common system that does this:
-```cpp
-#ifdef ENABLE_VARIANT_METRICS
-#define START_TIMER(variable) (variable) = omp_get_wtime();
-#define STOP_TIMER(variable) (variable) = omp_get_wtime() - (variable);
-#define TIMEIT(variable, body) \
-  variable = omp_get_wtime(); \
-  body \
-  variable = omp_get_wtime() - variable;
-#else
-#define TIMEIT(variable, body) body
-#define START_TIMER(variable)
-#define STOP_TIMER(variable)
-#endif
-```
+Several timing macros are provided to simplify timing of code sections (defined in metrics.hpp):
++ `START_TIMER( timer_variable )`: Start the timer `timer_variable`.
++ `STOP_TIMER( timer_variable )`: Stop the timer `timer_variable`; `timer_variable` contains the elapsed time in seconds.
++ `TIMEIT( timer_variable, body )`: Time the execution of the body; `timer_variable` contains the elapsed time in seconds.
++ `TIMEIT_ACCUMULATE( timer_variable, body )`: Time the execution of the body; `timer_variable` contains the elapsed time in seconds plus its original value.
+`timer_variable` must be a `double` type lvalue.
 
-Below is a template/example for the configuration code.
+When `ENABLE_METRICS` is *not* defined, only the body is executed (if the macro is provided one); the timing code is not, and so the timer_variables do not contain the elapsed time.
+When `ENABLE_METRICS` *is* defined, *both* the body and the timing code is executed.
+
+(NOTE: `TIMEIT` and `TIMEIT_ACCUMULATE` are implemented in a way that allows un-parenthesized commas, such as with multiple variable declaration and cuda kernel invocations).
+
+Below is a template/example for the metrics code.
 
 The below should go in the header (variant_metrics.hpp), and defines types and defaults.
 ```cpp
@@ -363,20 +358,6 @@ The below should go in the header (variant_metrics.hpp), and defines types and d
 
 #include <configure.hpp>
 #include <omp.h>
-
-#ifdef ENABLE_VARIANT_METRICS
-#define START_TIMER(variable) (variable) = omp_get_wtime();
-#define STOP_TIMER(variable) (variable) = omp_get_wtime() - (variable);
-#define TIMEIT(variable, body) \
-  variable = omp_get_wtime(); \
-  body \
-  variable = omp_get_wtime() - variable;
-#else
-#define TIMEIT(variable, body) body
-#define START_TIMER(variable)
-#define STOP_TIMER(variable)
-#endif
-
 
 typedef struct struct_Variant_Metrics {
   double elapsed_216;
@@ -396,12 +377,11 @@ typedef struct struct_Variant_Metrics {
 #endif
 ```
 
-The below should go in a cpp file ( such as variant_metrics.cpp), and defines the functions.
+The below should go in a cpp file (such as variant_metrics.cpp), and defines the functions.
 ```cpp
 #include <metrics.hpp>
 
 void printVariantMetricInformation( FILE* stream, Variant_Metrics* metrics ){
-  #ifdef ENABLE_VARIANT_METRICS
     fprintf( stream,
       "Elapsed 261: %f\n"
       "Elapsed 338: %f\n"
@@ -429,10 +409,6 @@ void printVariantMetricInformation( FILE* stream, Variant_Metrics* metrics ){
       metrics->elapsed_exec,
       metrics->elapsed_teardown
     );
-  #else
-    // Do nothing
-    fprintf( stream, "Variant metric disabled.\n" );
-  #endif
 }
 ```
 
@@ -796,7 +772,7 @@ CREATE_VARIANT_TARGET(
 
 # This creates another, single target.
 # In this case, we are creating a target with the compile time configuration
-# macro `ENABLE_VARIANT_METRICS` enabled.
+# macro `ENABLE_METRICS` enabled.
 CREATE_VARIANT_TARGET(
   # Base name of target. NOTE! It's the same as the above, but will automatically
   # have the configuration macro appended to it, creating a new name.
@@ -809,7 +785,7 @@ CREATE_VARIANT_TARGET(
   INSTALL_DIR ${INSTALL_BIN_DIR}
   # List of one or more macro tokens that will be enabled in compilation (using -DTOKEN_NAME)
   # for this target
-  CONFIG_MACRO_DEFNS ENABLE_VARIANT_METRICS
+  CONFIG_MACRO_DEFNS ENABLE_METRICS
 )
 ```
 

@@ -1,7 +1,6 @@
 #include <metrics.hpp>
 
 void printVariantMetricInformation( FILE* stream, Variant_Metrics* metrics ){
-  #ifdef ENABLE_VARIANT_METRICS
     fprintf( stream,
       "Elapsed 216 338 416 551 fuse: %f\n"
       "Elapsed 551 reduce: %f\n"
@@ -23,8 +22,4 @@ void printVariantMetricInformation( FILE* stream, Variant_Metrics* metrics ){
       metrics->elapsed_exec,
       metrics->elapsed_teardown
     );
-  #else
-    /* Do nothing */
-    fprintf( stream, "Variant metric disabled.\n" );
-  #endif
 }
