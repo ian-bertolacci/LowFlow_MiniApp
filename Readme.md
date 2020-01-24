@@ -342,12 +342,20 @@ Several timing macros are provided to simplify timing of code sections (defined 
 + `STOP_TIMER( timer_variable )`: Stop the timer `timer_variable`; `timer_variable` contains the elapsed time in seconds.
 + `TIMEIT( timer_variable, body )`: Time the execution of the body; `timer_variable` contains the elapsed time in seconds.
 + `TIMEIT_ACCUMULATE( timer_variable, body )`: Time the execution of the body; `timer_variable` contains the elapsed time in seconds plus its original value.
++
 `timer_variable` must be a `double` type lvalue.
 
 When `ENABLE_METRICS` is *not* defined, only the body is executed (if the macro is provided one); the timing code is not, and so the timer_variables do not contain the elapsed time.
 When `ENABLE_METRICS` *is* defined, *both* the body and the timing code is executed.
 
-(NOTE: `TIMEIT` and `TIMEIT_ACCUMULATE` are implemented in a way that allows un-parenthesized commas, such as with multiple variable declaration and cuda kernel invocations).
+To force timing regardless of `ENABLE_METRICS` use the timing macros:
++ `ALWAYS_START_TIMER( timer_variable )`
++ `ALWAYS_STOP_TIMER( timer_variable )`
++ `ALWAYS_TIMEIT( timer_variable, body )`
++ `ALWAYS_TIMEIT_ACCUMULATE( timer_variable, body )`
+This is useful when performing mandatory timing outside the purview of the metrics system.
+
+(NOTE: `TIMEIT`, `ALWAYS_TIMEIT`, `TIMEIT_ACCUMULATE`, and `ALWAYS_TIMEIT_ACCUMULATE` are implemented in a way that allows un-parenthesized commas, such as with multiple variable declaration and cuda kernel invocations).
 
 Below is a template/example for the metrics code.
 
@@ -383,18 +391,18 @@ The below should go in a cpp file (such as variant_metrics.cpp), and defines the
 
 void printVariantMetricInformation( FILE* stream, Variant_Metrics* metrics ){
     fprintf( stream,
-      "Elapsed 261: %f\n"
-      "Elapsed 338: %f\n"
-      "Elapsed 416: %f\n"
-      "Elapsed 551: %f\n"
-      "Elapsed 551 reduce: %f\n"
-      "Elapsed setup: %f\n"
-      "Elapsed compile: %f\n"
-      "Elapsed host->device: %f\n"
-      "Elapsed device->host: %f\n"
+      "Elapsed 261:             %f\n"
+      "Elapsed 338:             %f\n"
+      "Elapsed 416:             %f\n"
+      "Elapsed 551:             %f\n"
+      "Elapsed 551 reduce:      %f\n"
+      "Elapsed setup:           %f\n"
+      "Elapsed compile:         %f\n"
+      "Elapsed host->device:    %f\n"
+      "Elapsed device->host:    %f\n"
       "Elapsed setup execution: %f\n"
-      "Elapsed execution: %f\n"
-      "Elapsed teardown: %f\n",
+      "Elapsed execution:       %f\n"
+      "Elapsed teardown:        %f\n",
 
       metrics->elapsed_216,
       metrics->elapsed_338,
