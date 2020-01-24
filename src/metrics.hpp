@@ -5,6 +5,24 @@
 #include <variant_metrics.hpp>
 #include <util.hpp>
 
+// Timer macros that are always enabled
+// Start and stop timers
+#define ALWAYS_START_TIMER(variable)  (variable) = omp_get_wtime();
+#define ALWAYS_STOP_TIMER(variable)  (variable) = omp_get_wtime() - (variable);
+
+// Time a body of code
+#define ALWAYS_TIMEIT( variable, ... ) \
+  double MAKE_TEMP_VARIABLE_NAME_IN_LINE = omp_get_wtime(); \
+  __VA_ARGS__; \
+  variable = omp_get_wtime() - MAKE_TEMP_VARIABLE_NAME_IN_LINE;
+
+// Time a body of code and accumulate elapsed time into variable with previous elapsed times.
+#define ALWAYS_TIMEIT_ACCUMULATE( variable, ... ) \
+  double MAKE_TEMP_VARIABLE_NAME_IN_LINE = omp_get_wtime(); \
+  __VA_ARGS__; \
+  variable += omp_get_wtime() - MAKE_TEMP_VARIABLE_NAME_IN_LINE;
+
+// Similar timer macros that are only enabled when metrics are enabled
 #ifdef ENABLE_METRICS
 
 #define START_TIMER(variable) (variable) = omp_get_wtime();

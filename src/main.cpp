@@ -411,7 +411,8 @@ ExperimentalResults experiment( Basic_Domain* domain, unsigned int seed, Variant
   results.vz = vz;
 
   // Time and Perform science
-  TIMEIT( results.elapsed,
+  ALWAYS_TIMEIT(
+    results.elapsed,
     science( variant_domain, fp, vx, vy, vz, dp, et, odp, opp, osp, permxp, permyp, permzp, pop, pp, rpp, sp, ss, z_mult_dat, x_ssl_dat, y_ssl_dat, options, &results.variant_metrics );
   );
 
