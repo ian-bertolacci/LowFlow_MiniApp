@@ -292,13 +292,10 @@ void science(
   
 /* ------------------------------ NLFE216 ------------------------------ */
 
-  //Time the kernel execution time
   NLFE216Kernel<<<grid, block>>>(Basic_Domain_nx(domain) - 2, Basic_Domain_ny(domain) - 2, Basic_Domain_nz(domain) -2, fp, sp, dp, osp, odp, pop, z_mult_dat);
   cudaDeviceSynchronize();
 
 /* ------------------------------ NLFE338 ------------------------------ */
-
-  //Time the kernel execution time
 
   NLFE338Kernel<<<grid, block>>>(Basic_Domain_nx(domain) - 2, Basic_Domain_ny(domain) - 2, Basic_Domain_nz(domain) -2, fp, ss, z_mult_dat, pp, sp, dp, opp, osp, odp);
   cudaDeviceSynchronize();
