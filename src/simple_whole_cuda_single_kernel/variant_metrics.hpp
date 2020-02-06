@@ -5,10 +5,7 @@
 #include <omp.h>
 
 typedef struct struct_Variant_Metrics {
-  double elapsed_216;
-  double elapsed_338;
-  double elapsed_416;
-  double elapsed_551;
+  double elapsed_fused;
   double elapsed_551_reduce;
   double elapsed_temp_grid_alloc;
   double elapsed_temp_grid_dealloc;

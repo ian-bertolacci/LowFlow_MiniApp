@@ -8,69 +8,35 @@
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 
-//NlFunctionEval:216 CUDA kernel 
-__global__ void NLFE216Kernel(int xmax, int ymax, int zmax, Variant_Grid *fp, Variant_Grid *sp, Variant_Grid *dp, Variant_Grid *osp, Variant_Grid *odp, Variant_Grid *pop, Variant_Grid *z_mult_dat) {
+//A fusion of the NLFE 216, 338, 416, and 551 kernels
+__global__ void fusedKernel(int xmax, int ymax, int zmax, Variant_Grid* fp, Variant_Grid* vx, Variant_Grid* vy, Variant_Grid* vz, Variant_Grid* dp, Variant_Grid* et, Variant_Grid* odp, Variant_Grid* opp, Variant_Grid* osp, Variant_Grid* permxp, Variant_Grid* permyp, Variant_Grid* permzp, Variant_Grid* pop, Variant_Grid* pp, Variant_Grid* rpp, Variant_Grid* sp, Variant_Grid* ss, Variant_Grid* z_mult_dat, Variant_Grid* x_ssl_dat, Variant_Grid* y_ssl_dat, Variant_Grid* u_right, Variant_Grid* u_front, Variant_Grid* u_upper) {
   //Get position in kernel grid
   //+1 is added to coordinates to account for offset in each direction
   int x = blockIdx.x * blockDim.x + threadIdx.x + 1;
   int y = blockIdx.y * blockDim.y + threadIdx.y + 1;
   int z = blockIdx.z * blockDim.z + threadIdx.z + 1;
-  
+
   //Make sure that the thread is in bounds
   if (x == 0 || x > xmax || y == 0 || y > ymax || z == 0 || z > zmax) {
     return;
   }
+
+  //--------------------NLFE216--------------------
 
   //Perform variant grid access
   Variant_Grid_access(fp,x,y,z) = (Variant_Grid_access(sp,x,y,z) * Variant_Grid_access(dp,x,y,z) - Variant_Grid_access(osp,x,y,z) * Variant_Grid_access(odp, x,y,z)) * Variant_Grid_access(pop, x,y,z) * Variant_Grid_access(z_mult_dat, x,y,z);
-}
 
-//NlFunctionEval:338 CUDA kernel 
-__global__ void NLFE338Kernel(int xmax, int ymax, int zmax, Variant_Grid *fp, Variant_Grid *ss, Variant_Grid *z_mult_dat, Variant_Grid *pp, Variant_Grid *sp, Variant_Grid *dp, Variant_Grid *opp, Variant_Grid *osp, Variant_Grid *odp) {
-  //Get position in kernel grid
-  //+1 is added to coordinates to account for offset in each direction
-  int x = blockIdx.x * blockDim.x + threadIdx.x + 1;
-  int y = blockIdx.y * blockDim.y + threadIdx.y + 1;
-  int z = blockIdx.z * blockDim.z + threadIdx.z + 1;
-
-  //Make sure that the thread is in bounds
-  if (x == 0 || x > xmax || y == 0 || y > ymax || z == 0 || z > zmax) {
-    return;
-  }
+  //--------------------NLFE338--------------------
 
   //Perform variant grid access
   Variant_Grid_access(fp, x,y,z) += Variant_Grid_access(ss, x,y,z) * Variant_Grid_access(z_mult_dat, x,y,z) * (Variant_Grid_access(pp, x,y,z) * Variant_Grid_access(sp, x,y,z) * Variant_Grid_access(dp, x,y,z) - Variant_Grid_access(opp, x,y,z) * Variant_Grid_access(osp, x,y,z) * Variant_Grid_access(odp, x,y,z));
-}
 
-//NlFunctionEval:416 CUDA kernel 
-__global__ void NLFE416Kernel(int xmax, int ymax, int zmax, Variant_Grid *fp, Variant_Grid *z_mult_dat, Variant_Grid *sp, Variant_Grid *et) {
-  //Get position in kernel grid
-  //+1 is added to coordinates to account for offset in each direction
-  int x = blockIdx.x * blockDim.x + threadIdx.x + 1;
-  int y = blockIdx.y * blockDim.y + threadIdx.y + 1;
-  int z = blockIdx.z * blockDim.z + threadIdx.z + 1;
-
-  //Make sure that the thread is in bounds
-  if (x == 0 || x > xmax || y == 0 || y > ymax || z == 0 || z > zmax) {
-    return;
-  }
+  //--------------------NLFE416--------------------
 
   //Perform variant grid access
   Variant_Grid_access(fp, x,y,z) -= Variant_Grid_access(z_mult_dat, x,y,z) * (Variant_Grid_access(sp, x,y,z) * Variant_Grid_access(et, x,y,z));
-}
 
-//NlFunctionEval:551 CUDA kernel 
-__global__ void NLFE551Kernel(int xmax, int ymax, int zmax, Variant_Grid *x_ssl_dat, Variant_Grid *y_ssl_dat, Variant_Grid *pp, Variant_Grid *z_mult_dat, Variant_Grid *dp, Variant_Grid *permxp, Variant_Grid *rpp, Variant_Grid *permyp, Variant_Grid *permzp, Variant_Grid *vx, Variant_Grid *vy, Variant_Grid *vz, Variant_Grid *u_right, Variant_Grid *u_front, Variant_Grid *u_upper, Variant_Grid *fp) {
-  //Get position in kernel grid
-  //+1 is added to coordinates to account for offset in each direction
-  int x = blockIdx.x * blockDim.x + threadIdx.x + 1;
-  int y = blockIdx.y * blockDim.y + threadIdx.y + 1;
-  int z = blockIdx.z * blockDim.z + threadIdx.z + 1;
-
-  //Make sure that the thread is in bounds
-  if (x == 0 || x > xmax || y == 0 || y > ymax || z == 0 || z > zmax) {
-    return;
-  }
+  //--------------------NLFE551--------------------
 
   double x_dir_g   = ArithmeticMean( Variant_Grid_access( x_ssl_dat, x, y, 0), Variant_Grid_access( x_ssl_dat, x+1,  y, 0 ) );
   double x_dir_g_c = ArithmeticMean( Variant_Grid_access( x_ssl_dat, x, y, 0), Variant_Grid_access( x_ssl_dat, x+1,  y, 0 ) );
@@ -204,6 +170,7 @@ __global__ void NLFE551Kernel(int xmax, int ymax, int zmax, Variant_Grid *x_ssl_
   Variant_Grid_access(fp, x, y, z) += u_right_val * u_front_val * u_upper_val;
 }
 
+//A reduction of the NLFE551 kernel
 __global__ void NLFE551ReductionKernel(int xmax, int ymax, int zmax, Variant_Grid *u_right, Variant_Grid *u_front, Variant_Grid *u_upper, Variant_Grid *fp) {
   //Get position in kernel grid
   //+1 is added to coordinates to account for offset in each direction
@@ -297,31 +264,11 @@ void science(
   dim3 block = dim3(blockx, blocky, blockz);
   dim3 grid = dim3(gridx, gridy, gridz);
 
-/* ------------------------------ NLFE216 ------------------------------ */
 
-  TIMEIT(metrics->elapsed_216, {
-    NLFE216Kernel<<<grid, block>>>(Basic_Domain_nx(domain) - 2, Basic_Domain_ny(domain) - 2, Basic_Domain_nz(domain) -2, fp, sp, dp, osp, odp, pop, z_mult_dat);
-    cudaDeviceSynchronize();
-  });
+/* ------------------------------ Fused kernel call ------------------------------ */
 
-/* ------------------------------ NLFE338 ------------------------------ */
-
-  TIMEIT(metrics->elapsed_338, {
-    NLFE338Kernel<<<grid, block>>>(Basic_Domain_nx(domain) - 2, Basic_Domain_ny(domain) - 2, Basic_Domain_nz(domain) -2, fp, ss, z_mult_dat, pp, sp, dp, opp, osp, odp);
-    cudaDeviceSynchronize();
-  });
-
-/* ------------------------------ NLFE416 ------------------------------ */
-
-  TIMEIT(metrics->elapsed_416, {
-    NLFE416Kernel<<<grid, block>>>(Basic_Domain_nx(domain) - 2, Basic_Domain_ny(domain) - 2, Basic_Domain_nz(domain) -2, fp, z_mult_dat, sp, et);
-    cudaDeviceSynchronize();
-  });
-
-/* ------------------------------ NLFE551 ------------------------------ */
-  
-  TIMEIT(metrics->elapsed_551, {
-    NLFE551Kernel<<<grid, block>>>(Basic_Domain_nx(domain) - 2, Basic_Domain_ny(domain) - 2, Basic_Domain_nz(domain) -2, x_ssl_dat, y_ssl_dat, pp, z_mult_dat, dp, permxp, rpp, permyp, permzp, vx, vy, vz, u_right, u_front, u_upper, fp);
+  TIMEIT(metrics->elapsed_fused, {
+    fusedKernel<<<grid, block>>>(Basic_Domain_nx(domain) - 2, Basic_Domain_ny(domain) -2, Basic_Domain_nz(domain) - 2, fp, vx, vy, vz, dp, et, odp, opp, osp, permxp, permyp, permzp, pop, pp, rpp, sp, ss, z_mult_dat, x_ssl_dat, y_ssl_dat, u_right, u_front, u_upper);
     cudaDeviceSynchronize();
   });
   

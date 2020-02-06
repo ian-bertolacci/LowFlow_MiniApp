@@ -14,6 +14,9 @@ set(VARIANTS
   whole_gpu_parallel_opencl_manual_fuse_store_temporary
   simple_whole_kokkos
   simple_whole_cuda
+  simple_whole_cuda_lambda
+  simple_whole_cuda_manual_memory
+  simple_whole_cuda_single_kernel
 )
 
 # List all source files
@@ -43,13 +46,13 @@ set(CMAKE_CXX_FLAGS_RELEASE "-Ofast")
 if(${WITH_CUDA})
   if(${WITH_KOKKOS})
     set(CMAKE_CUDA_COMPILER nvcc_wrapper)
-    set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --expt-extended-lambda -D_FORCE_INLINES -D_MWAITXINTRIN_H_INCLUDED")
+    set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -D_FORCE_INLINES -D_MWAITXINTRIN_H_INCLUDED")
     set(CMAKE_CUDA_FLAGS_RELEASE "-O3")
     set(CMAKE_CXX_EXTENSIONS OFF) # use std=c++11 instead of std=gnu++11
   endif()
 
   commafy_flags("${CMAKE_CXX_FLAGS}" __CMAKE_CXX_FLAGS_comma_separated)
-  set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Xcompiler ${__CMAKE_CXX_FLAGS_comma_separated}")
+  set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --expt-extended-lambda -Xcompiler ${__CMAKE_CXX_FLAGS_comma_separated}")
   set(CMAKE_CUDA_STANDARD 11)
 endif()
 
