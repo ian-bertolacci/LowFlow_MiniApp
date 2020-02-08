@@ -1,41 +1,24 @@
 #include <variant_types.hpp>
 #include <configure.hpp>
-#include <assert.h>
-#include "cuda_runtime.h"
-#include "device_launch_parameters.h"
 
 Variant_Domain* Variant_Domain_alloc( int nx, int ny, int nz ){
-  Variant_Domain *result = nullptr;
-  cudaError_t x = cudaMallocManaged(&result, sizeof(Variant_Domain));
-  assert(x == cudaSuccess);
-  
-  result->nx = nx;
-  result->ny = ny;
-  result->nz = nz;
-
-  return result;
+  return (Variant_Domain*) Basic_Domain_alloc( nx, ny, nz );
 }
+
 
 void Variant_Domain_dealloc( Variant_Domain* domain ){
-  assert(cudaFree(domain) == cudaSuccess);
+  return Basic_Domain_dealloc( (Basic_Domain*) domain );
 }
 
-Variant_Grid* Variant_Grid_alloc( Variant_Domain* domain ){
-  Variant_Grid *result = nullptr;
-  cudaError_t x = cudaMallocManaged(&result, sizeof(Variant_Grid));
-  assert(x == cudaSuccess);
-  
-  result->domain = domain;
-  x = cudaMallocManaged(&result->data, (domain->nx * domain->ny * domain->nz) * sizeof(double));
-  assert(x == cudaSuccess);
 
-  return result;
+
+Variant_Grid* Variant_Grid_alloc( Variant_Domain* domain ){
+  return (Variant_Grid*) Basic_Grid_alloc( (Basic_Domain*) domain );
 }
 
 
 void Variant_Grid_dealloc( Variant_Grid* grid ){
-  assert(cudaFree(grid->data) == cudaSuccess);
-  assert(cudaFree(grid) == cudaSuccess);
+  return Basic_Grid_dealloc( (Basic_Grid*) grid );
 }
 
 
