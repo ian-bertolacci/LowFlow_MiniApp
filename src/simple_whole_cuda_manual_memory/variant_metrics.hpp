@@ -10,6 +10,8 @@ typedef struct struct_Variant_Metrics {
   double elapsed_416;
   double elapsed_551;
   double elapsed_551_reduce;
+  double elapsed_temp_alloc;
+  double elapsed_temp_dealloc;
   //double elapsed_setup;
   //double elapsed_copy_host_to_device;
   //double elapsed_copy_device_to_host;

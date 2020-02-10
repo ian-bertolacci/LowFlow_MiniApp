@@ -9,12 +9,16 @@
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 
-#define check(ans) { checkCUDAError((ans), __FILE__, __LINE__); }
 inline void checkCUDAError(cudaError_t code, const char *file, int line) {
    if (code != cudaSuccess) {
       fprintf(stderr,"\nCUDA Error: %s\nFile: %s\nLine: %d\n", cudaGetErrorString(code), file, line);
       exit(code);
    }
+}
+
+#define check(expr) { \
+  cudaError_t __e__ = expr; \
+  if (ENABLE_DEBUG) { checkCUDAError(__e__, __FILE__, __LINE__); } \
 }
 
 //NlFunctionEval:216 CUDA kernel 
@@ -282,10 +286,12 @@ void science(
 
   // Create domain for reduction portion. It is 1 larger than the normal domain.
   Variant_Domain* reduction_domain = Variant_Domain_alloc( Variant_Domain_nx(domain)+1, Variant_Domain_nz(domain)+1, Variant_Domain_ny(domain)+1 );
-  
-  Variant_Grid* u_right = Variant_Grid_alloc( domain );
-  Variant_Grid* u_front = Variant_Grid_alloc( domain );
-  Variant_Grid* u_upper = Variant_Grid_alloc( domain );
+  Variant_Grid *u_right, *u_front, *u_upper;
+  TIMEIT(metrics->elapsed_temp_alloc, {
+    u_right = Variant_Grid_alloc( domain );
+    u_front = Variant_Grid_alloc( domain );
+    u_upper = Variant_Grid_alloc( domain );
+  });
 
   //Determine dimensions of kernel grid
   //A static block size of 16x16x4 threads is used
@@ -517,13 +523,17 @@ void science(
 /* ------------------------------ Cleanup ------------------------------ */
   
   //Copy back data from device to host
-  check(cudaMemcpy(fp->data, fpCUDA->data, dataSize, cudaMemcpyDeviceToHost));
-  check(cudaMemcpy(vx->data, vxCUDA->data, dataSize, cudaMemcpyDeviceToHost));
-  check(cudaMemcpy(vy->data, vyCUDA->data, dataSize, cudaMemcpyDeviceToHost));
-  check(cudaMemcpy(vz->data, vzCUDA->data, dataSize, cudaMemcpyDeviceToHost));
+  check(cudaMemcpy(&temp, fpCUDA, gridSize, cudaMemcpyDeviceToHost));
+  check(cudaMemcpy(fp->data, temp.data, dataSize, cudaMemcpyDeviceToHost));
+  check(cudaMemcpy(&temp, vxCUDA, gridSize, cudaMemcpyDeviceToHost));
+  check(cudaMemcpy(vx->data, temp.data, dataSize, cudaMemcpyDeviceToHost));
+  check(cudaMemcpy(&temp, vyCUDA, gridSize, cudaMemcpyDeviceToHost));
+  check(cudaMemcpy(vy->data, temp.data, dataSize, cudaMemcpyDeviceToHost));
+  check(cudaMemcpy(&temp, vzCUDA, gridSize, cudaMemcpyDeviceToHost));
+  check(cudaMemcpy(vz->data, temp.data, dataSize, cudaMemcpyDeviceToHost));
 
   //Free all device grids and their members
-  check(cudaFree(fpCUDA));
+	check(cudaFree(fpCUDA));
   check(cudaFree(vxCUDA));
   check(cudaFree(vyCUDA));
   check(cudaFree(vzCUDA));
@@ -546,10 +556,13 @@ void science(
   check(cudaFree(u_rightCUDA));
   check(cudaFree(u_frontCUDA));
   check(cudaFree(u_upperCUDA));
-  
+
   //Cleanup temp domain and grids
   Variant_Domain_dealloc( reduction_domain );
-  Variant_Grid_dealloc(u_right);
-  Variant_Grid_dealloc(u_front);
-  Variant_Grid_dealloc(u_upper);
+
+  TIMEIT(metrics->elapsed_temp_dealloc, {
+    Variant_Grid_dealloc(u_right);
+    Variant_Grid_dealloc(u_front);
+    Variant_Grid_dealloc(u_upper);
+  });
 }
