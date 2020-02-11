@@ -15,7 +15,8 @@
 // #define Basic_Grid_access(grid,x,y,z) (Basic_Grid_access_index(grid,Basic_Domain_idx(Basic_Grid_domain(grid),x,y,z)))
 #define Variant_Grid_idx(grid, x,y,z) Basic_Grid_idx(grid, x,y,z)
 #define Variant_Grid_access_index(grid, idx) Basic_Grid_access_index(grid, idx)
-#define Variant_Grid_access(grid, x,y,z) Basic_Grid_access(grid, x,y,z)
+#define Variant_Grid_access(grid, x,y,z) Basic_Grid_access(grid, x, y, z)
+#define Variant_Grid_access_extracted(grid, x, y, z) (grid[Variant_Domain_idx(grid##_Domain, x, y, z)])
 
 #define Variant_Domain_equal(domain_a, domain_b) Basic_Domain_equal(domain_a, domain_b)
 
