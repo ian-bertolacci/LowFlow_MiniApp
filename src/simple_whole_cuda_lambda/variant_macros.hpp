@@ -25,10 +25,21 @@
 
 #define Variant_Domain_fast_loop_whole(domain, iter_x, iter_y, iter_z, body) Basic_Domain_loop_whole(domain, iter_x, iter_y, iter_z, body)
 
-#define Variant_Domain_fast_loop_interior(domain, iter_x, iter_y, iter_z, body) Basic_Domain_loop_interior(domain, iter_x, iter_y, iter_z, body)
-
-#define Variant_Run_Kernel(grid_size, block_size, body) \
-  	kernelWrapper<<<grid_size, block_size>>>([=] __device__ { body }); \
-  	cudaDeviceSynchronize();
+#define Variant_Domain_fast_loop_interior(domain, body) { \
+	int blockx = 16; \
+	int blocky = 16; \
+	int blockz = 4; \
+	int gridx = (int) ceil((float) Basic_Domain_nx(domain) / blockx); \
+	int gridy = (int) ceil((float) Basic_Domain_ny(domain) / blocky); \
+	int gridz = (int) ceil((float) Basic_Domain_nz(domain) / blockz); \
+	kernelWrapper<<<dim3(gridx, gridy, gridz),  dim3(blockx, blocky, blockz)>>>([=] __device__ { \
+		int x = blockIdx.x * blockDim.x + threadIdx.x + 1; \
+		int y = blockIdx.y * blockDim.y + threadIdx.y + 1; \
+		int z = blockIdx.z * blockDim.z + threadIdx.z + 1; \
+		if (x == 0 || x > Basic_Domain_nx(domain) - 2 || y == 0 || y > Basic_Domain_ny(domain) - 2 || z == 0 || z > Basic_Domain_nz(domain) - 2) { return; } \
+		body; \
+	}); \
+  	cudaDeviceSynchronize(); \
+} 	
 
 #endif

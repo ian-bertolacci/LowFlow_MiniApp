@@ -75,87 +75,28 @@ void science(
     u_front = Variant_Grid_alloc( domain );
     u_upper = Variant_Grid_alloc( domain );
   });
-  
-
-  //Determine dimensions of kernel grid
-  //A static block size of 16x16x4 threads is used
-  int blockx = 16;
-  int blocky = 16;
-  int blockz = 4;
-  int gridx = (int) ceil((float) Basic_Domain_nx(domain) / blockx);
-  int gridy = (int) ceil((float) Basic_Domain_ny(domain) / blocky);
-  int gridz = (int) ceil((float) Basic_Domain_nz(domain) / blockz);
-  dim3 block = dim3(blockx, blocky, blockz);
-  dim3 grid = dim3(gridx, gridy, gridz);
 
 /* ------------------------------ NLFE216 ------------------------------ */
 
-  TIMEIT(metrics->elapsed_216, Variant_Run_Kernel(grid, block, {
-    //Get position in kernel grid
-    //+1 is added to coordinates to account for offset in each direction
-    int x = blockIdx.x * blockDim.x + threadIdx.x + 1;
-    int y = blockIdx.y * blockDim.y + threadIdx.y + 1;
-    int z = blockIdx.z * blockDim.z + threadIdx.z + 1;
-
-    //Make sure that the thread is in bounds
-    if (x == 0 || x > Basic_Domain_nx(domain) - 2 || y == 0 || y > Basic_Domain_ny(domain) - 2 || z == 0 || z > Basic_Domain_nz(domain) - 2) {
-      return;
-    }
-
-    //Perform variant grid access
+  TIMEIT(metrics->elapsed_216, Variant_Domain_fast_loop_interior(domain, {
     Variant_Grid_access(fp,x,y,z) = (Variant_Grid_access(sp,x,y,z) * Variant_Grid_access(dp,x,y,z) - Variant_Grid_access(osp,x,y,z) * Variant_Grid_access(odp, x,y,z)) * Variant_Grid_access(pop, x,y,z) * Variant_Grid_access(z_mult_dat, x,y,z);
   }));
 
 /* ------------------------------ NLFE338 ------------------------------ */
 
-  TIMEIT(metrics->elapsed_338, Variant_Run_Kernel(grid, block, {
-    //Get position in kernel grid
-    //+1 is added to coordinates to account for offset in each direction
-    int x = blockIdx.x * blockDim.x + threadIdx.x + 1;
-    int y = blockIdx.y * blockDim.y + threadIdx.y + 1;
-    int z = blockIdx.z * blockDim.z + threadIdx.z + 1;
-
-    //Make sure that the thread is in bounds
-    if (x == 0 || x > Basic_Domain_nx(domain) - 2 || y == 0 || y > Basic_Domain_ny(domain) - 2 || z == 0 || z > Basic_Domain_nz(domain) - 2) {
-      return;
-    }
-
-    //Perform variant grid access
+  TIMEIT(metrics->elapsed_338, Variant_Domain_fast_loop_interior(domain, {
     Variant_Grid_access(fp, x,y,z) += Variant_Grid_access(ss, x,y,z) * Variant_Grid_access(z_mult_dat, x,y,z) * (Variant_Grid_access(pp, x,y,z) * Variant_Grid_access(sp, x,y,z) * Variant_Grid_access(dp, x,y,z) - Variant_Grid_access(opp, x,y,z) * Variant_Grid_access(osp, x,y,z) * Variant_Grid_access(odp, x,y,z));
   }));
 
 /* ------------------------------ NLFE416 ------------------------------ */
 
-  TIMEIT(metrics->elapsed_416, Variant_Run_Kernel(grid, block, {
-    //Get position in kernel grid
-    //+1 is added to coordinates to account for offset in each direction
-    int x = blockIdx.x * blockDim.x + threadIdx.x + 1;
-    int y = blockIdx.y * blockDim.y + threadIdx.y + 1;
-    int z = blockIdx.z * blockDim.z + threadIdx.z + 1;
-
-    //Make sure that the thread is in bounds
-    if (x == 0 || x > Basic_Domain_nx(domain) - 2 || y == 0 || y > Basic_Domain_ny(domain) - 2 || z == 0 || z > Basic_Domain_nz(domain) - 2) {
-      return;
-    }
-
-    //Perform variant grid access
+  TIMEIT(metrics->elapsed_416, Variant_Domain_fast_loop_interior(domain, {
     Variant_Grid_access(fp, x,y,z) -= Variant_Grid_access(z_mult_dat, x,y,z) * (Variant_Grid_access(sp, x,y,z) * Variant_Grid_access(et, x,y,z));
   }));
 
 /* ------------------------------ NLFE551 ------------------------------ */
   
-  TIMEIT(metrics->elapsed_551, Variant_Run_Kernel(grid, block, {
-    //Get position in kernel grid
-    //+1 is added to coordinates to account for offset in each direction
-    int x = blockIdx.x * blockDim.x + threadIdx.x + 1;
-    int y = blockIdx.y * blockDim.y + threadIdx.y + 1;
-    int z = blockIdx.z * blockDim.z + threadIdx.z + 1;
-
-    //Make sure that the thread is in bounds
-    if (x == 0 || x > Basic_Domain_nx(domain) - 2 || y == 0 || y > Basic_Domain_ny(domain) - 2 || z == 0 || z > Basic_Domain_nz(domain) - 2) {
-      return;
-    }
-
+  TIMEIT(metrics->elapsed_551, Variant_Domain_fast_loop_interior(domain, {
     double x_dir_g   = ArithmeticMean( Variant_Grid_access( x_ssl_dat, x, y, 0), Variant_Grid_access( x_ssl_dat, x+1,  y, 0 ) );
     double x_dir_g_c = ArithmeticMean( Variant_Grid_access( x_ssl_dat, x, y, 0), Variant_Grid_access( x_ssl_dat, x+1,  y, 0 ) );
     double y_dir_g   = ArithmeticMean( Variant_Grid_access( y_ssl_dat, x, y, 0), Variant_Grid_access( y_ssl_dat, x,  y+1, 0 ) );
@@ -290,18 +231,7 @@ void science(
   
 /* ------------------------------ NLFE551 Reduction ------------------------------ */
 
-  TIMEIT(metrics->elapsed_551_reduce, Variant_Run_Kernel(grid, block, {
-    //Get position in kernel grid
-    //+1 is added to coordinates to account for offset in each direction
-    int x = blockIdx.x * blockDim.x + threadIdx.x + 1;
-    int y = blockIdx.y * blockDim.y + threadIdx.y + 1;
-    int z = blockIdx.z * blockDim.z + threadIdx.z + 1;
-
-    //Make sure that the thread is in bounds
-    if (x == 0 || x > Basic_Domain_nx(reduction_domain) - 2 || y == 0 || y > Basic_Domain_ny(reduction_domain) - 2 || z == 0 || z > Basic_Domain_nz(reduction_domain) - 2) {
-      return;
-    }
-
+  TIMEIT(metrics->elapsed_551_reduce, Variant_Domain_fast_loop_interior(reduction_domain, {
     double u_right_val =  Variant_Grid_access(u_right, x-1, y  , z  );
     double u_front_val = -Variant_Grid_access(u_front, x  , y-1, z  );
     double u_upper_val = -Variant_Grid_access(u_upper, x  , y  , z-1);
