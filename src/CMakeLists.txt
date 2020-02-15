@@ -14,10 +14,11 @@ set(VARIANTS
   whole_gpu_parallel_opencl_manual_fuse_store_temporary
   simple_whole_kokkos
   simple_whole_cuda
+  simple_whole_cuda_single_kernel
   simple_whole_cuda_lambda
   simple_whole_cuda_manual_memory
   simple_whole_cuda_manual_memory_extracted
-  simple_whole_cuda_single_kernel
+  simple_whole_cuda_manual_memory_async
 )
 
 # List all source files
