@@ -17,6 +17,7 @@ set(VARIANTS
   simple_whole_cuda_single_kernel
   simple_whole_cuda_lambda
   simple_whole_cuda_manual_memory
+  simple_whole_cuda_manual_memory_pinned
   simple_whole_cuda_manual_memory_extracted
   simple_whole_cuda_manual_memory_async
   simple_whole_cuda_manual_memory_async_extracted
