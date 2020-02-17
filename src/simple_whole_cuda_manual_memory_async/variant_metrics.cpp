@@ -2,6 +2,8 @@
 
 void printVariantMetricInformation( FILE* stream, Variant_Metrics* metrics ){
   fprintf( stream,
+    "Elapsed copyback:            %f\n"
+    "Elapsed free device:         %f\n"
     "Elapsed temp_alloc:          %f\n"
     "Elapsed temp_dealloc:        %f\n",
     //"Elapsed setup:               %f\n"
@@ -10,6 +12,8 @@ void printVariantMetricInformation( FILE* stream, Variant_Metrics* metrics ){
     //"Elapsed exec_setup:          %f\n"
     //"Elapsed exec:                %f\n"
     //"Elapsed teardown:            %f\n",
+    metrics->elapsed_copyback,
+    metrics->elapsed_free_device,
     metrics->elapsed_temp_alloc,
     metrics->elapsed_temp_dealloc
     //metrics->elapsed_setup,

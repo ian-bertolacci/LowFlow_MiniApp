@@ -311,35 +311,37 @@ void science(
   Variant_Domain *fp_CUDA_Domain, *sp_CUDA_Domain, *dp_CUDA_Domain, *osp_CUDA_Domain, *odp_CUDA_Domain, *pop_CUDA_Domain, *z_mult_dat_CUDA_Domain;
   double *fp_CUDA, *sp_CUDA, *dp_CUDA, *osp_CUDA, *odp_CUDA, *pop_CUDA, *z_mult_dat_CUDA;
 
-  check(cudaMalloc(&fp_CUDA_Domain, domainSize));
-  check(cudaMalloc(&sp_CUDA_Domain, domainSize));
-  check(cudaMalloc(&dp_CUDA_Domain, domainSize));
-  check(cudaMalloc(&osp_CUDA_Domain, domainSize));
-  check(cudaMalloc(&odp_CUDA_Domain, domainSize));
-  check(cudaMalloc(&pop_CUDA_Domain, domainSize));
-  check(cudaMalloc(&z_mult_dat_CUDA_Domain, domainSize));
-  check(cudaMalloc(&fp_CUDA, dataSize));
-  check(cudaMalloc(&sp_CUDA, dataSize));
-  check(cudaMalloc(&dp_CUDA, dataSize));
-  check(cudaMalloc(&osp_CUDA, dataSize));
-  check(cudaMalloc(&odp_CUDA, dataSize));
-  check(cudaMalloc(&pop_CUDA, dataSize));
-  check(cudaMalloc(&z_mult_dat_CUDA, dataSize));
+  TIMEIT(metrics->elapsed_prepare_216, {
+    check(cudaMalloc(&fp_CUDA_Domain, domainSize));
+    check(cudaMalloc(&sp_CUDA_Domain, domainSize));
+    check(cudaMalloc(&dp_CUDA_Domain, domainSize));
+    check(cudaMalloc(&osp_CUDA_Domain, domainSize));
+    check(cudaMalloc(&odp_CUDA_Domain, domainSize));
+    check(cudaMalloc(&pop_CUDA_Domain, domainSize));
+    check(cudaMalloc(&z_mult_dat_CUDA_Domain, domainSize));
+    check(cudaMalloc(&fp_CUDA, dataSize));
+    check(cudaMalloc(&sp_CUDA, dataSize));
+    check(cudaMalloc(&dp_CUDA, dataSize));
+    check(cudaMalloc(&osp_CUDA, dataSize));
+    check(cudaMalloc(&odp_CUDA, dataSize));
+    check(cudaMalloc(&pop_CUDA, dataSize));
+    check(cudaMalloc(&z_mult_dat_CUDA, dataSize));
 
-  check(cudaMemcpy(fp_CUDA_Domain, fp->domain, domainSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(sp_CUDA_Domain, sp->domain, domainSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(dp_CUDA_Domain, dp->domain, domainSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(osp_CUDA_Domain, osp->domain, domainSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(odp_CUDA_Domain, odp->domain, domainSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(pop_CUDA_Domain, pop->domain, domainSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(z_mult_dat_CUDA_Domain, z_mult_dat->domain, domainSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(fp_CUDA, fp->data, dataSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(sp_CUDA, sp->data, dataSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(dp_CUDA, dp->data, dataSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(osp_CUDA, osp->data, dataSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(odp_CUDA, odp->data, dataSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(pop_CUDA, pop->data, dataSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(z_mult_dat_CUDA, z_mult_dat->data, dataSize, cudaMemcpyHostToDevice));
+    check(cudaMemcpy(fp_CUDA_Domain, fp->domain, domainSize, cudaMemcpyHostToDevice));
+    check(cudaMemcpy(sp_CUDA_Domain, sp->domain, domainSize, cudaMemcpyHostToDevice));
+    check(cudaMemcpy(dp_CUDA_Domain, dp->domain, domainSize, cudaMemcpyHostToDevice));
+    check(cudaMemcpy(osp_CUDA_Domain, osp->domain, domainSize, cudaMemcpyHostToDevice));
+    check(cudaMemcpy(odp_CUDA_Domain, odp->domain, domainSize, cudaMemcpyHostToDevice));
+    check(cudaMemcpy(pop_CUDA_Domain, pop->domain, domainSize, cudaMemcpyHostToDevice));
+    check(cudaMemcpy(z_mult_dat_CUDA_Domain, z_mult_dat->domain, domainSize, cudaMemcpyHostToDevice));
+    check(cudaMemcpy(fp_CUDA, fp->data, dataSize, cudaMemcpyHostToDevice));
+    check(cudaMemcpy(sp_CUDA, sp->data, dataSize, cudaMemcpyHostToDevice));
+    check(cudaMemcpy(dp_CUDA, dp->data, dataSize, cudaMemcpyHostToDevice));
+    check(cudaMemcpy(osp_CUDA, osp->data, dataSize, cudaMemcpyHostToDevice));
+    check(cudaMemcpy(odp_CUDA, odp->data, dataSize, cudaMemcpyHostToDevice));
+    check(cudaMemcpy(pop_CUDA, pop->data, dataSize, cudaMemcpyHostToDevice));
+    check(cudaMemcpy(z_mult_dat_CUDA, z_mult_dat->data, dataSize, cudaMemcpyHostToDevice));
+  });
 
   TIMEIT(metrics->elapsed_216, {
     NLFE216Kernel<<<grid, block>>>(Basic_Domain_nx(domain) - 2, Basic_Domain_ny(domain) - 2, Basic_Domain_nz(domain) -2, fp_CUDA_Domain, fp_CUDA, sp_CUDA_Domain, sp_CUDA, dp_CUDA_Domain, dp_CUDA, osp_CUDA_Domain, osp_CUDA, odp_CUDA_Domain, odp_CUDA, pop_CUDA_Domain, pop_CUDA, z_mult_dat_CUDA_Domain, z_mult_dat_CUDA);
@@ -352,19 +354,21 @@ void science(
   Variant_Domain *ss_CUDA_Domain, *pp_CUDA_Domain, *opp_CUDA_Domain;
   double *ss_CUDA, *pp_CUDA, *opp_CUDA;
 
-  check(cudaMalloc(&ss_CUDA_Domain, domainSize));
-  check(cudaMalloc(&pp_CUDA_Domain, domainSize));
-  check(cudaMalloc(&opp_CUDA_Domain, domainSize));
-  check(cudaMalloc(&ss_CUDA, dataSize));
-  check(cudaMalloc(&pp_CUDA, dataSize));
-  check(cudaMalloc(&opp_CUDA, dataSize));
+  TIMEIT(metrics->elapsed_prepare_338, {
+    check(cudaMalloc(&ss_CUDA_Domain, domainSize));
+    check(cudaMalloc(&pp_CUDA_Domain, domainSize));
+    check(cudaMalloc(&opp_CUDA_Domain, domainSize));
+    check(cudaMalloc(&ss_CUDA, dataSize));
+    check(cudaMalloc(&pp_CUDA, dataSize));
+    check(cudaMalloc(&opp_CUDA, dataSize));
 
-  check(cudaMemcpy(ss_CUDA_Domain, ss->domain, domainSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(pp_CUDA_Domain, pp->domain, domainSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(opp_CUDA_Domain, opp->domain, domainSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(ss_CUDA, ss->data, dataSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(pp_CUDA, pp->data, dataSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(opp_CUDA, opp->data, dataSize, cudaMemcpyHostToDevice));
+    check(cudaMemcpy(ss_CUDA_Domain, ss->domain, domainSize, cudaMemcpyHostToDevice));
+    check(cudaMemcpy(pp_CUDA_Domain, pp->domain, domainSize, cudaMemcpyHostToDevice));
+    check(cudaMemcpy(opp_CUDA_Domain, opp->domain, domainSize, cudaMemcpyHostToDevice));
+    check(cudaMemcpy(ss_CUDA, ss->data, dataSize, cudaMemcpyHostToDevice));
+    check(cudaMemcpy(pp_CUDA, pp->data, dataSize, cudaMemcpyHostToDevice));
+    check(cudaMemcpy(opp_CUDA, opp->data, dataSize, cudaMemcpyHostToDevice));
+  });
 
   TIMEIT(metrics->elapsed_338, {
     NLFE338Kernel<<<grid, block>>>(Basic_Domain_nx(domain) - 2, Basic_Domain_ny(domain) - 2, Basic_Domain_nz(domain) -2, fp_CUDA_Domain, fp_CUDA, ss_CUDA_Domain, ss_CUDA, z_mult_dat_CUDA_Domain, z_mult_dat_CUDA, pp_CUDA_Domain, pp_CUDA, sp_CUDA_Domain, sp_CUDA, dp_CUDA_Domain, dp_CUDA, opp_CUDA_Domain, opp_CUDA, osp_CUDA_Domain, osp_CUDA, odp_CUDA_Domain, odp_CUDA);
@@ -377,11 +381,13 @@ void science(
   Variant_Domain *et_CUDA_Domain;
   double *et_CUDA;
 
-  check(cudaMalloc(&et_CUDA_Domain, domainSize));
-  check(cudaMalloc(&et_CUDA, dataSize));
+  TIMEIT(metrics->elapsed_prepare_416, {
+    check(cudaMalloc(&et_CUDA_Domain, domainSize));
+    check(cudaMalloc(&et_CUDA, dataSize));
 
-  check(cudaMemcpy(et_CUDA_Domain, et->domain, domainSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(et_CUDA, et->data, dataSize, cudaMemcpyHostToDevice));
+    check(cudaMemcpy(et_CUDA_Domain, et->domain, domainSize, cudaMemcpyHostToDevice));
+    check(cudaMemcpy(et_CUDA, et->data, dataSize, cudaMemcpyHostToDevice));
+  });
 
   TIMEIT(metrics->elapsed_416, {
     NLFE416Kernel<<<grid, block>>>(Basic_Domain_nx(domain) - 2, Basic_Domain_ny(domain) - 2, Basic_Domain_nz(domain) -2, fp_CUDA_Domain, fp_CUDA, z_mult_dat_CUDA_Domain, z_mult_dat_CUDA, sp_CUDA_Domain, sp_CUDA, et_CUDA_Domain, et_CUDA);
@@ -394,56 +400,57 @@ void science(
   Variant_Domain *x_ssl_dat_CUDA_Domain, *y_ssl_dat_CUDA_Domain, *permxp_CUDA_Domain, *rpp_CUDA_Domain, *permyp_CUDA_Domain, *permzp_CUDA_Domain, *vx_CUDA_Domain, *vy_CUDA_Domain, *vz_CUDA_Domain, *u_right_CUDA_Domain, *u_front_CUDA_Domain, *u_upper_CUDA_Domain;
   double *x_ssl_dat_CUDA, *y_ssl_dat_CUDA, *permxp_CUDA, *rpp_CUDA, *permyp_CUDA, *permzp_CUDA, *vx_CUDA, *vy_CUDA, *vz_CUDA, *u_right_CUDA, *u_front_CUDA, *u_upper_CUDA;
 
-  check(cudaMalloc(&x_ssl_dat_CUDA_Domain, domainSize));
-  check(cudaMalloc(&y_ssl_dat_CUDA_Domain, domainSize));
-  check(cudaMalloc(&permxp_CUDA_Domain, domainSize));
-  check(cudaMalloc(&rpp_CUDA_Domain, domainSize));
-  check(cudaMalloc(&permyp_CUDA_Domain, domainSize));
-  check(cudaMalloc(&permzp_CUDA_Domain, domainSize));
-  check(cudaMalloc(&vx_CUDA_Domain, domainSize));
-  check(cudaMalloc(&vy_CUDA_Domain, domainSize));
-  check(cudaMalloc(&vz_CUDA_Domain, domainSize));
-  check(cudaMalloc(&u_right_CUDA_Domain, domainSize));
-  check(cudaMalloc(&u_front_CUDA_Domain, domainSize));
-  check(cudaMalloc(&u_upper_CUDA_Domain, domainSize));
-  check(cudaMalloc(&x_ssl_dat_CUDA, dataSize));
-  check(cudaMalloc(&y_ssl_dat_CUDA, dataSize));
-  check(cudaMalloc(&permxp_CUDA, dataSize));
-  check(cudaMalloc(&rpp_CUDA, dataSize));
-  check(cudaMalloc(&permyp_CUDA, dataSize));
-  check(cudaMalloc(&permzp_CUDA, dataSize));
-  check(cudaMalloc(&vx_CUDA, dataSize));
-  check(cudaMalloc(&vy_CUDA, dataSize));
-  check(cudaMalloc(&vz_CUDA, dataSize));
-  check(cudaMalloc(&u_right_CUDA, dataSize));
-  check(cudaMalloc(&u_front_CUDA, dataSize));
-  check(cudaMalloc(&u_upper_CUDA, dataSize));
+  TIMEIT(metrics->elapsed_prepare_551, {
+    check(cudaMalloc(&x_ssl_dat_CUDA_Domain, domainSize));
+    check(cudaMalloc(&y_ssl_dat_CUDA_Domain, domainSize));
+    check(cudaMalloc(&permxp_CUDA_Domain, domainSize));
+    check(cudaMalloc(&rpp_CUDA_Domain, domainSize));
+    check(cudaMalloc(&permyp_CUDA_Domain, domainSize));
+    check(cudaMalloc(&permzp_CUDA_Domain, domainSize));
+    check(cudaMalloc(&vx_CUDA_Domain, domainSize));
+    check(cudaMalloc(&vy_CUDA_Domain, domainSize));
+    check(cudaMalloc(&vz_CUDA_Domain, domainSize));
+    check(cudaMalloc(&u_right_CUDA_Domain, domainSize));
+    check(cudaMalloc(&u_front_CUDA_Domain, domainSize));
+    check(cudaMalloc(&u_upper_CUDA_Domain, domainSize));
+    check(cudaMalloc(&x_ssl_dat_CUDA, dataSize));
+    check(cudaMalloc(&y_ssl_dat_CUDA, dataSize));
+    check(cudaMalloc(&permxp_CUDA, dataSize));
+    check(cudaMalloc(&rpp_CUDA, dataSize));
+    check(cudaMalloc(&permyp_CUDA, dataSize));
+    check(cudaMalloc(&permzp_CUDA, dataSize));
+    check(cudaMalloc(&vx_CUDA, dataSize));
+    check(cudaMalloc(&vy_CUDA, dataSize));
+    check(cudaMalloc(&vz_CUDA, dataSize));
+    check(cudaMalloc(&u_right_CUDA, dataSize));
+    check(cudaMalloc(&u_front_CUDA, dataSize));
+    check(cudaMalloc(&u_upper_CUDA, dataSize));
 
-  check(cudaMemcpy(x_ssl_dat_CUDA_Domain, x_ssl_dat->domain, domainSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(y_ssl_dat_CUDA_Domain, y_ssl_dat->domain, domainSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(permxp_CUDA_Domain, permxp->domain, domainSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(rpp_CUDA_Domain, rpp->domain, domainSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(permyp_CUDA_Domain, permyp->domain, domainSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(permzp_CUDA_Domain, permzp->domain, domainSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(vx_CUDA_Domain, vx->domain, domainSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(vy_CUDA_Domain, vy->domain, domainSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(vz_CUDA_Domain, vz->domain, domainSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(u_right_CUDA_Domain, u_right->domain, domainSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(u_front_CUDA_Domain, u_front->domain, domainSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(u_upper_CUDA_Domain, u_upper->domain, domainSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(x_ssl_dat_CUDA, x_ssl_dat->data, dataSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(y_ssl_dat_CUDA, y_ssl_dat->data, dataSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(permxp_CUDA, permxp->data, dataSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(rpp_CUDA, rpp->data, dataSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(permyp_CUDA, permyp->data, dataSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(permzp_CUDA, permzp->data, dataSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(vx_CUDA, vx->data, dataSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(vy_CUDA, vy->data, dataSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(vz_CUDA, vz->data, dataSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(u_right_CUDA, u_right->data, dataSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(u_front_CUDA, u_front->data, dataSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(u_upper_CUDA, u_upper->data, dataSize, cudaMemcpyHostToDevice));
-
+    check(cudaMemcpy(x_ssl_dat_CUDA_Domain, x_ssl_dat->domain, domainSize, cudaMemcpyHostToDevice));
+    check(cudaMemcpy(y_ssl_dat_CUDA_Domain, y_ssl_dat->domain, domainSize, cudaMemcpyHostToDevice));
+    check(cudaMemcpy(permxp_CUDA_Domain, permxp->domain, domainSize, cudaMemcpyHostToDevice));
+    check(cudaMemcpy(rpp_CUDA_Domain, rpp->domain, domainSize, cudaMemcpyHostToDevice));
+    check(cudaMemcpy(permyp_CUDA_Domain, permyp->domain, domainSize, cudaMemcpyHostToDevice));
+    check(cudaMemcpy(permzp_CUDA_Domain, permzp->domain, domainSize, cudaMemcpyHostToDevice));
+    check(cudaMemcpy(vx_CUDA_Domain, vx->domain, domainSize, cudaMemcpyHostToDevice));
+    check(cudaMemcpy(vy_CUDA_Domain, vy->domain, domainSize, cudaMemcpyHostToDevice));
+    check(cudaMemcpy(vz_CUDA_Domain, vz->domain, domainSize, cudaMemcpyHostToDevice));
+    check(cudaMemcpy(u_right_CUDA_Domain, u_right->domain, domainSize, cudaMemcpyHostToDevice));
+    check(cudaMemcpy(u_front_CUDA_Domain, u_front->domain, domainSize, cudaMemcpyHostToDevice));
+    check(cudaMemcpy(u_upper_CUDA_Domain, u_upper->domain, domainSize, cudaMemcpyHostToDevice));
+    check(cudaMemcpy(x_ssl_dat_CUDA, x_ssl_dat->data, dataSize, cudaMemcpyHostToDevice));
+    check(cudaMemcpy(y_ssl_dat_CUDA, y_ssl_dat->data, dataSize, cudaMemcpyHostToDevice));
+    check(cudaMemcpy(permxp_CUDA, permxp->data, dataSize, cudaMemcpyHostToDevice));
+    check(cudaMemcpy(rpp_CUDA, rpp->data, dataSize, cudaMemcpyHostToDevice));
+    check(cudaMemcpy(permyp_CUDA, permyp->data, dataSize, cudaMemcpyHostToDevice));
+    check(cudaMemcpy(permzp_CUDA, permzp->data, dataSize, cudaMemcpyHostToDevice));
+    check(cudaMemcpy(vx_CUDA, vx->data, dataSize, cudaMemcpyHostToDevice));
+    check(cudaMemcpy(vy_CUDA, vy->data, dataSize, cudaMemcpyHostToDevice));
+    check(cudaMemcpy(vz_CUDA, vz->data, dataSize, cudaMemcpyHostToDevice));
+    check(cudaMemcpy(u_right_CUDA, u_right->data, dataSize, cudaMemcpyHostToDevice));
+    check(cudaMemcpy(u_front_CUDA, u_front->data, dataSize, cudaMemcpyHostToDevice));
+    check(cudaMemcpy(u_upper_CUDA, u_upper->data, dataSize, cudaMemcpyHostToDevice));
+  });
 
   TIMEIT(metrics->elapsed_551, {
     NLFE551Kernel<<<grid, block>>>(Basic_Domain_nx(domain) - 2, Basic_Domain_ny(domain) - 2, Basic_Domain_nz(domain) -2, x_ssl_dat_CUDA_Domain, x_ssl_dat_CUDA, y_ssl_dat_CUDA_Domain, y_ssl_dat_CUDA, pp_CUDA_Domain, pp_CUDA, z_mult_dat_CUDA_Domain, z_mult_dat_CUDA, dp_CUDA_Domain, dp_CUDA, permxp_CUDA_Domain, permxp_CUDA, rpp_CUDA_Domain, rpp_CUDA, permyp_CUDA_Domain, permyp_CUDA, permzp_CUDA_Domain, permzp_CUDA, vx_CUDA_Domain, vx_CUDA, vy_CUDA_Domain, vy_CUDA, vz_CUDA_Domain, vz_CUDA, u_right_CUDA_Domain, u_right_CUDA, u_front_CUDA_Domain, u_front_CUDA, u_upper_CUDA_Domain, u_upper_CUDA, fp_CUDA_Domain, fp_CUDA);
@@ -462,57 +469,61 @@ void science(
   //Cleanup temp domain and grids
   Variant_Domain_dealloc( reduction_domain );
 
-  check(cudaMemcpy(fp->data, fp_CUDA, dataSize, cudaMemcpyDeviceToHost));
-  check(cudaMemcpy(vx->data, vx_CUDA, dataSize, cudaMemcpyDeviceToHost));
-  check(cudaMemcpy(vy->data, vy_CUDA, dataSize, cudaMemcpyDeviceToHost));
-  check(cudaMemcpy(vz->data, vz_CUDA, dataSize, cudaMemcpyDeviceToHost));
+  TIMEIT(metrics->elapsed_copyback , {
+    check(cudaMemcpy(fp->data, fp_CUDA, dataSize, cudaMemcpyDeviceToHost));
+    check(cudaMemcpy(vx->data, vx_CUDA, dataSize, cudaMemcpyDeviceToHost));
+    check(cudaMemcpy(vy->data, vy_CUDA, dataSize, cudaMemcpyDeviceToHost));
+    check(cudaMemcpy(vz->data, vz_CUDA, dataSize, cudaMemcpyDeviceToHost));
+  });
 
-  check(cudaFree(fp_CUDA_Domain));
-  check(cudaFree(vx_CUDA_Domain));
-  check(cudaFree(vy_CUDA_Domain));
-  check(cudaFree(vz_CUDA_Domain));
-  check(cudaFree(dp_CUDA_Domain));
-  check(cudaFree(et_CUDA_Domain));
-  check(cudaFree(odp_CUDA_Domain));
-  check(cudaFree(opp_CUDA_Domain));
-  check(cudaFree(osp_CUDA_Domain));
-  check(cudaFree(permxp_CUDA_Domain));
-  check(cudaFree(permyp_CUDA_Domain));
-  check(cudaFree(permzp_CUDA_Domain));
-  check(cudaFree(pop_CUDA_Domain));
-  check(cudaFree(pp_CUDA_Domain));
-  check(cudaFree(rpp_CUDA_Domain));
-  check(cudaFree(sp_CUDA_Domain));
-  check(cudaFree(ss_CUDA_Domain));
-  check(cudaFree(z_mult_dat_CUDA_Domain));
-  check(cudaFree(x_ssl_dat_CUDA_Domain));
-  check(cudaFree(y_ssl_dat_CUDA_Domain));
-  check(cudaFree(u_right_CUDA_Domain));
-  check(cudaFree(u_front_CUDA_Domain));
-  check(cudaFree(u_upper_CUDA_Domain));
-  check(cudaFree(fp_CUDA));
-  check(cudaFree(vx_CUDA));
-  check(cudaFree(vy_CUDA));
-  check(cudaFree(vz_CUDA));
-  check(cudaFree(dp_CUDA));
-  check(cudaFree(et_CUDA));
-  check(cudaFree(odp_CUDA));
-  check(cudaFree(opp_CUDA));
-  check(cudaFree(osp_CUDA));
-  check(cudaFree(permxp_CUDA));
-  check(cudaFree(permyp_CUDA));
-  check(cudaFree(permzp_CUDA));
-  check(cudaFree(pop_CUDA));
-  check(cudaFree(pp_CUDA));
-  check(cudaFree(rpp_CUDA));
-  check(cudaFree(sp_CUDA));
-  check(cudaFree(ss_CUDA));
-  check(cudaFree(z_mult_dat_CUDA));
-  check(cudaFree(x_ssl_dat_CUDA));
-  check(cudaFree(y_ssl_dat_CUDA));
-  check(cudaFree(u_right_CUDA));
-  check(cudaFree(u_front_CUDA));
-  check(cudaFree(u_upper_CUDA));
+  TIMEIT(metrics->elapsed_free_device, {
+    check(cudaFree(fp_CUDA_Domain));
+    check(cudaFree(vx_CUDA_Domain));
+    check(cudaFree(vy_CUDA_Domain));
+    check(cudaFree(vz_CUDA_Domain));
+    check(cudaFree(dp_CUDA_Domain));
+    check(cudaFree(et_CUDA_Domain));
+    check(cudaFree(odp_CUDA_Domain));
+    check(cudaFree(opp_CUDA_Domain));
+    check(cudaFree(osp_CUDA_Domain));
+    check(cudaFree(permxp_CUDA_Domain));
+    check(cudaFree(permyp_CUDA_Domain));
+    check(cudaFree(permzp_CUDA_Domain));
+    check(cudaFree(pop_CUDA_Domain));
+    check(cudaFree(pp_CUDA_Domain));
+    check(cudaFree(rpp_CUDA_Domain));
+    check(cudaFree(sp_CUDA_Domain));
+    check(cudaFree(ss_CUDA_Domain));
+    check(cudaFree(z_mult_dat_CUDA_Domain));
+    check(cudaFree(x_ssl_dat_CUDA_Domain));
+    check(cudaFree(y_ssl_dat_CUDA_Domain));
+    check(cudaFree(u_right_CUDA_Domain));
+    check(cudaFree(u_front_CUDA_Domain));
+    check(cudaFree(u_upper_CUDA_Domain));
+    check(cudaFree(fp_CUDA));
+    check(cudaFree(vx_CUDA));
+    check(cudaFree(vy_CUDA));
+    check(cudaFree(vz_CUDA));
+    check(cudaFree(dp_CUDA));
+    check(cudaFree(et_CUDA));
+    check(cudaFree(odp_CUDA));
+    check(cudaFree(opp_CUDA));
+    check(cudaFree(osp_CUDA));
+    check(cudaFree(permxp_CUDA));
+    check(cudaFree(permyp_CUDA));
+    check(cudaFree(permzp_CUDA));
+    check(cudaFree(pop_CUDA));
+    check(cudaFree(pp_CUDA));
+    check(cudaFree(rpp_CUDA));
+    check(cudaFree(sp_CUDA));
+    check(cudaFree(ss_CUDA));
+    check(cudaFree(z_mult_dat_CUDA));
+    check(cudaFree(x_ssl_dat_CUDA));
+    check(cudaFree(y_ssl_dat_CUDA));
+    check(cudaFree(u_right_CUDA));
+    check(cudaFree(u_front_CUDA));
+    check(cudaFree(u_upper_CUDA));
+  });
   
   TIMEIT(metrics->elapsed_temp_dealloc, {
     Variant_Grid_dealloc(u_right);

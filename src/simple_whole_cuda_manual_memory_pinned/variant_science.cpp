@@ -252,10 +252,6 @@ void copyDeviceToHost(Variant_Grid *host, Variant_Grid **device) {
 
   check(cudaMemcpy(&temp, *device, gridSize, cudaMemcpyDeviceToHost));
   check(cudaMemcpy(host->data, temp.data, dataSize, cudaMemcpyDeviceToHost));
-
-  check(cudaFree(temp.domain));
-  check(cudaFree(temp.data));
-  check(cudaFree(*device));
 }
 
 void freeDeviceGrid(Variant_Grid **device) {
@@ -346,13 +342,15 @@ void science(
 
   //Create grids on the device for this kernel call
   Variant_Grid *fpCUDA, *spCUDA, *dpCUDA, *ospCUDA, *odpCUDA, *popCUDA, *z_mult_datCUDA;
-  prepareDeviceGrid(fp, &fpCUDA);
-  prepareDeviceGrid(sp, &spCUDA);
-  prepareDeviceGrid(dp, &dpCUDA);
-  prepareDeviceGrid(osp, &ospCUDA);
-  prepareDeviceGrid(odp, &odpCUDA);
-  prepareDeviceGrid(pop, &popCUDA);
-  prepareDeviceGrid(z_mult_dat, &z_mult_datCUDA);
+  TIMEIT(metrics->elapsed_prepare_216, {
+    prepareDeviceGrid(fp, &fpCUDA);
+    prepareDeviceGrid(sp, &spCUDA);
+    prepareDeviceGrid(dp, &dpCUDA);
+    prepareDeviceGrid(osp, &ospCUDA);
+    prepareDeviceGrid(odp, &odpCUDA);
+    prepareDeviceGrid(pop, &popCUDA);
+    prepareDeviceGrid(z_mult_dat, &z_mult_datCUDA);
+  });
 
   TIMEIT(metrics->elapsed_216, {
     NLFE216Kernel<<<grid, block>>>(Basic_Domain_nx(domain) - 2, Basic_Domain_ny(domain) - 2, Basic_Domain_nz(domain) -2, fpCUDA, spCUDA, dpCUDA, ospCUDA, odpCUDA, popCUDA, z_mult_datCUDA);
@@ -363,9 +361,11 @@ void science(
 
   //Create grids on the device for this kernel call
   Variant_Grid *ssCUDA, *ppCUDA, *oppCUDA;
-  prepareDeviceGrid(ss, &ssCUDA);
-  prepareDeviceGrid(pp, &ppCUDA);
-  prepareDeviceGrid(opp, &oppCUDA);
+  TIMEIT(metrics->elapsed_prepare_338, {
+    prepareDeviceGrid(ss, &ssCUDA);
+    prepareDeviceGrid(pp, &ppCUDA);
+    prepareDeviceGrid(opp, &oppCUDA);
+  });
 
   TIMEIT(metrics->elapsed_338, {
     NLFE338Kernel<<<grid, block>>>(Basic_Domain_nx(domain) - 2, Basic_Domain_ny(domain) - 2, Basic_Domain_nz(domain) -2, fpCUDA, ssCUDA, z_mult_datCUDA, ppCUDA, spCUDA, dpCUDA, oppCUDA, ospCUDA, odpCUDA);
@@ -376,7 +376,9 @@ void science(
 
   //Create grids on the device for this kernel call
   Variant_Grid *etCUDA;
-  prepareDeviceGrid(et, &etCUDA);
+  TIMEIT(metrics->elapsed_prepare_416, {
+    prepareDeviceGrid(et, &etCUDA);
+  });
 
   TIMEIT(metrics->elapsed_416, {
     NLFE416Kernel<<<grid, block>>>(Basic_Domain_nx(domain) - 2, Basic_Domain_ny(domain) - 2, Basic_Domain_nz(domain) -2, fpCUDA, z_mult_datCUDA, spCUDA, etCUDA);
@@ -387,18 +389,20 @@ void science(
 
   //Create grids on the device for this kernel call
   Variant_Grid *x_ssl_datCUDA, *y_ssl_datCUDA, *permxpCUDA, *rppCUDA, *permypCUDA, *permzpCUDA, *vxCUDA, *vyCUDA, *vzCUDA, *u_rightCUDA, *u_frontCUDA, *u_upperCUDA;
-  prepareDeviceGrid(x_ssl_dat, &x_ssl_datCUDA);
-  prepareDeviceGrid(y_ssl_dat, &y_ssl_datCUDA);
-  prepareDeviceGrid(permxp, &permxpCUDA);
-  prepareDeviceGrid(rpp, &rppCUDA);
-  prepareDeviceGrid(permyp, &permypCUDA);
-  prepareDeviceGrid(permzp, &permzpCUDA);
-  prepareDeviceGrid(vx, &vxCUDA);
-  prepareDeviceGrid(vy, &vyCUDA);
-  prepareDeviceGrid(vz, &vzCUDA);
-  prepareDeviceGrid(u_right, &u_rightCUDA);
-  prepareDeviceGrid(u_front, &u_frontCUDA);
-  prepareDeviceGrid(u_upper, &u_upperCUDA);
+  TIMEIT(metrics->elapsed_prepare_551, {
+    prepareDeviceGrid(x_ssl_dat, &x_ssl_datCUDA);
+    prepareDeviceGrid(y_ssl_dat, &y_ssl_datCUDA);
+    prepareDeviceGrid(permxp, &permxpCUDA);
+    prepareDeviceGrid(rpp, &rppCUDA);
+    prepareDeviceGrid(permyp, &permypCUDA);
+    prepareDeviceGrid(permzp, &permzpCUDA);
+    prepareDeviceGrid(vx, &vxCUDA);
+    prepareDeviceGrid(vy, &vyCUDA);
+    prepareDeviceGrid(vz, &vzCUDA);
+    prepareDeviceGrid(u_right, &u_rightCUDA);
+    prepareDeviceGrid(u_front, &u_frontCUDA);
+    prepareDeviceGrid(u_upper, &u_upperCUDA);
+  });
 
   TIMEIT(metrics->elapsed_551, {
     NLFE551Kernel<<<grid, block>>>(Basic_Domain_nx(domain) - 2, Basic_Domain_ny(domain) - 2, Basic_Domain_nz(domain) -2, x_ssl_datCUDA, y_ssl_datCUDA, ppCUDA, z_mult_datCUDA, dpCUDA, permxpCUDA, rppCUDA, permypCUDA, permzpCUDA, vxCUDA, vyCUDA, vzCUDA, u_rightCUDA, u_frontCUDA, u_upperCUDA, fpCUDA);
@@ -415,32 +419,40 @@ void science(
 /* ------------------------------ Cleanup ------------------------------ */
   
   //Copy back data from device to host
-  copyDeviceToHost(fp, &fpCUDA);
-  copyDeviceToHost(vx, &vxCUDA);
-  copyDeviceToHost(vy, &vyCUDA);
-  copyDeviceToHost(vz, &vzCUDA);
+  TIMEIT(metrics->elapsed_copyback, {
+    copyDeviceToHost(fp, &fpCUDA);
+    copyDeviceToHost(vx, &vxCUDA);
+    copyDeviceToHost(vy, &vyCUDA);
+    copyDeviceToHost(vz, &vzCUDA);
+  });
 
   //Free all device grids and their members
-  freeDeviceGrid(&dpCUDA);
-  freeDeviceGrid(&etCUDA);
-  freeDeviceGrid(&odpCUDA);
-  freeDeviceGrid(&oppCUDA);
-  freeDeviceGrid(&ospCUDA);
-  freeDeviceGrid(&permxpCUDA);
-  freeDeviceGrid(&permypCUDA);
-  freeDeviceGrid(&permzpCUDA);
-  freeDeviceGrid(&popCUDA);
-  freeDeviceGrid(&ppCUDA);
-  freeDeviceGrid(&rppCUDA);
-  freeDeviceGrid(&spCUDA);
-  freeDeviceGrid(&ssCUDA);
-  freeDeviceGrid(&z_mult_datCUDA);
-  freeDeviceGrid(&x_ssl_datCUDA);
-  freeDeviceGrid(&y_ssl_datCUDA);
-  freeDeviceGrid(&u_rightCUDA);
-  freeDeviceGrid(&u_frontCUDA);
-  freeDeviceGrid(&u_upperCUDA);
-
+  TIMEIT(metrics->elapsed_free_device {
+    freeDeviceGrid(&fpCUDA);
+    freeDeviceGrid(&vxCUDA);
+    freeDeviceGrid(&vyCUDA);
+    freeDeviceGrid(&vzCUDA);
+    freeDeviceGrid(&dpCUDA);
+    freeDeviceGrid(&etCUDA);
+    freeDeviceGrid(&odpCUDA);
+    freeDeviceGrid(&oppCUDA);
+    freeDeviceGrid(&ospCUDA);
+    freeDeviceGrid(&permxpCUDA);
+    freeDeviceGrid(&permypCUDA);
+    freeDeviceGrid(&permzpCUDA);
+    freeDeviceGrid(&popCUDA);
+    freeDeviceGrid(&ppCUDA);
+    freeDeviceGrid(&rppCUDA);
+    freeDeviceGrid(&spCUDA);
+    freeDeviceGrid(&ssCUDA);
+    freeDeviceGrid(&z_mult_datCUDA);
+    freeDeviceGrid(&x_ssl_datCUDA);
+    freeDeviceGrid(&y_ssl_datCUDA);
+    freeDeviceGrid(&u_rightCUDA);
+    freeDeviceGrid(&u_frontCUDA);
+    freeDeviceGrid(&u_upperCUDA);
+  });
+ 
   //Cleanup temp domain and grids
   Variant_Domain_dealloc( reduction_domain );
 

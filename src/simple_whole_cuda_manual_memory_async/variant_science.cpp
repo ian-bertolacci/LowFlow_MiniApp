@@ -415,31 +415,39 @@ void science(
   check(cudaStreamDestroy(s5));
 
   //Copy over result grids
-  copyDeviceToHost(fp, &fpCUDA);
-  copyDeviceToHost(vx, &vxCUDA);
-  copyDeviceToHost(vy, &vyCUDA);
-  copyDeviceToHost(vz, &vzCUDA);
+  TIMEIT(metrics->elapsed_copyback, {
+    copyDeviceToHost(fp, &fpCUDA);
+    copyDeviceToHost(vx, &vxCUDA);
+    copyDeviceToHost(vy, &vyCUDA);
+    copyDeviceToHost(vz, &vzCUDA);
+  });
 
   //Free all other device grids and their members
-  freeDeviceGrid(&dpCUDA);
-  freeDeviceGrid(&etCUDA);
-  freeDeviceGrid(&odpCUDA);
-  freeDeviceGrid(&oppCUDA);
-  freeDeviceGrid(&ospCUDA);
-  freeDeviceGrid(&permxpCUDA);
-  freeDeviceGrid(&permypCUDA);
-  freeDeviceGrid(&permzpCUDA);
-  freeDeviceGrid(&popCUDA);
-  freeDeviceGrid(&ppCUDA);
-  freeDeviceGrid(&rppCUDA);
-  freeDeviceGrid(&spCUDA);
-  freeDeviceGrid(&ssCUDA);
-  freeDeviceGrid(&z_mult_datCUDA);
-  freeDeviceGrid(&x_ssl_datCUDA);
-  freeDeviceGrid(&y_ssl_datCUDA);
-  freeDeviceGrid(&u_rightCUDA);
-  freeDeviceGrid(&u_frontCUDA);
-  freeDeviceGrid(&u_upperCUDA);
+  TIMEIT(metrics->elapsed_free_device, {
+    freeDeviceGrid(&fpCUDA);
+    freeDeviceGrid(&vxCUDA);
+    freeDeviceGrid(&vyCUDA);
+    freeDeviceGrid(&vzCUDA);
+    freeDeviceGrid(&dpCUDA);
+    freeDeviceGrid(&etCUDA);
+    freeDeviceGrid(&odpCUDA);
+    freeDeviceGrid(&oppCUDA);
+    freeDeviceGrid(&ospCUDA);
+    freeDeviceGrid(&permxpCUDA);
+    freeDeviceGrid(&permypCUDA);
+    freeDeviceGrid(&permzpCUDA);
+    freeDeviceGrid(&popCUDA);
+    freeDeviceGrid(&ppCUDA);
+    freeDeviceGrid(&rppCUDA);
+    freeDeviceGrid(&spCUDA);
+    freeDeviceGrid(&ssCUDA);
+    freeDeviceGrid(&z_mult_datCUDA);
+    freeDeviceGrid(&x_ssl_datCUDA);
+    freeDeviceGrid(&y_ssl_datCUDA);
+    freeDeviceGrid(&u_rightCUDA);
+    freeDeviceGrid(&u_frontCUDA);
+    freeDeviceGrid(&u_upperCUDA);
+  });
 
   //Cleanup temp domain and grids
   Variant_Domain_dealloc( reduction_domain );
