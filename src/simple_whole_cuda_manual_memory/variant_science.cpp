@@ -427,7 +427,7 @@ void science(
   });
 
   //Free all device grids and their members
-  TIMEIT(metrics->elapsed_free_device {
+  TIMEIT(metrics->elapsed_free_device, {
     freeDeviceGrid(&fpCUDA);
     freeDeviceGrid(&vxCUDA);
     freeDeviceGrid(&vyCUDA);

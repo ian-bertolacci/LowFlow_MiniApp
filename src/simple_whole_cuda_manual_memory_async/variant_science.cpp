@@ -252,10 +252,6 @@ void copyDeviceToHost(Variant_Grid *host, Variant_Grid **device) {
 
   check(cudaMemcpy(&temp, *device, gridSize, cudaMemcpyDeviceToHost));
   check(cudaMemcpy(host->data, temp.data, dataSize, cudaMemcpyDeviceToHost));
-
-  check(cudaFree(temp.domain));
-  check(cudaFree(temp.data));
-  check(cudaFree(*device));
 }
 
 void freeDeviceGrid(Variant_Grid **device) {
