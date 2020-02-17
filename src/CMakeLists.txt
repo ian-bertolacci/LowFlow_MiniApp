@@ -19,6 +19,7 @@ set(VARIANTS
   simple_whole_cuda_manual_memory
   simple_whole_cuda_manual_memory_extracted
   simple_whole_cuda_manual_memory_async
+  simple_whole_cuda_manual_memory_async_extracted
 )
 
 # List all source files

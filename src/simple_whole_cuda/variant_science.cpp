@@ -5,8 +5,6 @@
 #include <math.h>
 #include <assert.h>
 #include <stdio.h>
-#include "cuda_runtime.h"
-#include "device_launch_parameters.h"
 
 //NlFunctionEval:216 CUDA kernel 
 __global__ void NLFE216Kernel(int xmax, int ymax, int zmax, Variant_Grid *fp, Variant_Grid *sp, Variant_Grid *dp, Variant_Grid *osp, Variant_Grid *odp, Variant_Grid *pop, Variant_Grid *z_mult_dat) {

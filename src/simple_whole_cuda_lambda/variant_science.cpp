@@ -5,8 +5,6 @@
 #include <math.h>
 #include <assert.h>
 #include <stdio.h>
-#include "cuda_runtime.h"
-#include "device_launch_parameters.h"
 
 template <typename Function>
 __global__ void kernelWrapper(Function kernel) {

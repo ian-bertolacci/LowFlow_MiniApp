@@ -5,8 +5,6 @@
 #include <math.h>
 #include <assert.h>
 #include <stdio.h>
-#include "cuda_runtime.h"
-#include "device_launch_parameters.h"
 
 size_t gridSize, domainSize, dataSize;
 
@@ -322,9 +320,11 @@ void science(
   // Create domain for reduction portion. It is 1 larger than the normal domain.
   Variant_Domain* reduction_domain = Variant_Domain_alloc( Variant_Domain_nx(domain)+1, Variant_Domain_nz(domain)+1, Variant_Domain_ny(domain)+1 );
   Variant_Grid *u_right, *u_front, *u_upper;
-  u_right = Variant_Grid_alloc( domain );
-  u_front = Variant_Grid_alloc( domain );
-  u_upper = Variant_Grid_alloc( domain );
+  TIMEIT(metrics->elapsed_temp_alloc, {
+    u_right = Variant_Grid_alloc( domain );
+    u_front = Variant_Grid_alloc( domain );
+    u_upper = Variant_Grid_alloc( domain );
+  });
 
   //Determine dimensions of kernel grid
   //A static block size of 16x16x4 threads is used
@@ -443,7 +443,9 @@ void science(
 
   //Cleanup temp domain and grids
   Variant_Domain_dealloc( reduction_domain );
-  Variant_Grid_dealloc(u_right);
-  Variant_Grid_dealloc(u_front);
-  Variant_Grid_dealloc(u_upper);
+  TIMEIT(metrics->elapsed_temp_dealloc, {
+    Variant_Grid_dealloc(u_right);
+    Variant_Grid_dealloc(u_front);
+    Variant_Grid_dealloc(u_upper);
+  });
 }

@@ -5,9 +5,8 @@
 #include <math.h>
 #include <assert.h>
 #include <stdio.h>
-#include <stdarg.h>
-#include "cuda_runtime.h"
-#include "device_launch_parameters.h"
+
+size_t gridSize, domainSize, dataSize;
 
 inline void checkCUDAError(cudaError_t code, const char *file, int line) {
    if (code != cudaSuccess) {
@@ -235,6 +234,40 @@ __global__ void NLFE551ReductionKernel(int xmax, int ymax, int zmax, Variant_Gri
   Variant_Grid_access(fp, x, y, z) += u_right_val + u_front_val + u_upper_val;
 }
 
+void prepareDeviceGrid(Variant_Grid *host, Variant_Grid **device) {
+  Variant_Grid temp;
+
+  check(cudaMalloc(&temp.domain, domainSize));
+  check(cudaMalloc(&temp.data, dataSize));
+
+  check(cudaMemcpy(temp.domain, host->domain, domainSize, cudaMemcpyHostToDevice));
+  check(cudaMemcpy(temp.data, host->data, dataSize, cudaMemcpyHostToDevice));
+
+  check(cudaMalloc(device, gridSize));
+  check(cudaMemcpy(*device, &temp, gridSize, cudaMemcpyHostToDevice));
+}
+
+void copyDeviceToHost(Variant_Grid *host, Variant_Grid **device) {
+  Variant_Grid temp;
+
+  check(cudaMemcpy(&temp, *device, gridSize, cudaMemcpyDeviceToHost));
+  check(cudaMemcpy(host->data, temp.data, dataSize, cudaMemcpyDeviceToHost));
+
+  check(cudaFree(temp.domain));
+  check(cudaFree(temp.data));
+  check(cudaFree(*device));
+}
+
+void freeDeviceGrid(Variant_Grid **device) {
+  Variant_Grid temp;
+
+  check(cudaMemcpy(&temp, *device, gridSize, cudaMemcpyDeviceToHost));
+
+  check(cudaFree(temp.domain));
+  check(cudaFree(temp.data));
+  check(cudaFree(*device));
+}
+
 void science(
   Variant_Domain* domain,
   Variant_Grid* fp,
@@ -305,66 +338,21 @@ void science(
   dim3 grid = dim3(gridx, gridy, gridz);
 
   //Get the size info of the grids
-  size_t gridSize = sizeof(Variant_Grid);
-  size_t domainSize = sizeof(Variant_Domain);
-  size_t dataSize = Basic_Domain_nx(domain) * Basic_Domain_ny(domain) * Basic_Domain_nz(domain) * sizeof(double);
-  
-  //A local temp grid is used to transfer from host to device
-  Variant_Grid temp;
+  gridSize = sizeof(Variant_Grid);
+  domainSize = sizeof(Variant_Domain);
+  dataSize = Basic_Domain_nx(domain) * Basic_Domain_ny(domain) * Basic_Domain_nz(domain) * sizeof(double);
 
 /* ------------------------------ NLFE216 ------------------------------ */
 
   //Create grids on the device for this kernel call
   Variant_Grid *fpCUDA, *spCUDA, *dpCUDA, *ospCUDA, *odpCUDA, *popCUDA, *z_mult_datCUDA;
-
-  check(cudaMalloc(&temp.domain, domainSize));
-  check(cudaMalloc(&temp.data, dataSize));
-  check(cudaMemcpy(temp.domain, fp->domain, domainSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(temp.data, fp->data, dataSize, cudaMemcpyHostToDevice));
-  check(cudaMalloc(&fpCUDA, gridSize));
-  check(cudaMemcpy(fpCUDA, &temp, gridSize, cudaMemcpyHostToDevice));
-
-  check(cudaMalloc(&temp.domain, domainSize));
-  check(cudaMalloc(&temp.data, dataSize));
-  check(cudaMemcpy(temp.domain, sp->domain, domainSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(temp.data, sp->data, dataSize, cudaMemcpyHostToDevice));
-  check(cudaMalloc(&spCUDA, gridSize));
-  check(cudaMemcpy(spCUDA, &temp, gridSize, cudaMemcpyHostToDevice));
-
-  check(cudaMalloc(&temp.domain, domainSize));
-  check(cudaMalloc(&temp.data, dataSize));
-  check(cudaMemcpy(temp.domain, dp->domain, domainSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(temp.data, dp->data, dataSize, cudaMemcpyHostToDevice));
-  check(cudaMalloc(&dpCUDA, gridSize));
-  check(cudaMemcpy(dpCUDA, &temp, gridSize, cudaMemcpyHostToDevice));
-
-  check(cudaMalloc(&temp.domain, domainSize));
-  check(cudaMalloc(&temp.data, dataSize));
-  check(cudaMemcpy(temp.domain, osp->domain, domainSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(temp.data, osp->data, dataSize, cudaMemcpyHostToDevice));
-  check(cudaMalloc(&ospCUDA, gridSize));
-  check(cudaMemcpy(ospCUDA, &temp, gridSize, cudaMemcpyHostToDevice));
-
-  check(cudaMalloc(&temp.domain, domainSize));
-  check(cudaMalloc(&temp.data, dataSize));
-  check(cudaMemcpy(temp.domain, odp->domain, domainSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(temp.data, odp->data, dataSize, cudaMemcpyHostToDevice));
-  check(cudaMalloc(&odpCUDA, gridSize));
-  check(cudaMemcpy(odpCUDA, &temp, gridSize, cudaMemcpyHostToDevice));
-
-  check(cudaMalloc(&temp.domain, domainSize));
-  check(cudaMalloc(&temp.data, dataSize));
-  check(cudaMemcpy(temp.domain, pop->domain, domainSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(temp.data, pop->data, dataSize, cudaMemcpyHostToDevice));
-  check(cudaMalloc(&popCUDA, gridSize));
-  check(cudaMemcpy(popCUDA, &temp, gridSize, cudaMemcpyHostToDevice));
-
-  check(cudaMalloc(&temp.domain, domainSize));
-  check(cudaMalloc(&temp.data, dataSize));
-  check(cudaMemcpy(temp.domain, z_mult_dat->domain, domainSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(temp.data, z_mult_dat->data, dataSize, cudaMemcpyHostToDevice));
-  check(cudaMalloc(&z_mult_datCUDA, gridSize));
-  check(cudaMemcpy(z_mult_datCUDA, &temp, gridSize, cudaMemcpyHostToDevice));
+  prepareDeviceGrid(fp, &fpCUDA);
+  prepareDeviceGrid(sp, &spCUDA);
+  prepareDeviceGrid(dp, &dpCUDA);
+  prepareDeviceGrid(osp, &ospCUDA);
+  prepareDeviceGrid(odp, &odpCUDA);
+  prepareDeviceGrid(pop, &popCUDA);
+  prepareDeviceGrid(z_mult_dat, &z_mult_datCUDA);
 
   TIMEIT(metrics->elapsed_216, {
     NLFE216Kernel<<<grid, block>>>(Basic_Domain_nx(domain) - 2, Basic_Domain_ny(domain) - 2, Basic_Domain_nz(domain) -2, fpCUDA, spCUDA, dpCUDA, ospCUDA, odpCUDA, popCUDA, z_mult_datCUDA);
@@ -375,27 +363,9 @@ void science(
 
   //Create grids on the device for this kernel call
   Variant_Grid *ssCUDA, *ppCUDA, *oppCUDA;
-
-  check(cudaMalloc(&temp.domain, domainSize));
-  check(cudaMalloc(&temp.data, dataSize));
-  check(cudaMemcpy(temp.domain, ss->domain, domainSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(temp.data, ss->data, dataSize, cudaMemcpyHostToDevice));
-  check(cudaMalloc(&ssCUDA, gridSize));
-  check(cudaMemcpy(ssCUDA, &temp, gridSize, cudaMemcpyHostToDevice));
-
-  check(cudaMalloc(&temp.domain, domainSize));
-  check(cudaMalloc(&temp.data, dataSize));
-  check(cudaMemcpy(temp.domain, pp->domain, domainSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(temp.data, pp->data, dataSize, cudaMemcpyHostToDevice));
-  check(cudaMalloc(&ppCUDA, gridSize));
-  check(cudaMemcpy(ppCUDA, &temp, gridSize, cudaMemcpyHostToDevice));
-
-  check(cudaMalloc(&temp.domain, domainSize));
-  check(cudaMalloc(&temp.data, dataSize));
-  check(cudaMemcpy(temp.domain, opp->domain, domainSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(temp.data, opp->data, dataSize, cudaMemcpyHostToDevice));
-  check(cudaMalloc(&oppCUDA, gridSize));
-  check(cudaMemcpy(oppCUDA, &temp, gridSize, cudaMemcpyHostToDevice));
+  prepareDeviceGrid(ss, &ssCUDA);
+  prepareDeviceGrid(pp, &ppCUDA);
+  prepareDeviceGrid(opp, &oppCUDA);
 
   TIMEIT(metrics->elapsed_338, {
     NLFE338Kernel<<<grid, block>>>(Basic_Domain_nx(domain) - 2, Basic_Domain_ny(domain) - 2, Basic_Domain_nz(domain) -2, fpCUDA, ssCUDA, z_mult_datCUDA, ppCUDA, spCUDA, dpCUDA, oppCUDA, ospCUDA, odpCUDA);
@@ -406,13 +376,7 @@ void science(
 
   //Create grids on the device for this kernel call
   Variant_Grid *etCUDA;
-
-  check(cudaMalloc(&temp.domain, domainSize));
-  check(cudaMalloc(&temp.data, dataSize));
-  check(cudaMemcpy(temp.domain, et->domain, domainSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(temp.data, et->data, dataSize, cudaMemcpyHostToDevice));
-  check(cudaMalloc(&etCUDA, gridSize));
-  check(cudaMemcpy(etCUDA, &temp, gridSize, cudaMemcpyHostToDevice));
+  prepareDeviceGrid(et, &etCUDA);
 
   TIMEIT(metrics->elapsed_416, {
     NLFE416Kernel<<<grid, block>>>(Basic_Domain_nx(domain) - 2, Basic_Domain_ny(domain) - 2, Basic_Domain_nz(domain) -2, fpCUDA, z_mult_datCUDA, spCUDA, etCUDA);
@@ -423,90 +387,18 @@ void science(
 
   //Create grids on the device for this kernel call
   Variant_Grid *x_ssl_datCUDA, *y_ssl_datCUDA, *permxpCUDA, *rppCUDA, *permypCUDA, *permzpCUDA, *vxCUDA, *vyCUDA, *vzCUDA, *u_rightCUDA, *u_frontCUDA, *u_upperCUDA;
-
-  check(cudaMalloc(&temp.domain, domainSize));
-  check(cudaMalloc(&temp.data, dataSize));
-  check(cudaMemcpy(temp.domain, x_ssl_dat->domain, domainSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(temp.data, x_ssl_dat->data, dataSize, cudaMemcpyHostToDevice));
-  check(cudaMalloc(&x_ssl_datCUDA, gridSize));
-  check(cudaMemcpy(x_ssl_datCUDA, &temp, gridSize, cudaMemcpyHostToDevice));
-
-  check(cudaMalloc(&temp.domain, domainSize));
-  check(cudaMalloc(&temp.data, dataSize));
-  check(cudaMemcpy(temp.domain, y_ssl_dat->domain, domainSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(temp.data, y_ssl_dat->data, dataSize, cudaMemcpyHostToDevice));
-  check(cudaMalloc(&y_ssl_datCUDA, gridSize));
-  check(cudaMemcpy(y_ssl_datCUDA, &temp, gridSize, cudaMemcpyHostToDevice));
-
-  check(cudaMalloc(&temp.domain, domainSize));
-  check(cudaMalloc(&temp.data, dataSize));
-  check(cudaMemcpy(temp.domain, permxp->domain, domainSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(temp.data, permxp->data, dataSize, cudaMemcpyHostToDevice));
-  check(cudaMalloc(&permxpCUDA, gridSize));
-  check(cudaMemcpy(permxpCUDA, &temp, gridSize, cudaMemcpyHostToDevice));
-
-  check(cudaMalloc(&temp.domain, domainSize));
-  check(cudaMalloc(&temp.data, dataSize));
-  check(cudaMemcpy(temp.domain, rpp->domain, domainSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(temp.data, rpp->data, dataSize, cudaMemcpyHostToDevice));
-  check(cudaMalloc(&rppCUDA, gridSize));
-  check(cudaMemcpy(rppCUDA, &temp, gridSize, cudaMemcpyHostToDevice));
-
-  check(cudaMalloc(&temp.domain, domainSize));
-  check(cudaMalloc(&temp.data, dataSize));
-  check(cudaMemcpy(temp.domain, permyp->domain, domainSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(temp.data, permyp->data, dataSize, cudaMemcpyHostToDevice));
-  check(cudaMalloc(&permypCUDA, gridSize));
-  check(cudaMemcpy(permypCUDA, &temp, gridSize, cudaMemcpyHostToDevice));
-
-  check(cudaMalloc(&temp.domain, domainSize));
-  check(cudaMalloc(&temp.data, dataSize));
-  check(cudaMemcpy(temp.domain, permzp->domain, domainSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(temp.data, permzp->data, dataSize, cudaMemcpyHostToDevice));
-  check(cudaMalloc(&permzpCUDA, gridSize));
-  check(cudaMemcpy(permzpCUDA, &temp, gridSize, cudaMemcpyHostToDevice));
-
-  check(cudaMalloc(&temp.domain, domainSize));
-  check(cudaMalloc(&temp.data, dataSize));
-  check(cudaMemcpy(temp.domain, vx->domain, domainSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(temp.data, vx->data, dataSize, cudaMemcpyHostToDevice));
-  check(cudaMalloc(&vxCUDA, gridSize));
-  check(cudaMemcpy(vxCUDA, &temp, gridSize, cudaMemcpyHostToDevice));
-
-  check(cudaMalloc(&temp.domain, domainSize));
-  check(cudaMalloc(&temp.data, dataSize));
-  check(cudaMemcpy(temp.domain, vy->domain, domainSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(temp.data, vy->data, dataSize, cudaMemcpyHostToDevice));
-  check(cudaMalloc(&vyCUDA, gridSize));
-  check(cudaMemcpy(vyCUDA, &temp, gridSize, cudaMemcpyHostToDevice));
-
-  check(cudaMalloc(&temp.domain, domainSize));
-  check(cudaMalloc(&temp.data, dataSize));
-  check(cudaMemcpy(temp.domain, vz->domain, domainSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(temp.data, vz->data, dataSize, cudaMemcpyHostToDevice));
-  check(cudaMalloc(&vzCUDA, gridSize));
-  check(cudaMemcpy(vzCUDA, &temp, gridSize, cudaMemcpyHostToDevice));
-
-  check(cudaMalloc(&temp.domain, domainSize));
-  check(cudaMalloc(&temp.data, dataSize));
-  check(cudaMemcpy(temp.domain, u_right->domain, domainSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(temp.data, u_right->data, dataSize, cudaMemcpyHostToDevice));
-  check(cudaMalloc(&u_rightCUDA, gridSize));
-  check(cudaMemcpy(u_rightCUDA, &temp, gridSize, cudaMemcpyHostToDevice));
-
-  check(cudaMalloc(&temp.domain, domainSize));
-  check(cudaMalloc(&temp.data, dataSize));
-  check(cudaMemcpy(temp.domain, u_front->domain, domainSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(temp.data, u_front->data, dataSize, cudaMemcpyHostToDevice));
-  check(cudaMalloc(&u_frontCUDA, gridSize));
-  check(cudaMemcpy(u_frontCUDA, &temp, gridSize, cudaMemcpyHostToDevice));
-
-  check(cudaMalloc(&temp.domain, domainSize));
-  check(cudaMalloc(&temp.data, dataSize));
-  check(cudaMemcpy(temp.domain, u_upper->domain, domainSize, cudaMemcpyHostToDevice));
-  check(cudaMemcpy(temp.data, u_upper->data, dataSize, cudaMemcpyHostToDevice));
-  check(cudaMalloc(&u_upperCUDA, gridSize));
-  check(cudaMemcpy(u_upperCUDA, &temp, gridSize, cudaMemcpyHostToDevice));
+  prepareDeviceGrid(x_ssl_dat, &x_ssl_datCUDA);
+  prepareDeviceGrid(y_ssl_dat, &y_ssl_datCUDA);
+  prepareDeviceGrid(permxp, &permxpCUDA);
+  prepareDeviceGrid(rpp, &rppCUDA);
+  prepareDeviceGrid(permyp, &permypCUDA);
+  prepareDeviceGrid(permzp, &permzpCUDA);
+  prepareDeviceGrid(vx, &vxCUDA);
+  prepareDeviceGrid(vy, &vyCUDA);
+  prepareDeviceGrid(vz, &vzCUDA);
+  prepareDeviceGrid(u_right, &u_rightCUDA);
+  prepareDeviceGrid(u_front, &u_frontCUDA);
+  prepareDeviceGrid(u_upper, &u_upperCUDA);
 
   TIMEIT(metrics->elapsed_551, {
     NLFE551Kernel<<<grid, block>>>(Basic_Domain_nx(domain) - 2, Basic_Domain_ny(domain) - 2, Basic_Domain_nz(domain) -2, x_ssl_datCUDA, y_ssl_datCUDA, ppCUDA, z_mult_datCUDA, dpCUDA, permxpCUDA, rppCUDA, permypCUDA, permzpCUDA, vxCUDA, vyCUDA, vzCUDA, u_rightCUDA, u_frontCUDA, u_upperCUDA, fpCUDA);
@@ -523,39 +415,31 @@ void science(
 /* ------------------------------ Cleanup ------------------------------ */
   
   //Copy back data from device to host
-  check(cudaMemcpy(&temp, fpCUDA, gridSize, cudaMemcpyDeviceToHost));
-  check(cudaMemcpy(fp->data, temp.data, dataSize, cudaMemcpyDeviceToHost));
-  check(cudaMemcpy(&temp, vxCUDA, gridSize, cudaMemcpyDeviceToHost));
-  check(cudaMemcpy(vx->data, temp.data, dataSize, cudaMemcpyDeviceToHost));
-  check(cudaMemcpy(&temp, vyCUDA, gridSize, cudaMemcpyDeviceToHost));
-  check(cudaMemcpy(vy->data, temp.data, dataSize, cudaMemcpyDeviceToHost));
-  check(cudaMemcpy(&temp, vzCUDA, gridSize, cudaMemcpyDeviceToHost));
-  check(cudaMemcpy(vz->data, temp.data, dataSize, cudaMemcpyDeviceToHost));
+  copyDeviceToHost(fp, &fpCUDA);
+  copyDeviceToHost(vx, &vxCUDA);
+  copyDeviceToHost(vy, &vyCUDA);
+  copyDeviceToHost(vz, &vzCUDA);
 
   //Free all device grids and their members
-	check(cudaFree(fpCUDA));
-  check(cudaFree(vxCUDA));
-  check(cudaFree(vyCUDA));
-  check(cudaFree(vzCUDA));
-  check(cudaFree(dpCUDA));
-  check(cudaFree(etCUDA));
-  check(cudaFree(odpCUDA));
-  check(cudaFree(oppCUDA));
-  check(cudaFree(ospCUDA));
-  check(cudaFree(permxpCUDA));
-  check(cudaFree(permypCUDA));
-  check(cudaFree(permzpCUDA));
-  check(cudaFree(popCUDA));
-  check(cudaFree(ppCUDA));
-  check(cudaFree(rppCUDA));
-  check(cudaFree(spCUDA));
-  check(cudaFree(ssCUDA));
-  check(cudaFree(z_mult_datCUDA));
-  check(cudaFree(x_ssl_datCUDA));
-  check(cudaFree(y_ssl_datCUDA));
-  check(cudaFree(u_rightCUDA));
-  check(cudaFree(u_frontCUDA));
-  check(cudaFree(u_upperCUDA));
+  freeDeviceGrid(&dpCUDA);
+  freeDeviceGrid(&etCUDA);
+  freeDeviceGrid(&odpCUDA);
+  freeDeviceGrid(&oppCUDA);
+  freeDeviceGrid(&ospCUDA);
+  freeDeviceGrid(&permxpCUDA);
+  freeDeviceGrid(&permypCUDA);
+  freeDeviceGrid(&permzpCUDA);
+  freeDeviceGrid(&popCUDA);
+  freeDeviceGrid(&ppCUDA);
+  freeDeviceGrid(&rppCUDA);
+  freeDeviceGrid(&spCUDA);
+  freeDeviceGrid(&ssCUDA);
+  freeDeviceGrid(&z_mult_datCUDA);
+  freeDeviceGrid(&x_ssl_datCUDA);
+  freeDeviceGrid(&y_ssl_datCUDA);
+  freeDeviceGrid(&u_rightCUDA);
+  freeDeviceGrid(&u_frontCUDA);
+  freeDeviceGrid(&u_upperCUDA);
 
   //Cleanup temp domain and grids
   Variant_Domain_dealloc( reduction_domain );

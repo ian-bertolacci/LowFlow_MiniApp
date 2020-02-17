@@ -5,8 +5,18 @@
 #include <math.h>
 #include <assert.h>
 #include <stdio.h>
-#include "cuda_runtime.h"
-#include "device_launch_parameters.h"
+
+inline void checkCUDAError(cudaError_t code, const char *file, int line) {
+   if (code != cudaSuccess) {
+      fprintf(stderr,"\nCUDA Error: %s\nFile: %s\nLine: %d\n", cudaGetErrorString(code), file, line);
+      exit(code);
+   }
+}
+
+#define check(expr) { \
+  cudaError_t __e__ = expr; \
+  if (ENABLE_DEBUG) { checkCUDAError(__e__, __FILE__, __LINE__); } \
+}
 
 //A fusion of the NLFE 216, 338, 416, and 551 kernels
 __global__ void fusedKernel(int xmax, int ymax, int zmax, Variant_Grid* fp, Variant_Grid* vx, Variant_Grid* vy, Variant_Grid* vz, Variant_Grid* dp, Variant_Grid* et, Variant_Grid* odp, Variant_Grid* opp, Variant_Grid* osp, Variant_Grid* permxp, Variant_Grid* permyp, Variant_Grid* permzp, Variant_Grid* pop, Variant_Grid* pp, Variant_Grid* rpp, Variant_Grid* sp, Variant_Grid* ss, Variant_Grid* z_mult_dat, Variant_Grid* x_ssl_dat, Variant_Grid* y_ssl_dat, Variant_Grid* u_right, Variant_Grid* u_front, Variant_Grid* u_upper) {
@@ -264,19 +274,18 @@ void science(
   dim3 block = dim3(blockx, blocky, blockz);
   dim3 grid = dim3(gridx, gridy, gridz);
 
-
 /* ------------------------------ Fused kernel call ------------------------------ */
 
   TIMEIT(metrics->elapsed_fused, {
     fusedKernel<<<grid, block>>>(Basic_Domain_nx(domain) - 2, Basic_Domain_ny(domain) -2, Basic_Domain_nz(domain) - 2, fp, vx, vy, vz, dp, et, odp, opp, osp, permxp, permyp, permzp, pop, pp, rpp, sp, ss, z_mult_dat, x_ssl_dat, y_ssl_dat, u_right, u_front, u_upper);
-    cudaDeviceSynchronize();
+    check(cudaDeviceSynchronize());
   });
   
 /* ------------------------------ NLFE551 Reduction ------------------------------ */
 
   TIMEIT(metrics->elapsed_551_reduce, {
     NLFE551ReductionKernel<<<grid, block>>>(Basic_Domain_nx(reduction_domain) - 2, Basic_Domain_ny(reduction_domain) - 2, Basic_Domain_nz(reduction_domain) -2, u_right, u_front, u_upper, fp);
-    cudaDeviceSynchronize();
+    check(cudaDeviceSynchronize());
   });
 
 /* ------------------------------ Cleanup ------------------------------ */
