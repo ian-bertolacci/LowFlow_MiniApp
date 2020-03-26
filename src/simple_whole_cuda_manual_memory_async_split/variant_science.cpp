@@ -6,8 +6,8 @@
 #include <assert.h>
 #include <stdio.h>
 
-#define CHUNKS 25
-#define STREAMS 4
+#define CHUNKS 10
+#define STREAMS 5
 
 size_t gridSize, domainSize, dataSize;
 
@@ -422,6 +422,8 @@ void science(
     copySize = faceMemorySize * zCopyAmount;
     stream = streams[i % STREAMS];
 
+    printf("Chunk %d Info: {z-range: [%d, %d], offset: %d, size: %d}\n", i, z1, z2, memoryOffset, copySize);
+
     //Loop 1 memcpys and exec
     copyChunk(fp, fpCUDA, memoryOffset, copySize, stream);
     copyChunk(sp, spCUDA, memoryOffset, copySize, stream);
@@ -478,7 +480,7 @@ void science(
     if (z1 > z2) {
       break;
     }
-
+    printf("Chunk %d Info: {z-range: [%d, %d]}\n", i, z1, z2);
     //Execute the kernel on a different stream than the last
     NLFE551ReductionKernel<<<grid, block, 0, streams[i % STREAMS]>>>(x1, x2, y1, y2, z1, z2, u_rightCUDA, u_frontCUDA, u_upperCUDA, fpCUDA);
   }
