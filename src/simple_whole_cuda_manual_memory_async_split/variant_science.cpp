@@ -6,9 +6,6 @@
 #include <assert.h>
 #include <stdio.h>
 
-#define CHUNKS 10
-#define STREAMS 5
-
 size_t gridSize, domainSize, dataSize;
 
 inline void checkCUDAError(cudaError_t code, const char *file, int line) {
@@ -23,14 +20,14 @@ inline void checkCUDAError(cudaError_t code, const char *file, int line) {
   if (ENABLE_DEBUG) { checkCUDAError(__e__, __FILE__, __LINE__); } \
 }
 
-//NlFunctionEval:216 CUDA kernel 
+//NlFunctionEval:216 CUDA kernel
 __global__ void NLFE216Kernel(int xmax, int ymax, int zmin, int zmax, Variant_Grid *fp, Variant_Grid *sp, Variant_Grid *dp, Variant_Grid *osp, Variant_Grid *odp, Variant_Grid *pop, Variant_Grid *z_mult_dat) {
   //Get position in kernel grid
   //+1 is added to coordinates to account for offset in each direction
   int x = blockIdx.x * blockDim.x + threadIdx.x + 1;
   int y = blockIdx.y * blockDim.y + threadIdx.y + 1;
   int z = blockIdx.z * blockDim.z + threadIdx.z + zmin;
-  
+
   //Make sure that the thread is in bounds
   if (x > xmax || y > ymax || z > zmax) {
     return;
@@ -40,7 +37,7 @@ __global__ void NLFE216Kernel(int xmax, int ymax, int zmin, int zmax, Variant_Gr
   Variant_Grid_access(fp,x,y,z) = (Variant_Grid_access(sp,x,y,z) * Variant_Grid_access(dp,x,y,z) - Variant_Grid_access(osp,x,y,z) * Variant_Grid_access(odp, x,y,z)) * Variant_Grid_access(pop, x,y,z) * Variant_Grid_access(z_mult_dat, x,y,z);
 }
 
-//NlFunctionEval:338 CUDA kernel 
+//NlFunctionEval:338 CUDA kernel
 __global__ void NLFE338Kernel(int xmax, int ymax, int zmin, int zmax, Variant_Grid *fp, Variant_Grid *ss, Variant_Grid *z_mult_dat, Variant_Grid *pp, Variant_Grid *sp, Variant_Grid *dp, Variant_Grid *opp, Variant_Grid *osp, Variant_Grid *odp) {
   //Get position in kernel grid
   //+1 is added to coordinates to account for offset in each direction
@@ -57,7 +54,7 @@ __global__ void NLFE338Kernel(int xmax, int ymax, int zmin, int zmax, Variant_Gr
   Variant_Grid_access(fp, x,y,z) += Variant_Grid_access(ss, x,y,z) * Variant_Grid_access(z_mult_dat, x,y,z) * (Variant_Grid_access(pp, x,y,z) * Variant_Grid_access(sp, x,y,z) * Variant_Grid_access(dp, x,y,z) - Variant_Grid_access(opp, x,y,z) * Variant_Grid_access(osp, x,y,z) * Variant_Grid_access(odp, x,y,z));
 }
 
-//NlFunctionEval:416 CUDA kernel 
+//NlFunctionEval:416 CUDA kernel
 __global__ void NLFE416Kernel(int xmax, int ymax, int zmin, int zmax, Variant_Grid *fp, Variant_Grid *z_mult_dat, Variant_Grid *sp, Variant_Grid *et) {
   //Get position in kernel grid
   //+1 is added to coordinates to account for offset in each direction
@@ -74,7 +71,7 @@ __global__ void NLFE416Kernel(int xmax, int ymax, int zmin, int zmax, Variant_Gr
   Variant_Grid_access(fp, x,y,z) -= Variant_Grid_access(z_mult_dat, x,y,z) * (Variant_Grid_access(sp, x,y,z) * Variant_Grid_access(et, x,y,z));
 }
 
-//NlFunctionEval:551 CUDA kernel 
+//NlFunctionEval:551 CUDA kernel
 __global__ void NLFE551Kernel(int xmax, int ymax, int zmin, int zmax, Variant_Grid *x_ssl_dat, Variant_Grid *y_ssl_dat, Variant_Grid *pp, Variant_Grid *z_mult_dat, Variant_Grid *dp, Variant_Grid *permxp, Variant_Grid *rpp, Variant_Grid *permyp, Variant_Grid *permzp, Variant_Grid *vx, Variant_Grid *vy, Variant_Grid *vz, Variant_Grid *u_right, Variant_Grid *u_front, Variant_Grid *u_upper, Variant_Grid *fp) {
   //Get position in kernel grid
   //+1 is added to coordinates to account for offset in each direction
@@ -340,7 +337,7 @@ void science(
   * Everything is allocated in the beginning, but memcpys happen asynchronously during execution
   * The reduction kernel can be done last
   */
-  
+
   //These grids will be allocated on the device
   Variant_Grid *fpCUDA, *spCUDA, *dpCUDA, *ospCUDA, *odpCUDA, *popCUDA, *z_mult_datCUDA;
   Variant_Grid *ssCUDA, *ppCUDA, *oppCUDA;
@@ -380,15 +377,15 @@ void science(
   int blockz = 1;
   int gridx = (int) ceil((float) Basic_Domain_nx(domain) / blockx);
   int gridy = (int) ceil((float) Basic_Domain_ny(domain) / blocky);
-  int gridz = (int) ceil((float) Basic_Domain_nz(domain) / CHUNKS);
+  int gridz = (int) ceil((float) Basic_Domain_nz(domain) / options.chunks);
   dim3 block = dim3(blockx, blocky, blockz);
   dim3 grid = dim3(gridx, gridy, gridz);
 
   printf("\nBlock dim: {%d, %d, %d}\nGrid dim: {%d, %d, %d}\n\n", block.x, block.y, block.z, grid.x, grid.y, grid.z);
 
   //Create the streams
-  cudaStream_t streams[STREAMS];
-  for (int i = 0; i < STREAMS; i++) {
+  cudaStream_t streams[options.streams];
+  for (int i = 0; i < options.streams; i++) {
     check(cudaStreamCreate(&streams[i]));
   }
 
@@ -401,7 +398,7 @@ void science(
   int z1, z2;
   cudaStream_t stream;
 
-  for (int i = 0; i < CHUNKS; i++) {
+  for (int i = 0; i < options.chunks; i++) {
     z1 = i * gridz;                                           //Starting valid index of current execution chunk
     z2 = min(z1 + gridz - 1, Basic_Domain_nz(domain) - 1);    //Ending valid index of current execution chunk
 
@@ -409,9 +406,9 @@ void science(
       printf("z1 > z2, exiting loop\n");
       break;
     }
-    
+
     //Copy over entire range (which is z2 - z1 + 1), plus 1 to account for kernel indexing 1 ahead
-    zCopyAmount = z2 - z1 + 2;                  
+    zCopyAmount = z2 - z1 + 2;
 
     //Special case: if last chunk, don't want to copy over too much
     if (z2 == Basic_Domain_nz(domain) - 1) {
@@ -420,7 +417,7 @@ void science(
 
     memoryOffset = faceSize * z1;               //How far (in doubles) are we currently at, starting at z1?
     copySize = faceMemorySize * zCopyAmount;    //Copy over zCopyAmount total faces
-    stream = streams[i % STREAMS];              //Get the current stream for the chunk
+    stream = streams[i % options.streams];              //Get the current stream for the chunk
 
     //Special cases: on first iteration, z1 = 1. On last iteration, z2 = nz - 2
     //That way, all the grid's data is copied over, while the operable z range changes
@@ -470,7 +467,7 @@ void science(
   }
 
   //Wait for all of the above loop executions to finish before proceeding
-  for (int i = 0; i < STREAMS; i++) {
+  for (int i = 0; i < options.streams; i++) {
     check(cudaStreamSynchronize(streams[i]));
   }
 
@@ -480,14 +477,14 @@ void science(
   //All data has already been copied over, no need to copy chunks, but can split into chunks still
   gridx = (int) ceil((float) Basic_Domain_nx(reduction_domain) / blockx);
   gridy = (int) ceil((float) Basic_Domain_ny(reduction_domain) / blocky);
-  gridz = (int) ceil((float) Basic_Domain_nz(reduction_domain) / CHUNKS);
+  gridz = (int) ceil((float) Basic_Domain_nz(reduction_domain) / options.chunks);
   grid = dim3(gridx, gridy, gridz);
   xmax = Basic_Domain_nx(reduction_domain) - 2;
   ymax = Basic_Domain_ny(reduction_domain) - 2;
 
   printf("\nBlock dim: {%d, %d, %d}\nGrid dim: {%d, %d, %d}\n\n", block.x, block.y, block.z, grid.x, grid.y, grid.z);
 
-  for (int i = 0; i < CHUNKS; i++) {
+  for (int i = 0; i < options.chunks; i++) {
     //Get the z bounds
     z1 = i * gridz;
     z2 = min(z1 + gridz - 1, Basic_Domain_nz(reduction_domain) - 1);
@@ -506,13 +503,13 @@ void science(
 
     printf("Chunk %d Info: {z-range: [%d, %d]}\n", i, z1, z2);
     //Execute the kernel on a different stream than the last
-    NLFE551ReductionKernel<<<grid, block, 0, streams[i % STREAMS]>>>(xmax, ymax, z1, z2, u_rightCUDA, u_frontCUDA, u_upperCUDA, fpCUDA);
+    NLFE551ReductionKernel<<<grid, block, 0, streams[i % options.streams]>>>(xmax, ymax, z1, z2, u_rightCUDA, u_frontCUDA, u_upperCUDA, fpCUDA);
   }
 
   printf("\n");
 
   //Wait for all of the above loop executions to finish before proceeding
-  for (int i = 0; i < STREAMS; i++) {
+  for (int i = 0; i < options.streams; i++) {
     check(cudaStreamSynchronize(streams[i]));
   }
 
@@ -521,12 +518,12 @@ void science(
   copyDeviceToHost(vx, vxCUDA);
   copyDeviceToHost(vy, vyCUDA);
   copyDeviceToHost(vz, vzCUDA);
-  
+
   //Destroy the streams
-  for (int i = 0; i < STREAMS; i++) {
+  for (int i = 0; i < options.streams; i++) {
     check(cudaStreamDestroy(streams[i]));
   }
-  
+
   //Free the device grids
   freeDeviceGrid(&fpCUDA);
   freeDeviceGrid(&vxCUDA);
