@@ -4,7 +4,7 @@
 #include <global_configure.hpp>
 
 typedef struct struct_VariantOptions {
-  int chuncks;
+  int chunks;
   int streams;
 } VariantOptions;
 
