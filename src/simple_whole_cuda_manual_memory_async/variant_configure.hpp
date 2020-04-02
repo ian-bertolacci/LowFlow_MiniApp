@@ -11,7 +11,7 @@ typedef struct struct_VariantOptions {
 static const VariantOptions VariantOptions_Default {
   .chunks = 10,
   .streams = 5
-}
+};
 
 static const struct option variant_long_options[] = {
   {"chunks",  required_argument, nullptr, 'c'},
