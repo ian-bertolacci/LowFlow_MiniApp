@@ -44,6 +44,14 @@ VariantOptions parseVariantOptions( int argc, char** argv ){
     while( (c = getopt_long(args.argc, args.argv, short_options, variant_long_options, &option_index)) != -1 ){
 
       switch (c){
+        case 'c':
+          opts.chunks =  atoi( optarg );
+          break;
+
+        case 'r':
+          opts.streams =  atoi( optarg );
+          break;
+
         case 'h':
           printHelpMessage( stdout );
           exit(SUCCESS);
