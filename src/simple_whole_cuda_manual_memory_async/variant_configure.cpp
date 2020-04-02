@@ -17,9 +17,17 @@ void printVariantInformationMessage( FILE* stream ){
 void printVariantOptionsMessage( FILE* stream ){
   fprintf( stream,
     "Variant Specific Command Line Options:\n"
+    "  --chunks <N : uint>\n"
+    "   -c     <N : uint>\n"
+    "    Number of chunks to execute with (Default %d)\n"
+    "  --streams <N : uint>\n"
+    "   -r       <N : uint>\n"
+    "    Number of streams to execute with (Default %d)\n"
     "  --help\n"
     "   -h\n"
-    "    Print this message.\n"
+    "    Print this message.\n",
+    VariantOptions_Default.chunks,
+    VariantOptions_Default.streams
   );
 }
 
