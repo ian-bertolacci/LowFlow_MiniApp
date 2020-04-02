@@ -17,17 +17,9 @@ void printVariantInformationMessage( FILE* stream ){
 void printVariantOptionsMessage( FILE* stream ){
   fprintf( stream,
     "Variant Specific Command Line Options:\n"
-    "  --chunks <N : uint>\n"
-    "   -c     <N : uint>\n"
-    "    Number of chunks to execute with (Default %d)\n"
-    "  --streams <N : uint>\n"
-    "   -r       <N : uint>\n"
-    "    Number of streams to execute with (Default %d)\n"
     "  --help\n"
     "   -h\n"
-    "    Print this message.\n",
-    VariantOptions_Default.chunks,
-    VariantOptions_Default.streams
+    "    Print this message.\n"
   );
 }
 
@@ -52,14 +44,6 @@ VariantOptions parseVariantOptions( int argc, char** argv ){
     while( (c = getopt_long(args.argc, args.argv, short_options, variant_long_options, &option_index)) != -1 ){
 
       switch (c){
-        case 'c':
-          opts.chunks =  atoi( optarg );
-          break;
-
-        case 'r':
-          opts.streams =  atoi( optarg );
-          break;
-
         case 'h':
           printHelpMessage( stdout );
           exit(SUCCESS);
