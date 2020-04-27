@@ -369,7 +369,7 @@ void science(
   allocateDeviceGrid(u_front, &u_frontCUDA);
   allocateDeviceGrid(u_upper, &u_upperCUDA);
 
-  printf("\n/////\nBegin normal kernels\n/////\n");
+  //printf("\n/////\nBegin normal kernels\n/////\n");
 
   //Determine dimensions of kernel grid
   int blockx = 32;
@@ -381,7 +381,7 @@ void science(
   dim3 block = dim3(blockx, blocky, blockz);
   dim3 grid = dim3(gridx, gridy, gridz);
 
-  printf("\nBlock dim: {%d, %d, %d}\nGrid dim: {%d, %d, %d}\n\n", block.x, block.y, block.z, grid.x, grid.y, grid.z);
+  //printf("\nBlock dim: {%d, %d, %d}\nGrid dim: {%d, %d, %d}\n\n", block.x, block.y, block.z, grid.x, grid.y, grid.z);
 
   //Create the streams
   cudaStream_t streams[options.streams];
@@ -403,7 +403,7 @@ void science(
     z2 = min(z1 + gridz - 1, Basic_Domain_nz(domain) - 1);    //Ending valid index of current execution chunk
 
     if (z1 > z2) {
-      printf("z1 > z2, exiting loop\n");
+      //printf("z1 > z2, exiting loop\n");
       break;
     }
 
@@ -428,7 +428,7 @@ void science(
       z2--;
     }
 
-    printf("Chunk %d Info: {z-range: [%d, %d]}\n", i, z1, z2);
+    //printf("Chunk %d Info: {z-range: [%d, %d]}\n", i, z1, z2);
 
     //Loop 1 memcpys and exec
     copyChunk(fp, fpCUDA, memoryOffset, copySize, stream);
@@ -471,7 +471,7 @@ void science(
     check(cudaStreamSynchronize(streams[i]));
   }
 
-  printf("\n/////\nBegin reduction kernel\n/////\n");
+  //printf("\n/////\nBegin reduction kernel\n/////\n");
 
   //Run the reduction kernel, splitting similarly to above
   //All data has already been copied over, no need to copy chunks, but can split into chunks still
@@ -482,7 +482,7 @@ void science(
   xmax = Basic_Domain_nx(reduction_domain) - 2;
   ymax = Basic_Domain_ny(reduction_domain) - 2;
 
-  printf("\nBlock dim: {%d, %d, %d}\nGrid dim: {%d, %d, %d}\n\n", block.x, block.y, block.z, grid.x, grid.y, grid.z);
+  //printf("\nBlock dim: {%d, %d, %d}\nGrid dim: {%d, %d, %d}\n\n", block.x, block.y, block.z, grid.x, grid.y, grid.z);
 
   for (int i = 0; i < options.chunks; i++) {
     //Get the z bounds
@@ -501,12 +501,12 @@ void science(
       z2--;
     }
 
-    printf("Chunk %d Info: {z-range: [%d, %d]}\n", i, z1, z2);
+    //printf("Chunk %d Info: {z-range: [%d, %d]}\n", i, z1, z2);
     //Execute the kernel on a different stream than the last
     NLFE551ReductionKernel<<<grid, block, 0, streams[i % options.streams]>>>(xmax, ymax, z1, z2, u_rightCUDA, u_frontCUDA, u_upperCUDA, fpCUDA);
   }
 
-  printf("\n");
+  //printf("\n");
 
   //Wait for all of the above loop executions to finish before proceeding
   for (int i = 0; i < options.streams; i++) {
